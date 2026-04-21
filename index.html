@@ -79,6 +79,9 @@
     <button class="btn-medium" data-level="medium">Medium</button>
     <button class="btn-hard" data-level="hard">Hard</button>
   </div>
+  <div class="btn-row" style="margin-top:10px">
+    <button class="btn-primary" id="testVoiceBtn">Test Voice</button>
+  </div>
   <div id="startHs" class="hs hidden">🏆 Best: <span id="startHsVal">0</span></div>
 </div>
 
@@ -205,42 +208,84 @@ class AudioEngine {
 }
 
 class VoiceEngine {
-  constructor(){ this.enabled = 'speechSynthesis' in window; this.voices = []; this.ready = false; }
+  constructor(){
+    this.enabled = 'speechSynthesis' in window;
+    this.voices = [];
+    this.ready = false;
+    this.unlocked = false;
+    this.lastSpokenAt = 0;
+  }
   async init(){
     if(!this.enabled) return;
     this.loadVoices();
     if(!this.voices.length){
       await new Promise(resolve => {
         const done = () => { this.loadVoices(); resolve(); };
-        speechSynthesis.onvoiceschanged = done;
-        setTimeout(done, 250);
+        try { speechSynthesis.onvoiceschanged = done; } catch {}
+        setTimeout(done, 500);
       });
     }
-    try {
-      const silent = new SpeechSynthesisUtterance('');
-      silent.volume = 0;
-      speechSynthesis.speak(silent);
-    } catch {}
+    await this.unlock();
     this.ready = true;
   }
-  loadVoices(){ try { this.voices = speechSynthesis.getVoices() || []; } catch { this.voices = []; } }
+  loadVoices(){
+    try { this.voices = speechSynthesis.getVoices() || []; }
+    catch { this.voices = []; }
+  }
   pickVoice(){
     if(!this.enabled) return null;
-    const female = this.voices.find(v => v.lang?.startsWith('en') && /female|samantha|victoria|karen|ava|allison|moira|fiona|katie|zira/i.test(v.name));
-    return female || this.voices.find(v => v.lang?.startsWith('en')) || null;
+    const preferred = this.voices.find(v => v.lang?.startsWith('en') && /samantha|victoria|karen|ava|allison|moira|fiona|zira|susan|kathy/i.test(v.name));
+    return preferred || this.voices.find(v => v.lang?.startsWith('en-US')) || this.voices.find(v => v.lang?.startsWith('en')) || null;
   }
-  speak(text, opts={}){
-    if(!this.enabled || !this.ready || !text) return;
+  async unlock(){
+    if(!this.enabled || this.unlocked) return;
     try {
       speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance('Voice ready');
+      u.volume = 0.01;
+      u.rate = 1.8;
+      u.pitch = 1.0;
+      u.lang = 'en-US';
+      const voice = this.pickVoice();
+      if(voice) u.voice = voice;
+      await new Promise(resolve => {
+        let done = false;
+        const finish = () => { if(done) return; done = true; resolve(); };
+        u.onend = finish;
+        u.onerror = finish;
+        speechSynthesis.speak(u);
+        speechSynthesis.resume();
+        setTimeout(finish, 800);
+      });
+      speechSynthesis.cancel();
+      this.unlocked = true;
+    } catch {}
+  }
+  async speak(text, opts={}){
+    if(!this.enabled || !text) return false;
+    if(!this.ready) await this.init();
+    try {
+      const now = performance.now();
+      const minGap = opts.minGap ?? 220;
+      if(now - this.lastSpokenAt < minGap) return false;
+      this.lastSpokenAt = now;
+      if(opts.interrupt !== false) speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.rate = opts.rate ?? 1.10;
-      u.pitch = opts.pitch ?? 1.55;
-      u.volume = opts.volume ?? 0.9;
+      u.lang = opts.lang ?? 'en-US';
+      u.rate = opts.rate ?? 1.06;
+      u.pitch = opts.pitch ?? 1.5;
+      u.volume = opts.volume ?? 1.0;
       const voice = this.pickVoice();
       if(voice) u.voice = voice;
       speechSynthesis.speak(u);
-    } catch {}
+      speechSynthesis.resume();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  async test(){
+    return this.speak("Riley, let's see what you've got.", { interrupt:true, rate:1.0, pitch:1.45, volume:1.0, minGap:0 });
   }
   stop(){ if(this.enabled) try { speechSynthesis.cancel(); } catch {} }
 }
@@ -283,8 +328,21 @@ class Game {
   }
   async primeAudio(){ await this.audio.init(); await this.voice.init(); }
   bindUI(){
-    document.querySelectorAll('[data-level]').forEach(btn => btn.addEventListener('click', async () => { await this.primeAudio(); this.start(btn.dataset.level); }));
-    $('restartBtn').addEventListener('click', async () => { await this.primeAudio(); this.start(this.currentLevel); });
+    document.querySelectorAll('[data-level]').forEach(btn => btn.addEventListener('click', async () => {
+      await this.primeAudio();
+      await this.voice.test();
+      this.start(btn.dataset.level);
+    }));
+    $('restartBtn').addEventListener('click', async () => {
+      await this.primeAudio();
+      this.start(this.currentLevel);
+    });
+    $('testVoiceBtn').addEventListener('click', async () => {
+      await this.primeAudio();
+      const ok = await this.voice.test();
+      if(ok) this.showAnn('Voice Online', 'Kenzie can talk now.', '#00f2fe');
+      else this.showAnn('Voice Failed', 'Browser blocked speech.', '#ff4b2b');
+    });
   }
   bindInput(){
     window.addEventListener('resize', ()=>this.resize());
@@ -326,6 +384,7 @@ class Game {
     $('start').classList.add('hidden'); $('over').classList.add('hidden'); $('hud').style.display = 'block';
     this.updateHUD();
     this.showAnn('Begin', level.toUpperCase(), '#00f2fe');
+    setTimeout(() => { this.voice.speak("Riley, let's see what you've got.", { interrupt:true, rate:1.0, pitch:1.45, volume:1.0, minGap:0 }); }, 180);
   }
   gameOver(){
     this.state = 'over';
@@ -336,21 +395,19 @@ class Game {
     $('newHs').classList.toggle('hidden', !isNew);
     $('hud').style.display = 'none'; $('over').classList.remove('hidden');
     this.updateHighScoreUI();
-    setTimeout(()=>this.voice.speak('Better luck next time, Riley!', { rate:1.04, pitch:1.45 }), 350);
+    setTimeout(()=>this.voice.speak(isNew ? 'New high score. Not completely hopeless, Riley.' : 'Better luck next time, Riley.', { rate:1.0, pitch:1.42, volume:1.0, interrupt:true, minGap:0 }), 350);
   }
   updateHighScoreUI(){
     if(this.highScore > 0){ $('startHs').classList.remove('hidden'); $('overHs').classList.remove('hidden'); $('startHsVal').textContent = this.highScore; $('overHsVal').textContent = this.highScore; }
     else { $('startHs').classList.add('hidden'); $('overHs').classList.add('hidden'); }
   }
   showAnn(title, sub='', color='#ffd700'){ $('annTitle').textContent = title; $('annTitle').style.color = color; $('annTitle').style.textShadow = `0 0 28px ${color},0 0 56px ${color}`; $('annSub').textContent = sub; $('ann').classList.add('show'); this.annTimer = 90; }
-  showTaunt(msg, force=false){ if(this.tauntTimer > 0 && !force) return; $('taunt').textContent = msg; $('taunt').classList.add('show'); this.tauntTimer = 95; this.voice.speak(msg, { rate:1.08, pitch:1.58, volume:0.9 }); }
-  flashAction(text='KEEEYA!'){ $('actionText').textContent = text; $('actionText').classList.add('show'); this.actionTimer = 18; }
-  updateHUD(){
-    $('scoreNum').textContent = this.score; $('waveNum').textContent = this.wave;
-    $('livesTxt').textContent = '❤️'.repeat(Math.max(0,this.lives)) + (this.hasShield ? '🛡️' : '') + '🖤'.repeat(Math.max(0, CONFIG.MAX_LIVES - this.lives));
-    const pf = $('powerFill'); pf.style.width = Math.min(100, this.power) + '%'; pf.className = this.isSugarRush ? 'rush' : '';
-    const comboEl = $('comboTxt'); comboEl.textContent = this.combo > 1 ? `⚡ Combo ×${this.combo}!` : ''; comboEl.classList.remove('pop'); if(this.combo > 1){ void comboEl.offsetWidth; comboEl.classList.add('pop'); }
-    $('pills').innerHTML = (this.isFrozen ? '<span class="pill pill-freeze">❄️ FREEZE</span>' : '') + (this.hasShield ? '<span class="pill pill-shield">🛡️ SHIELD</span>' : '') + (this.isSugarRush ? '<span class="pill pill-rush">⚡ RUSH</span>' : '');
+  showTaunt(msg, force=false){
+    if(this.tauntTimer > 0 && !force) return;
+    $('taunt').textContent = msg;
+    $('taunt').classList.add('show');
+    this.tauntTimer = 95;
+    this.voice.speak(msg, { rate:1.0, pitch:1.48, volume:1.0, interrupt:true, minGap:0 });
   }
   createObject(type, x, y, vx, vy){
     const map = { broccoli:{r:28, score:10, color:'#5dc92d', sprite:'broccoli'}, bomb:{r:30, score:0, color:'#ff5555', sprite:'bomb'}, pizza:{r:28, score:14, color:'#ffbb55', sprite:'pizza'}, donut:{r:28, score:16, color:'#ff7eb5', sprite:'donut'}, candy:{r:24, score:18, color:'#d98cff', sprite:'candy'}, shield:{r:24, score:0, color:'#ffe05a', sprite:'shield', power:'shield'}, freeze:{r:24, score:0, color:'#a6f0ff', sprite:'freeze', power:'freeze'}, heart:{r:24, score:0, color:'#ff4b6b', sprite:'heart', power:'heart'} };
@@ -406,92 +463,15 @@ class Game {
     if(this.combo > 1) this.audio.play('combo', { combo:this.combo });
     this.burst(obj.x, obj.y, obj.color, 18); this.sparkBurst(obj.x, obj.y, '#ffffff', 10); this.addShockwave(obj.x, obj.y, 'rgba(255,255,255,.45)'); this.floatText(obj.x, obj.y, '+' + gained, '#fff', 24);
     this.waveSliced++;
-    if(this.power >= 100 && !this.isSugarRush){ this.isSugarRush = true; this.sugarTimer = 360; this.audio.play('power'); this.showAnn('Sugar Rush', 'Double score. More speed.', '#f5576c'); }
-    if(this.waveSliced >= this.waveNeeded){ this.wave++; this.waveSliced = 0; this.waveNeeded = this.cfg.waveGoal + Math.floor(this.wave * 1.4); this.audio.play(this.wave % 5 === 0 ? 'boss' : 'wave'); this.showAnn(this.wave % 5 === 0 ? 'Boss Wave' : 'Wave Clear', this.wave % 5 === 0 ? 'Kenzie is angry now.' : 'Next wave incoming.', this.wave % 5 === 0 ? '#ff4b2b' : '#ffd700'); if(this.wave % 5 === 0) this.showTaunt(CONFIG.BOSS_TAUNTS[Math.floor(Math.random()*CONFIG.BOSS_TAUNTS.length)], true); }
-    this.updateHUD();
-  }
-  handleBombHit(obj){
-    this.audio.play('bomb');
-    this.screenShake = 16; this.addShockwave(obj.x, obj.y, 'rgba(255,80,80,.6)'); this.burst(obj.x, obj.y, '#ff5555', 24);
-    if(this.hasShield){ this.hasShield = false; this.floatText(obj.x, obj.y, 'SHIELD SAVED YOU', '#ffe05a', 18); }
-    else { this.lives--; this.combo = 0; this.comboTimer = 0; this.floatText(obj.x, obj.y, '-1 LIFE', '#ff8080', 26); }
-    this.showTaunt(CONFIG.BOMB_TAUNTS[Math.floor(Math.random()*CONFIG.BOMB_TAUNTS.length)]);
-    this.updateHUD();
-    if(this.lives <= 0) this.gameOver();
-  }
-  handlePowerUp(obj){
-    if(obj.power === 'shield'){ this.hasShield = true; this.audio.play('power'); this.showAnn('Shield', 'One bomb forgiven.', '#ffe05a'); }
-    else if(obj.power === 'freeze'){ this.isFrozen = true; this.frozenTimer = 240; this.audio.play('freeze'); this.showAnn('Freeze', 'Everything slows down.', '#a6f0ff'); }
-    else if(obj.power === 'heart'){ this.lives = Math.min(CONFIG.MAX_LIVES, this.lives + 1); this.audio.play('life'); this.showAnn('Extra Life', 'You got lucky.', '#ff4b6b'); }
-    this.burst(obj.x, obj.y, obj.color, 15); this.floatText(obj.x, obj.y, obj.power.toUpperCase(), '#fff', 20); this.updateHUD();
-  }
-  burst(x,y,color,n=18){ for(let i=0;i<n;i++){ const a=(Math.PI*2/n)*i+Math.random()*.5; const sp=Math.random()*7+2; this.particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-2,life:1,size:Math.random()*5+2,color,type:'debris'}); } }
-  sparkBurst(x,y,color,n=12){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2; const sp=Math.random()*8+4; this.particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,life:1,size:Math.random()*2+1,color,type:'spark'}); } }
-  addShockwave(x,y,color='rgba(255,255,255,.5)'){ this.shockwaves.push({x,y,r:5,max:90,life:1,color}); }
-  floatText(x,y,text,color='#fff',size=24){ this.floatTexts.push({x,y,text,color,life:1,vy:-2,size}); }
-  tickBGM(dt){ if(this.state !== 'playing') return; this.bgmClock -= dt; if(this.bgmClock > 0) return; const melody=[392,440,494,523,587,523,494,392,349,392,440,523]; this.bgmClock = this.isSugarRush ? 120 : this.isFrozen ? 540 : 285; this.audio.tone({ type:'square', start:melody[this.bgmStep++ % melody.length] * (this.isSugarRush ? 1.45 : 1), end:melody[(this.bgmStep-1) % melody.length], duration:0.2, volume:0.012 }); }
-  update(dt){
-    if(this.state !== 'playing') return;
-    if(this.hitStop > 0){ this.hitStop--; return; }
-    this.spawnClock += dt;
-    const spawnRate = Math.max(180, this.cfg.spawnMs - (this.wave - 1) * 12) * (this.isFrozen ? 1.8 : 1) * (this.isSugarRush ? 0.88 : 1);
-    while(this.spawnClock >= spawnRate){ this.spawnClock -= spawnRate; this.spawn(); }
-
-    if(this.comboTimer > 0) this.comboTimer--; else if(this.combo > 0){ this.combo = 0; this.updateHUD(); }
-    if(this.annTimer > 0){ this.annTimer--; if(this.annTimer <= 0) $('ann').classList.remove('show'); }
-    if(this.tauntTimer > 0){ this.tauntTimer--; if(this.tauntTimer <= 0) $('taunt').classList.remove('show'); }
-    if(this.actionTimer > 0){ this.actionTimer--; if(this.actionTimer <= 0) $('actionText').classList.remove('show'); }
-    if(this.screenShake > 0) this.screenShake--;
-
-    if(this.isSugarRush){ this.sugarTimer -= dt; if(this.sugarTimer <= 0){ this.isSugarRush = false; this.power = 0; this.showAnn('Rush Over', 'Back to normal.', '#00f2fe'); this.updateHUD(); } }
-    if(this.isFrozen){ this.frozenTimer -= dt; if(this.frozenTimer <= 0){ this.isFrozen = false; this.showAnn('Freeze Ended', '', '#a6f0ff'); this.updateHUD(); } }
-
-    const gravity = this.cfg.gravity * (this.isFrozen ? 0.45 : 1) * (this.isSugarRush ? 1.06 : 1);
-    this.kenzie.targetX += Math.sin(performance.now()*0.0011 + this.wave) * (this.kenzie.boss ? 2.1 : 1.1);
-    this.kenzie.targetX = Math.max(this.w*0.2, Math.min(this.w*0.8, this.kenzie.targetX));
-    this.kenzie.x += (this.kenzie.targetX - this.kenzie.x) * 0.035;
-    this.kenzie.hairPhase += dt * 0.005;
-
-    for(const o of this.objects){ if(o.sliced) continue; o.x += o.vx; o.y += o.vy; o.vy += gravity; o.rot += o.vr; }
-    for(const p of this.particles){ p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.life -= 0.026; p.size *= 0.994; }
-    for(const s of this.shockwaves){ s.r += 4.5; s.life -= 0.04; }
-    for(const f of this.floatTexts){ f.y += f.vy; f.life -= 0.02; }
-    for(const t of this.trail) t.life -= 0.07;
-
-    this.objects = this.objects.filter(o => !o.sliced && o.y < this.h + 110 && o.x > -100 && o.x < this.w + 100);
-    this.particles = this.particles.filter(p => p.life > 0 && p.size > .4);
-    this.shockwaves = this.shockwaves.filter(s => s.life > 0 && s.r < s.max);
-    this.floatTexts = this.floatTexts.filter(f => f.life > 0);
-    this.trail = this.trail.filter(t => t.life > 0);
-
-    if(Math.random() < 0.0045 * (this.wave > 2 ? 1.5 : 1) && this.state === 'playing') this.showTaunt(CONFIG.TAUNTS[Math.floor(Math.random() * CONFIG.TAUNTS.length)]);
-  }
-  drawBackground(ctx){
-    const g = ctx.createLinearGradient(0,0,0,this.h); g.addColorStop(0, CONFIG.COLORS.bgTop); g.addColorStop(1, CONFIG.COLORS.bgBottom); ctx.fillStyle = g; ctx.fillRect(0,0,this.w,this.h);
-    for(let i=0;i<50;i++){ const x=(i*137)%this.w; const y=((i*211)+(performance.now()*0.02*i))%this.h; ctx.fillStyle=`rgba(255,255,255,${0.06 + (i%5)*0.01})`; ctx.fillRect(x,y,2,2); }
-  }
-  drawKenzie(ctx){
-    const x=this.kenzie.x, y=this.kenzie.y, boss=this.kenzie.boss; ctx.save(); ctx.translate(x,y); const bob=Math.sin(performance.now()*0.004)*4; ctx.translate(0,bob);
-    const hair = boss ? '#2e0909' : '#3d200f'; const dressTop = boss ? '#ff416c' : '#ff7ebf'; const dressBottom = boss ? '#9b00ff' : '#d43de5';
-    ctx.fillStyle=hair; ctx.beginPath(); ctx.arc(0,-30,34,0,Math.PI*2); ctx.fill();
-    const dg = ctx.createLinearGradient(0,-5,0,70); dg.addColorStop(0,dressTop); dg.addColorStop(1,dressBottom); ctx.fillStyle=dg; ctx.beginPath(); ctx.moveTo(-18,0); ctx.quadraticCurveTo(-42,40,-50,86); ctx.lineTo(50,86); ctx.quadraticCurveTo(42,40,18,0); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#ffdcb8'; ctx.fillRect(-5,-18,10,14); ctx.beginPath(); ctx.arc(0,-34,24,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(-8,-36,4,6,0,0,Math.PI*2); ctx.ellipse(8,-36,4,6,0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(-8,-35,2,0,Math.PI*2); ctx.arc(8,-35,2,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='#b10038'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,-26,8,0.15*Math.PI,0.85*Math.PI); ctx.stroke();
-    ctx.fillStyle='#ffd700'; ctx.beginPath(); ctx.moveTo(-12,-55); ctx.lineTo(-3,-47); ctx.lineTo(0,-58); ctx.lineTo(3,-47); ctx.lineTo(12,-55); ctx.lineTo(8,-42); ctx.lineTo(-8,-42); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle='#ffd700'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,-6); ctx.lineTo(-28,18); ctx.moveTo(0,-8); ctx.lineTo(28,18); ctx.stroke();
-    if(boss){ ctx.strokeStyle='rgba(255,75,43,.75)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(0,-30,44,0,Math.PI*2); ctx.stroke(); }
-    ctx.restore();
-  }
-  drawObjects(ctx){
-    for(const o of this.objects){
-      ctx.save(); ctx.translate(o.x,o.y); ctx.rotate(o.rot);
-      const img = this.assets.get(o.sprite);
-      const size = o.r * 2.4;
-      if(img) ctx.drawImage(img, -size/2, -size/2, size, size);
-      else { ctx.fillStyle=o.color; ctx.beginPath(); ctx.arc(0,0,o.r,0,Math.PI*2); ctx.fill(); }
-      ctx.restore();
+    if(this.power >= 100 && !this.isSugarRush){ this.isSugarRush = true; this.sugarTimer = 360; this.audio.play('power'); this.showAnn('Sugar Rush', 'Double score. More speed.', '#f5576c'); this.voice.speak('Sugar rush. Try to keep up, Riley.', { interrupt:true, rate:1.0, pitch:1.42, volume:1.0, minGap:0 }); }
+    if(this.waveSliced >= this.waveNeeded){
+      this.wave++;
+      this.waveSliced = 0;
+      this.waveNeeded = this.cfg.waveGoal + Math.floor(this.wave * 1.4);
+      this.audio.play(this.wave % 5 === 0 ? 'boss' : 'wave');
+      this.showAnn(this.wave % 5 === 0 ? 'Boss Wave' : 'Wave Clear', this.wave % 5 === 0 ? 'Kenzie is angry now.' : 'Next wave incoming.', this.wave % 5 === 0 ? '#ff4b2b' : '#ffd700');
+      if(this.wave % 5 === 0) this.showTaunt(CONFIG.BOSS_TAUNTS[Math.floor(Math.random()*CONFIG.BOSS_TAUNTS.length)], true);
+      else this.voice.speak(`Wave ${this.wave}. Keep swinging, Riley.`, { interrupt:true, rate:1.0, pitch:1.38, volume:1.0, minGap:0 });
     }
   }
   drawParticles(ctx){
