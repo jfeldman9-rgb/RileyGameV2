@@ -194,18 +194,22 @@ class AudioEngine {
 }
 
 class VoiceEngine {
-  constructor(){ this.enabled = 'speechSynthesis' in window; this.voices = []; this.ready = false; this.unlocked = false; this.lastSpeak = 0; }
-  async init(){
+  constructor(){
+    this.enabled = 'speechSynthesis' in window;
+    this.voices = [];
+    this.ready = false;
+    this.unlocked = false;
+    this.lastSpeak = 0;
+  }
+  init(){
     if(!this.enabled) return;
     this.loadVoices();
     if(!this.voices.length){
-      await new Promise(resolve => {
-        const done = () => { this.loadVoices(); resolve(); };
-        try { speechSynthesis.onvoiceschanged = done; } catch {}
-        setTimeout(done, 600);
-      });
+      try {
+        speechSynthesis.onvoiceschanged = () => this.loadVoices();
+      } catch {}
+      setTimeout(() => this.loadVoices(), 400);
     }
-    await this.unlock();
     this.ready = true;
   }
   loadVoices(){
@@ -216,37 +220,26 @@ class VoiceEngine {
     const preferred = this.voices.find(v => v.lang && v.lang.startsWith('en') && /samantha|victoria|karen|zira|ava|allison|moira|fiona/i.test(v.name));
     return preferred || this.voices.find(v => v.lang && v.lang.startsWith('en-US')) || this.voices.find(v => v.lang && v.lang.startsWith('en')) || null;
   }
-  async unlock(){
-    if(!this.enabled || this.unlocked) return;
+  unlock(){
+    if(!this.enabled) return false;
     try {
+      this.loadVoices();
       speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance('Voice ready');
-      u.volume = 0.01;
-      u.lang = 'en-US';
-      const voice = this.pick();
-      if(voice) u.voice = voice;
-      await new Promise(resolve => {
-        let done = false;
-        const finish = () => { if(done) return; done = true; resolve(); };
-        u.onend = finish;
-        u.onerror = finish;
-        speechSynthesis.speak(u);
-        speechSynthesis.resume();
-        setTimeout(finish, 800);
-      });
-      speechSynthesis.cancel();
+      speechSynthesis.resume();
       this.unlocked = true;
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   }
-  async speak(text, opts = {}){
+  speakNow(text, opts = {}){
     if(!this.enabled || !text) return false;
-    if(!this.ready) await this.init();
-    const now = performance.now();
-    const minGap = opts.minGap == null ? 250 : opts.minGap;
-    if(now - this.lastSpeak < minGap) return false;
-    this.lastSpeak = now;
+    if(!this.ready) this.init();
     try {
-      speechSynthesis.cancel();
+      const now = performance.now();
+      const minGap = opts.minGap == null ? 250 : opts.minGap;
+      if(now - this.lastSpeak < minGap) return false;
+      this.lastSpeak = now;
       const u = new SpeechSynthesisUtterance(text);
       u.lang = 'en-US';
       u.rate = opts.rate == null ? 1.0 : opts.rate;
@@ -254,6 +247,7 @@ class VoiceEngine {
       u.volume = opts.volume == null ? 1.0 : opts.volume;
       const voice = this.pick();
       if(voice) u.voice = voice;
+      if(opts.cancel !== false) speechSynthesis.cancel();
       speechSynthesis.speak(u);
       speechSynthesis.resume();
       return true;
@@ -261,7 +255,13 @@ class VoiceEngine {
       return false;
     }
   }
-  async test(){ return this.speak("Riley, let's see what you've got.", { minGap: 0 }); }
+  speak(text, opts = {}){
+    return this.speakNow(text, opts);
+  }
+  test(){
+    this.unlock();
+    return this.speakNow("Riley, let's see what you've got.", { minGap: 0, rate: 1.0, pitch: 1.45, volume: 1.0 });
+  }
   stop(){ if(this.enabled) try { speechSynthesis.cancel(); } catch {} }
 }
 
@@ -300,20 +300,18 @@ class Game {
     this.updateBestUI();
     requestAnimationFrame(t => this.loop(t));
   }
-  async prime(){ await this.audio.init(); await this.voice.init(); }
+  async prime(){ await this.audio.init(); this.voice.init(); }
   bindUI(){
-    document.querySelectorAll('[data-level]').forEach(btn => btn.addEventListener('click', async () => {
-      await this.prime();
-      await this.voice.test();
-      this.start(btn.dataset.level);
+    document.querySelectorAll('[data-level]').forEach(btn => btn.addEventListener('click', (e) => {
+      this.voice.test();
+      this.prime().then(() => this.start(btn.dataset.level));
     }));
-    $('restartBtn').addEventListener('click', async () => {
-      await this.prime();
-      this.start(this.level);
+    $('restartBtn').addEventListener('click', () => {
+      this.voice.unlock();
+      this.prime().then(() => this.start(this.level));
     });
-    $('testVoiceBtn').addEventListener('click', async () => {
-      await this.prime();
-      const ok = await this.voice.test();
+    $('testVoiceBtn').addEventListener('click', () => {
+      const ok = this.voice.test();
       this.showAnn(ok ? 'Voice Online' : 'Voice Failed', ok ? 'Kenzie can talk now.' : 'Browser blocked speech.', ok ? '#00f2fe' : '#ff4b2b');
     });
     addEventListener('resize', () => this.resize());
@@ -384,7 +382,7 @@ class Game {
     $('over').classList.add('hidden');
     $('hud').style.display = 'block';
     this.showAnn('Begin', level.toUpperCase(), '#00f2fe');
-    setTimeout(() => this.voice.speak("Riley, let's see what you've got.", { minGap: 0 }), 180);
+    setTimeout(() => this.voice.speakNow("Riley, let's see what you've got.", { minGap: 0, pitch: 1.45, rate: 1.0, volume: 1.0 }), 120);
   }
   updateBestUI(){
     if(this.best > 0){
@@ -409,7 +407,7 @@ class Game {
     $('taunt').textContent = text;
     $('taunt').classList.add('show');
     this.tauntTimer = 95;
-    this.voice.speak(text, { minGap: 0, pitch: 1.5 });
+    this.voice.speakNow(text, { minGap: 0, pitch: 1.5 });
   }
   flashAction(text){
     $('action').textContent = text;
