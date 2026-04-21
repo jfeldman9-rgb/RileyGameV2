@@ -108,9 +108,9 @@ button:active{transform:scale(0.94)}
 <script>
 'use strict';
 
-// ═══════════════════════════════════════════════════════════
-//  AUDIO ENGINE — ninja shouts, slashes, impacts
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  AUDIO ENGINE — ninja shouts (SPOKEN!), slashes, impacts
+// ═══════════════════════════════════════════════════════════════════
 let AC = null;
 function getAC(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
 
@@ -131,36 +131,82 @@ function noise(dur,vol=0.08){
   s.connect(f);f.connect(g);g.connect(ac.destination);s.start();s.stop(ac.currentTime+dur)}catch(_){}
 }
 
-// NINJA SHOUT — synthesized "Keeeya!" vocal effect
-function ninjaShout(){
-  try{
-    const ac=getAC(),now=ac.currentTime;
-    // Formant-like sweep simulating a shout
-    const o1=ac.createOscillator(),g1=ac.createGain();
-    o1.type='sawtooth';o1.frequency.setValueAtTime(800,now);o1.frequency.exponentialRampToValueAtTime(200,now+0.35);
-    g1.gain.setValueAtTime(0.12,now);g1.gain.exponentialRampToValueAtTime(0.001,now+0.4);
-    o1.connect(g1);g1.connect(ac.destination);o1.start();o1.stop(now+0.45);
-    // Noise burst for breath
-    noise(0.15,0.06);
-    // High overtone
-    const o2=ac.createOscillator(),g2=ac.createGain();
-    o2.type='square';o2.frequency.setValueAtTime(1600,now);o2.frequency.exponentialRampToValueAtTime(400,now+0.25);
-    g2.gain.setValueAtTime(0.04,now);g2.gain.exponentialRampToValueAtTime(0.001,now+0.3);
-    o2.connect(g2);g2.connect(ac.destination);o2.start();o2.stop(now+0.35);
-  }catch(_){}
+// ── SPOKEN NINJA SHOUTS using Web Speech API ──
+const NINJA_WORDS = ['Keeeya!','Hiiiya!','Hyaaah!','Chop!','Slice!','Shing!','Ninja strike!'];
+let lastShoutIdx = 0;
+
+function speakShout(text) {
+  try {
+    if (!('speechSynthesis' in window)) return;
+    // Cancel any previous speech to avoid queue buildup
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.6;      // Fast — sounds urgent
+    u.pitch = 1.8;     // High — energetic
+    u.volume = 0.7;
+    // Try to pick a shorter-voice for snappier delivery
+    const voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      // Prefer English voices
+      const en = voices.find(v => v.lang.startsWith('en'));
+      if (en) u.voice = en;
+    }
+    speechSynthesis.speak(u);
+  } catch(_) {}
 }
 
-const sfx={
-  slice:()=>{tone(700,'square',0.09,0.15,1200);noise(0.06,0.1)},
-  sliceHit:()=>{tone(900,'square',0.07,0.18,1400);noise(0.08,0.12);ninjaShout()},
-  miss:()=>tone(110,'sawtooth',0.4,0.18,200),
-  bomb:()=>{tone(35,'sawtooth',0.6,0.24,140);tone(70,'square',0.28,0.1);noise(0.4,0.15)},
-  power:()=>[440,550,660,880].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',0.13,0.08),i*55)),
-  life:()=>[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,'sine',0.18,0.08),i*70)),
-  wave:()=>[330,440,550,660,880].forEach((f,i)=>setTimeout(()=>tone(f,'square',0.16,0.05),i*85)),
-  freeze:()=>tone(250,'sine',0.5,0.09,1300),
-  combo:(c)=>tone(Math.min(1200,560+c*90),'triangle',0.09,0.09),
-  swordWhoosh:()=>{noise(0.12,0.07);tone(500,'sine',0.08,0.06,800)},
+// Synthesized "shout" sound effect layered UNDER the speech
+function shoutSFX() {
+  try {
+    const ac = getAC(), now = ac.currentTime;
+    // Gritty vocal-formant sweep
+    const o1 = ac.createOscillator(), g1 = ac.createGain();
+    o1.type = 'sawtooth';
+    o1.frequency.setValueAtTime(900, now);
+    o1.frequency.exponentialRampToValueAtTime(250, now + 0.3);
+    g1.gain.setValueAtTime(0.1, now);
+    g1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    o1.connect(g1); g1.connect(ac.destination);
+    o1.start(); o1.stop(now + 0.4);
+    // Noise burst
+    noise(0.12, 0.06);
+    // High overtone shimmer
+    const o2 = ac.createOscillator(), g2 = ac.createGain();
+    o2.type = 'square';
+    o2.frequency.setValueAtTime(1800, now);
+    o2.frequency.exponentialRampToValueAtTime(500, now + 0.2);
+    g2.gain.setValueAtTime(0.035, now);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    o2.connect(g2); g2.connect(ac.destination);
+    o2.start(); o2.stop(now + 0.3);
+  } catch(_) {}
+}
+
+function ninjaShout() {
+  const word = NINJA_WORDS[lastShoutIdx % NINJA_WORDS.length];
+  lastShoutIdx++;
+  speakShout(word);   // AUDIBLE spoken word
+  shoutSFX();          // Layered sound effect underneath
+}
+
+// Preload voices (some browsers load them async)
+if ('speechSynthesis' in window) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+
+const sfx = {
+  slice:     () => { tone(700,'square',0.09,0.15,1200); noise(0.06,0.1) },
+  sliceHit:  () => { tone(900,'square',0.07,0.18,1400); noise(0.08,0.12); ninjaShout() },
+  miss:      () => tone(110,'sawtooth',0.4,0.18,200),
+  bomb:      () => { tone(35,'sawtooth',0.6,0.24,140); tone(70,'square',0.28,0.1); noise(0.4,0.15) },
+  power:     () => [440,550,660,880].forEach((f,i) => setTimeout(() => tone(f,'triangle',0.13,0.08),i*55)),
+  life:      () => [523,659,784,1047].forEach((f,i) => setTimeout(() => tone(f,'sine',0.18,0.08),i*70)),
+  wave:      () => [330,440,550,660,880].forEach((f,i) => setTimeout(() => tone(f,'square',0.16,0.05),i*85)),
+  freeze:    () => tone(250,'sine',0.5,0.09,1300),
+  combo:     (c) => tone(Math.min(1200,560+c*90),'triangle',0.09,0.09),
+  swordWhoosh: () => { noise(0.12,0.07); tone(500,'sine',0.08,0.06,800) },
+  taunt:     () => tone(300,'triangle',0.15,0.05,500),
 };
 
 // BGM
@@ -168,42 +214,42 @@ let bgmMs=0,bgmStep=0;
 const MELODY=[392,440,493.88,523.25,587.33,523.25,493.88,392,349.23,392,440,523.25];
 function tickBGM(dt){if(!running)return;bgmMs-=dt;if(bgmMs>0)return;bgmMs=isSugarRush?115:isFrozen?560:285;tone(MELODY[bgmStep++%MELODY.length]*(isSugarRush?1.5:1),'square',0.22,0.012)}
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  CANVAS
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d',{alpha:false});
 let W,H;
 
-// ═══════════════════════════════════════════════════════════
-//  FOOD TYPES
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  FOOD TYPES — premium render definitions
+// ═══════════════════════════════════════════════════════════════════
 const FOODS=[
-  {id:'broccoli',icon:'🥦',pts:10,col:'#5ef55e',r:50,miss:true,w:32},
-  {id:'pizza',icon:'🍕',pts:20,col:'#ff9f43',r:52,miss:true,w:14},
-  {id:'donut',icon:'🍩',pts:15,col:'#fd79a8',r:50,miss:false,w:15},
-  {id:'taco',icon:'🌮',pts:25,col:'#ffd32a',r:48,miss:false,w:8},
-  {id:'apple',icon:'🍎',pts:10,col:'#ff4757',r:46,miss:false,w:14},
-  {id:'candy',icon:'🍬',pts:5,col:'#f093fb',r:44,miss:false,w:8,pwr:'sugar'},
-  {id:'icecream',icon:'🍦',pts:35,col:'#74b9ff',r:44,miss:false,w:3,pwr:'freeze'},
-  {id:'heart',icon:'❤️',pts:0,col:'#ff6b81',r:42,miss:false,w:3,pwr:'life'},
-  {id:'star',icon:'⭐',pts:20,col:'#fdcb6e',r:44,miss:false,w:3,pwr:'shield'},
-  {id:'bomb',icon:'💣',pts:0,col:'#ff3333',r:46,bomb:true,w:0},
+  {id:'broccoli',icon:'🥦',pts:10,col:'#5ef55e',glow:'#2ecc71',r:50,miss:true,w:32},
+  {id:'pizza',icon:'🍕',pts:20,col:'#ff9f43',glow:'#e67e22',r:52,miss:true,w:14},
+  {id:'donut',icon:'🍩',pts:15,col:'#fd79a8',glow:'#e84393',r:50,miss:false,w:15},
+  {id:'taco',icon:'🌮',pts:25,col:'#ffd32a',glow:'#f39c12',r:48,miss:false,w:8},
+  {id:'apple',icon:'🍎',pts:10,col:'#ff4757',glow:'#c0392b',r:46,miss:false,w:14},
+  {id:'candy',icon:'🍬',pts:5,col:'#f093fb',glow:'#a855f7',r:44,miss:false,w:8,pwr:'sugar'},
+  {id:'icecream',icon:'🍦',pts:35,col:'#74b9ff',glow:'#3498db',r:44,miss:false,w:3,pwr:'freeze'},
+  {id:'heart',icon:'❤️',pts:0,col:'#ff6b81',glow:'#e74c3c',r:42,miss:false,w:3,pwr:'life'},
+  {id:'star',icon:'⭐',pts:20,col:'#fdcb6e',glow:'#f1c40f',r:44,miss:false,w:3,pwr:'shield'},
+  {id:'bomb',icon:'💣',pts:0,col:'#ff3333',glow:'#e74c3c',r:46,bomb:true,w:0},
 ];
 function pickFood(bombChance){if(Math.random()<bombChance)return FOODS.find(f=>f.bomb);const pool=FOODS.filter(f=>!f.bomb);const total=pool.reduce((s,f)=>s+f.w,0);let roll=Math.random()*total;for(const f of pool){roll-=f.w;if(roll<=0)return f}return pool[0]}
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  DIFFICULTY
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 const DIFFS={
   easy:{spawnMs:1400,spawnMin:650,grav:0.22,kSpd:0.025,bomb:0.00,multi:0.00,vyMin:0.48,vyMax:0.60},
   medium:{spawnMs:1020,spawnMin:360,grav:0.38,kSpd:0.053,bomb:0.07,multi:0.10,vyMin:0.50,vyMax:0.64},
   hard:{spawnMs:710,spawnMin:185,grav:0.55,kSpd:0.088,bomb:0.20,multi:0.28,vyMin:0.52,vyMax:0.68},
 };
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  STATE
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 let running=false,cfg={};
 let score=0,lives=3,combo=0,bestCombo=0,comboTimer=0;
 let wave=1,waveSliced=0,waveNeeded=10;
@@ -222,28 +268,24 @@ let kenzie={x:0,y:0,targetX:0,throwAnim:0,throwReleased:false,pendingFood:null,f
 
 function resize(){
   W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;
-  const safeBottom=34;
-  kenzie.y=H-safeBottom-90;
+  const safeBottom=34;kenzie.y=H-safeBottom-90;
   if(stars.length===0){initStars();initMountains();initCherryBlossoms()}
 }
 window.addEventListener('resize',resize);resize();
 
-// ═══════════════════════════════════════════════════════════
-//  BACKGROUND — stars, moon, mountains
-// ═══════════════════════════════════════════════════════════
-function initStars(){stars=Array.from({length:200},()=>({x:Math.random()*W,y:Math.random()*H*0.7,r:Math.random()*1.8+0.2,vy:Math.random()*0.15+0.02,phase:Math.random()*Math.PI*2,bright:Math.random()}))}
+// ═══════════════════════════════════════════════════════════════════
+//  BACKGROUND — stars, moon, mountains, cherry blossoms
+// ═══════════════════════════════════════════════════════════════════
+function initStars(){stars=Array.from({length:220},()=>({x:Math.random()*W,y:Math.random()*H*0.65,r:Math.random()*1.8+0.2,vy:Math.random()*0.12+0.02,phase:Math.random()*Math.PI*2,bright:Math.random()}))}
 function initMountains(){
   mountains=[];
-  // 3 layers of mountains
   for(let layer=0;layer<3;layer++){
     const pts=[];const baseY=H*(0.55+layer*0.12);const segW=60+layer*30;
-    for(let x=-segW;x<=W+segW;x+=segW*0.3){
-      pts.push({x,y:baseY-Math.random()*(80-layer*20)-layer*15-Math.sin(x*0.01+layer)*30});
-    }
-    mountains.push({pts,color:`rgba(${20+layer*15},${15+layer*12},${40+layer*20},${0.6-layer*0.15})`,speed:0.15+layer*0.1,baseY});
+    for(let x=-segW;x<=W+segW;x+=segW*0.3){pts.push({x,y:baseY-Math.random()*(80-layer*20)-layer*15-Math.sin(x*0.01+layer)*30})}
+    mountains.push({pts,color:`rgba(${20+layer*15},${15+layer*12},${40+layer*20},${0.6-layer*0.15})`,baseY});
   }
 }
-function initCherryBlossoms(){cherryBlossoms=Array.from({length:30},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*3+2,vx:Math.random()*0.5-0.1,vy:Math.random()*0.4+0.2,phase:Math.random()*Math.PI*2,rot:Math.random()*Math.PI*2}))}
+function initCherryBlossoms(){cherryBlossoms=Array.from({length:35},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*3+2,vx:Math.random()*0.5-0.1,vy:Math.random()*0.4+0.2,phase:Math.random()*Math.PI*2,rot:Math.random()*Math.PI*2}))}
 
 function drawBackground(ts){
   // Deep space gradient
@@ -257,52 +299,45 @@ function drawBackground(ts){
   neb.addColorStop(0,'rgba(120,40,200,0.06)');neb.addColorStop(0.5,'rgba(80,20,160,0.03)');neb.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=neb;ctx.fillRect(0,0,W,H);
 
+  // Second nebula
+  const n2x=W*0.72+Math.sin(ts/6000)*40,n2y=H*0.35;
+  const n2=ctx.createRadialGradient(n2x,n2y,0,n2x,n2y,H*0.25);
+  n2.addColorStop(0,'rgba(60,20,120,0.05)');n2.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=n2;ctx.fillRect(0,0,W,H);
+
   // Moon
   const moonX=W*0.78,moonY=H*0.12,moonR=Math.min(W,H)*0.06;
   const moonGlow=ctx.createRadialGradient(moonX,moonY,moonR*0.5,moonX,moonY,moonR*4);
-  moonGlow.addColorStop(0,'rgba(220,220,255,0.15)');moonGlow.addColorStop(0.5,'rgba(150,150,255,0.04)');moonGlow.addColorStop(1,'rgba(0,0,0,0)');
+  moonGlow.addColorStop(0,'rgba(220,220,255,0.12)');moonGlow.addColorStop(0.5,'rgba(150,150,255,0.03)');moonGlow.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=moonGlow;ctx.fillRect(0,0,W,H);
   ctx.fillStyle='#dde';ctx.beginPath();ctx.arc(moonX,moonY,moonR,0,Math.PI*2);ctx.fill();
-  // Moon craters
-  ctx.fillStyle='rgba(180,180,200,0.5)';
+  ctx.fillStyle='rgba(180,180,200,0.4)';
   ctx.beginPath();ctx.arc(moonX-moonR*0.2,moonY-moonR*0.1,moonR*0.15,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(moonX+moonR*0.3,moonY+moonR*0.2,moonR*0.1,0,Math.PI*2);ctx.fill();
 
   // Stars
   const spd=isSugarRush?3:isFrozen?0.18:1;
   for(const s of stars){
-    s.y+=s.vy*spd*timeScale;if(s.y>H*0.7){s.y=-2;s.x=Math.random()*W}
+    s.y+=s.vy*spd*timeScale;if(s.y>H*0.65){s.y=-2;s.x=Math.random()*W}
     const a=0.2+Math.sin(ts/700+s.phase)*0.25+s.bright*0.3;
     ctx.globalAlpha=Math.max(0,Math.min(1,a));
     ctx.fillStyle=s.bright>0.7?'#aaccff':'#fff';
     ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
-    // Twinkle cross on bright stars
-    if(s.bright>0.85&&a>0.4){
-      ctx.globalAlpha=a*0.3;ctx.strokeStyle='#fff';ctx.lineWidth=0.5;
-      ctx.beginPath();ctx.moveTo(s.x-s.r*3,s.y);ctx.lineTo(s.x+s.r*3,s.y);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(s.x,s.y-s.r*3);ctx.lineTo(s.x,s.y+s.r*3);ctx.stroke();
-    }
+    if(s.bright>0.85&&a>0.4){ctx.globalAlpha=a*0.25;ctx.strokeStyle='#fff';ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(s.x-s.r*3,s.y);ctx.lineTo(s.x+s.r*3,s.y);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(s.x,s.y-s.r*3);ctx.lineTo(s.x,s.y+s.r*3);ctx.stroke()}
   }
   ctx.globalAlpha=1;
 
   // Mountains
-  for(let i=0;i<mountains.length;i++){
-    const m=mountains[i];
-    ctx.fillStyle=m.color;ctx.beginPath();
-    ctx.moveTo(-10,H);
-    for(const p of m.pts)ctx.lineTo(p.x,p.y);
-    ctx.lineTo(W+10,H);ctx.closePath();ctx.fill();
-  }
+  for(let i=0;i<mountains.length;i++){const m=mountains[i];ctx.fillStyle=m.color;ctx.beginPath();ctx.moveTo(-10,H);for(const p of m.pts)ctx.lineTo(p.x,p.y);ctx.lineTo(W+10,H);ctx.closePath();ctx.fill()}
 
   // Cherry blossom petals
   for(const p of cherryBlossoms){
-    p.x+=p.vx+Math.sin(ts/2000+p.phase)*0.3;p.y+=p.vy*spd*timeScale;
-    p.rot+=0.01;
+    p.x+=p.vx+Math.sin(ts/2000+p.phase)*0.3;p.y+=p.vy*spd*timeScale;p.rot+=0.01;
     if(p.y>H){p.y=-10;p.x=Math.random()*W}if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;
     ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);
-    ctx.globalAlpha=0.35;ctx.fillStyle='#ffb7c5';
-    ctx.beginPath();
-    ctx.ellipse(0,0,p.r,p.r*0.6,0,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=0.3;ctx.fillStyle='#ffb7c5';ctx.beginPath();ctx.ellipse(0,0,p.r,p.r*0.6,0,0,Math.PI*2);ctx.fill();
     ctx.globalAlpha=1;ctx.restore();
   }
 
@@ -311,18 +346,15 @@ function drawBackground(ts){
   const gGrad=ctx.createLinearGradient(0,groundY-8,0,groundY+40);
   gGrad.addColorStop(0,'rgba(30,15,40,0.9)');gGrad.addColorStop(1,'rgba(10,5,15,0.95)');
   ctx.fillStyle=gGrad;ctx.fillRect(0,groundY-4,W,H-groundY+4);
-  // Ground line
-  ctx.strokeStyle='rgba(150,80,200,0.3)';ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(0,groundY);ctx.lineTo(W,groundY);ctx.stroke();
-  // Ground glow
+  ctx.strokeStyle='rgba(150,80,200,0.3)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,groundY);ctx.lineTo(W,groundY);ctx.stroke();
   const gg=ctx.createLinearGradient(0,groundY-20,0,groundY+5);
   gg.addColorStop(0,'rgba(150,80,200,0)');gg.addColorStop(1,'rgba(150,80,200,0.08)');
   ctx.fillStyle=gg;ctx.fillRect(0,groundY-20,W,25);
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  PRINCESS KENZIE — canvas-drawn with throwing animation
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 function drawPrincess(ts){
   const k=kenzie;
   const bob=Math.sin(ts/200)*5;
@@ -340,7 +372,6 @@ function drawPrincess(ts){
     ctx.fillStyle=`rgba(255,65,108,${0.04+Math.sin(ts/90)*0.02})`;
     ctx.beginPath();ctx.arc(0,5,50,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
   }
-  // Sugar rush aura
   if(isSugarRush){
     ctx.shadowColor='#f093fb';ctx.shadowBlur=20+Math.sin(ts/120)*8;
     ctx.fillStyle=`rgba(240,147,251,${0.03+Math.sin(ts/100)*0.02})`;
@@ -357,11 +388,9 @@ function drawPrincess(ts){
   // Dress
   ctx.fillStyle=dressCol;ctx.beginPath();
   ctx.moveTo(-16,5);ctx.quadraticCurveTo(-24,28,-26,44);ctx.lineTo(26,44);ctx.quadraticCurveTo(24,28,16,5);ctx.closePath();ctx.fill();
-  // Dress highlight
   ctx.fillStyle=dressCol2;ctx.beginPath();
   ctx.moveTo(-8,8);ctx.quadraticCurveTo(-14,25,-16,40);ctx.lineTo(16,40);ctx.quadraticCurveTo(14,25,8,8);ctx.closePath();ctx.fill();
-  // Dress hem decoration
-  ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(-26,44);ctx.lineTo(26,44);ctx.stroke();
   ctx.beginPath();ctx.moveTo(-14,10);ctx.quadraticCurveTo(0,18,14,10);ctx.stroke();
 
@@ -369,34 +398,18 @@ function drawPrincess(ts){
   ctx.fillStyle=skinCol;ctx.save();ctx.translate(-14,8);
   const leftArmAngle=Math.PI/5+Math.sin(ts/350)*0.06;
   ctx.rotate(leftArmAngle);ctx.fillRect(-3,0,6,20);
-  // Hand
   ctx.beginPath();ctx.arc(0,21,3.5,0,Math.PI*2);ctx.fill();
   ctx.restore();
 
-  // RIGHT ARM (throwing arm) — the key animation
+  // RIGHT ARM (throwing arm)
   let armAngle,armLength=22;
-  if(k.throwAnim>0.65){
-    // WIND-UP: arm goes backward
-    const t=(1.0-k.throwAnim)/0.35;
-    armAngle=Math.PI/5-t*(Math.PI*0.6);
-  }else if(k.throwAnim>0.25){
-    // THROW: arm swings forward rapidly
-    const t=(0.65-k.throwAnim)/0.4;
-    armAngle=-Math.PI*0.4+t*(Math.PI*1.2);
-    armLength=22+t*6;
-  }else if(k.throwAnim>0){
-    // FOLLOW-THROUGH: arm returns
-    const t=k.throwAnim/0.25;
-    armAngle=Math.PI*0.8*t+Math.PI/5*(1-t);
-  }else{
-    // IDLE
-    armAngle=Math.PI/5+Math.sin(ts/350)*0.06;
-  }
+  if(k.throwAnim>0.65){const t=(1.0-k.throwAnim)/0.35;armAngle=Math.PI/5-t*(Math.PI*0.6)}
+  else if(k.throwAnim>0.25){const t=(0.65-k.throwAnim)/0.4;armAngle=-Math.PI*0.4+t*(Math.PI*1.2);armLength=22+t*6}
+  else if(k.throwAnim>0){const t=k.throwAnim/0.25;armAngle=Math.PI*0.8*t+Math.PI/5*(1-t)}
+  else{armAngle=Math.PI/5+Math.sin(ts/350)*0.06}
 
   ctx.fillStyle=skinCol;ctx.save();ctx.translate(14,8);
-  ctx.rotate(armAngle);
-  ctx.fillRect(-3,0,6,armLength);
-  // Hand
+  ctx.rotate(armAngle);ctx.fillRect(-3,0,6,armLength);
   ctx.beginPath();ctx.arc(0,armLength+1,4,0,Math.PI*2);ctx.fill();
 
   // Show food in hand during wind-up
@@ -417,38 +430,30 @@ function drawPrincess(ts){
   ctx.arc(0,-16,16,Math.PI+0.3,-0.3);ctx.quadraticCurveTo(18,-10,15,4);ctx.lineTo(12,-4);
   ctx.quadraticCurveTo(10,-14,0,-16);ctx.quadraticCurveTo(-10,-14,-12,-4);
   ctx.lineTo(-15,4);ctx.quadraticCurveTo(-18,-10,-16,-16);ctx.closePath();ctx.fill();
-  // Hair strands
   ctx.fillStyle=hairCol;ctx.beginPath();
   ctx.moveTo(-14,2);ctx.quadraticCurveTo(-18,15,-20,25);ctx.lineTo(-16,25);ctx.quadraticCurveTo(-14,14,-12,4);ctx.closePath();ctx.fill();
   ctx.beginPath();ctx.moveTo(14,2);ctx.quadraticCurveTo(18,15,20,25);ctx.lineTo(16,25);ctx.quadraticCurveTo(14,14,12,4);ctx.closePath();ctx.fill();
 
   // Face
   if(k.boss){
-    // Evil eyes
     ctx.fillStyle='#c0392b';
     ctx.beginPath();ctx.arc(-5,-15,2.5,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.arc(5,-15,2.5,0,Math.PI*2);ctx.fill();
-    // Angry brows
     ctx.strokeStyle=hairCol;ctx.lineWidth=2.5;ctx.lineCap='round';
     ctx.beginPath();ctx.moveTo(-8,-20);ctx.lineTo(-3,-18);ctx.stroke();
     ctx.beginPath();ctx.moveTo(8,-20);ctx.lineTo(3,-18);ctx.stroke();
-    // Evil grin
     ctx.strokeStyle='#c0392b';ctx.lineWidth=1.5;
     ctx.beginPath();ctx.arc(0,-9,5,0.3,Math.PI-0.3);ctx.stroke();
   }else{
-    // Normal eyes — change with throw
     const eyeSquint=k.throwAnim>0.4&&k.throwAnim<0.7?0.3:1;
     ctx.fillStyle='#2c3e50';
     ctx.beginPath();ctx.ellipse(-5,-15,2,2*eyeSquint,0,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.ellipse(5,-15,2,2*eyeSquint,0,0,Math.PI*2);ctx.fill();
-    // Eye shine
     ctx.fillStyle='#fff';
     ctx.beginPath();ctx.arc(-4,-16,0.7,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.arc(6,-16,0.7,0,Math.PI*2);ctx.fill();
-    // Smirk
     ctx.strokeStyle='#c0392b';ctx.lineWidth=1.5;ctx.lineCap='round';
     ctx.beginPath();ctx.arc(1,-10,4,0.3,Math.PI-0.3);ctx.stroke();
-    // Blush
     ctx.fillStyle='rgba(255,150,150,0.25)';
     ctx.beginPath();ctx.ellipse(-8,-11,3,2,0,0,Math.PI*2);ctx.fill();
     ctx.beginPath();ctx.ellipse(9,-11,3,2,0,0,Math.PI*2);ctx.fill();
@@ -459,10 +464,8 @@ function drawPrincess(ts){
   ctx.moveTo(-11,-27);ctx.lineTo(-8,-38);ctx.lineTo(-4,-28);
   ctx.lineTo(0,-42);ctx.lineTo(4,-28);ctx.lineTo(8,-38);ctx.lineTo(11,-27);
   ctx.closePath();ctx.fill();
-  // Crown shine
   ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.beginPath();ctx.moveTo(-3,-30);ctx.lineTo(0,-38);ctx.lineTo(3,-30);ctx.closePath();ctx.fill();
-  // Crown gems
   ctx.fillStyle='#e74c3c';ctx.beginPath();ctx.arc(0,-33,2,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#3498db';ctx.beginPath();ctx.arc(-7,-30,1.3,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(7,-30,1.3,0,Math.PI*2);ctx.fill();
@@ -470,7 +473,7 @@ function drawPrincess(ts){
   ctx.restore();
 }
 
-// Get princess hand world position (for spawning food at the right moment)
+// Get princess hand world position
 function getHandPos(){
   const k=kenzie,bob=Math.sin(performance.now()/200)*5,sc=1.15;
   let armAngle,armLength;
@@ -485,49 +488,188 @@ function getHandPos(){
   return{x:handX,y:handY};
 }
 
-// ═══════════════════════════════════════════════════════════
-//  SWORD / KATANA RENDERER
-// ═══════════════════════════════════════════════════════════
-const NINJA_SHOUTS=['KEEEYA!','HIIIIYA!','HYAAAH!','CHOP!','SLICE!','SHING!','NINJA STRIKE!','⚡ NINJA! ⚡'];
-let lastShoutIdx=0;
+// ═══════════════════════════════════════════════════════════════════
+//  PREMIUM FOOD RENDERER — layered glow, pulse ring, crisp emoji
+// ═══════════════════════════════════════════════════════════════════
+function drawFoodItem(o, ts) {
+  const f = o.food;
+  const isHit = o.sliced;
+  const pulsePhase = (ts / 400 + o.angle * 10) % (Math.PI * 2);
+  const pulseScale = 1 + Math.sin(pulsePhase) * 0.04; // Subtle breathing
 
+  ctx.save();
+  ctx.translate(o.x, o.y);
+  ctx.rotate(o.angle);
+
+  if (isHit) {
+    // ── SLICED: two halves drifting apart with fade ──
+    const progress = 1 - (o.sliceTimer / 40);
+    const spread = progress * 18;
+    const fadeAlpha = Math.max(0, o.sliceTimer / 40);
+
+    // Left half
+    ctx.save();
+    ctx.globalAlpha = fadeAlpha * 0.85;
+    ctx.translate(-spread, -spread * 0.4);
+    ctx.rotate(-progress * 0.5);
+    ctx.scale(0.9, 0.9);
+
+    // Glow burst
+    ctx.shadowColor = f.glow; ctx.shadowBlur = 25;
+    ctx.font = (f.r * 2) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(f.icon, 0, 0);
+    ctx.shadowBlur = 0;
+    ctx.restore();
+
+    // Right half
+    ctx.save();
+    ctx.globalAlpha = fadeAlpha * 0.85;
+    ctx.translate(spread, spread * 0.4);
+    ctx.rotate(progress * 0.5);
+    ctx.scale(0.9, 0.9);
+    ctx.shadowColor = f.glow; ctx.shadowBlur = 25;
+    ctx.font = (f.r * 2) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(f.icon, 0, 0);
+    ctx.shadowBlur = 0;
+    ctx.restore();
+
+  } else {
+    // ── ALIVE: premium multi-layer rendering ──
+
+    // Layer 1: Outer glow aura (large, soft)
+    ctx.globalAlpha = 0.15 + Math.sin(pulsePhase) * 0.05;
+    ctx.shadowColor = f.glow; ctx.shadowBlur = 35;
+    ctx.font = (f.r * 2.4) + 'px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(f.icon, 0, 0);
+    ctx.shadowBlur = 0;
+
+    // Layer 2: Pulsing ring around item
+    const ringRadius = f.r * 1.1 + Math.sin(pulsePhase * 1.5) * 4;
+    const ringAlpha = 0.15 + Math.sin(pulsePhase * 2) * 0.08;
+    ctx.globalAlpha = ringAlpha;
+    ctx.strokeStyle = f.glow;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, ringRadius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Layer 3: Inner glow (medium, colored)
+    ctx.globalAlpha = 0.4;
+    ctx.shadowColor = f.glow; ctx.shadowBlur = 18;
+    ctx.font = (f.r * 2) + 'px sans-serif';
+    ctx.fillText(f.icon, 0, 0);
+    ctx.shadowBlur = 0;
+
+    // Layer 4: Crisp main emoji on top
+    ctx.globalAlpha = 1;
+    ctx.scale(pulseScale, pulseScale);
+    ctx.shadowColor = f.glow; ctx.shadowBlur = 10;
+    ctx.font = (f.r * 2) + 'px sans-serif';
+    ctx.fillText(f.icon, 0, 0);
+    ctx.shadowBlur = 0;
+
+    // Layer 5: Power-up special effects
+    if (f.pwr === 'sugar') {
+      // Sparkle particles around candy
+      const sparkCount = 3;
+      for (let i = 0; i < sparkCount; i++) {
+        const a = (ts / 300 + i * Math.PI * 2 / sparkCount) % (Math.PI * 2);
+        const d = f.r * 1.3 + Math.sin(ts / 200 + i) * 5;
+        const sx = Math.cos(a) * d, sy = Math.sin(a) * d;
+        ctx.globalAlpha = 0.6;
+        ctx.fillStyle = '#f093fb';
+        ctx.beginPath(); ctx.arc(sx, sy, 2, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if (f.pwr === 'freeze') {
+      // Frost shimmer
+      ctx.globalAlpha = 0.2 + Math.sin(ts / 150) * 0.1;
+      ctx.strokeStyle = '#74b9ff';
+      ctx.lineWidth = 1.5;
+      const frostR = f.r * 1.2 + Math.sin(ts / 120) * 3;
+      for (let i = 0; i < 6; i++) {
+        const a = (Math.PI * 2 / 6) * i + ts / 1000;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a) * frostR * 0.7, Math.sin(a) * frostR * 0.7);
+        ctx.lineTo(Math.cos(a) * frostR, Math.sin(a) * frostR);
+        ctx.stroke();
+      }
+    } else if (f.pwr === 'life') {
+      // Heart pulse
+      const heartScale = 1 + Math.sin(ts / 150) * 0.08;
+      ctx.globalAlpha = 0.3;
+      ctx.scale(heartScale, heartScale);
+      ctx.shadowColor = '#ff6b81'; ctx.shadowBlur = 15;
+      ctx.font = (f.r * 2.2) + 'px sans-serif';
+      ctx.fillText(f.icon, 0, 0);
+      ctx.shadowBlur = 0;
+    } else if (f.pwr === 'shield') {
+      // Star spin rays
+      ctx.globalAlpha = 0.25;
+      ctx.strokeStyle = '#fdcb6e';
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 4; i++) {
+        const a = (Math.PI / 2) * i + ts / 600;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a) * f.r * 0.6, Math.sin(a) * f.r * 0.6);
+        ctx.lineTo(Math.cos(a) * f.r * 1.5, Math.sin(a) * f.r * 1.5);
+        ctx.stroke();
+      }
+    } else if (f.bomb) {
+      // Bomb fuse spark + danger ring
+      ctx.globalAlpha = 0.3 + Math.sin(ts / 80) * 0.15;
+      ctx.strokeStyle = '#ff3333';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(0, 0, f.r * 1.15, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Fuse spark
+      const sparkA = ts / 100;
+      ctx.fillStyle = '#ff6';
+      ctx.globalAlpha = 0.5 + Math.sin(ts / 50) * 0.3;
+      ctx.beginPath();
+      ctx.arc(Math.cos(sparkA) * f.r * 0.4, -f.r * 0.6 + Math.sin(sparkA) * 3, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  SWORD / KATANA RENDERER
+// ═══════════════════════════════════════════════════════════════════
 function drawSwordTrail(ts){
   for(const[,trail]of trails){
     if(trail.length<3)continue;
-
     const head=trail[trail.length-1],prev=trail[Math.max(0,trail.length-3)];
     const dx=head.x-prev.x,dy=head.y-prev.y;
-    const dist=Math.hypot(dx,dy);
-    if(dist<5)continue;
-
+    const dist=Math.hypot(dx,dy);if(dist<5)continue;
     const angle=Math.atan2(dy,dx);
     const bladeLen=Math.min(65,dist*3+25);
-    const isActive=trail.active!==false;
 
-    // Draw the katana at the current position
-    ctx.save();
-    ctx.translate(head.x,head.y);
-    ctx.rotate(angle);
+    // ── Draw the katana at the current position ──
+    ctx.save();ctx.translate(head.x,head.y);ctx.rotate(angle);
 
-    // Blade glow (wide, faint)
-    ctx.shadowColor=isSugarRush?'#f093fb':'#00f2fe';
-    ctx.shadowBlur=18;
+    // Blade glow
+    ctx.shadowColor=isSugarRush?'#f093fb':'#00f2fe';ctx.shadowBlur=18;
     ctx.strokeStyle=isSugarRush?'rgba(240,147,251,0.12)':'rgba(0,242,254,0.1)';
-    ctx.lineWidth=22;ctx.lineCap='round';
-    ctx.beginPath();ctx.moveTo(-10,0);ctx.lineTo(bladeLen,0);ctx.stroke();
+    ctx.lineWidth=22;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-10,0);ctx.lineTo(bladeLen,0);ctx.stroke();
 
     // Blade body
     ctx.shadowBlur=8;
     const bladeGrad=ctx.createLinearGradient(0,0,bladeLen,0);
     bladeGrad.addColorStop(0,'#888');bladeGrad.addColorStop(0.3,'#ccc');bladeGrad.addColorStop(0.7,'#e8e8e8');bladeGrad.addColorStop(1,'#fff');
-    ctx.fillStyle=bladeGrad;
-    ctx.beginPath();
-    ctx.moveTo(2,-2.5);ctx.lineTo(bladeLen-8,-1.5);ctx.lineTo(bladeLen,0);ctx.lineTo(bladeLen-8,1.5);ctx.lineTo(2,2.5);ctx.closePath();
-    ctx.fill();
+    ctx.fillStyle=bladeGrad;ctx.beginPath();
+    ctx.moveTo(2,-2.5);ctx.lineTo(bladeLen-8,-1.5);ctx.lineTo(bladeLen,0);ctx.lineTo(bladeLen-8,1.5);ctx.lineTo(2,2.5);ctx.closePath();ctx.fill();
 
     // Blade edge highlight
-    ctx.shadowBlur=0;
-    ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=0.8;
+    ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=0.8;
     ctx.beginPath();ctx.moveTo(4,-2.5);ctx.lineTo(bladeLen-8,-1.5);ctx.stroke();
 
     // Guard (tsuba)
@@ -535,52 +677,41 @@ function drawSwordTrail(ts){
     ctx.beginPath();ctx.ellipse(0,0,3,7,0,0,Math.PI*2);ctx.fill();
 
     // Handle (tsuka)
-    ctx.shadowBlur=0;ctx.fillStyle='#3d1c02';
-    ctx.fillRect(-18,-2.5,18,5);
-    // Handle wrap (ito)
-    ctx.fillStyle='#8b0000';
-    for(let i=0;i<5;i++){ctx.fillRect(-16+i*3.5,-3,2,6)}
+    ctx.shadowBlur=0;ctx.fillStyle='#3d1c02';ctx.fillRect(-18,-2.5,18,5);
+    ctx.fillStyle='#8b0000';for(let i=0;i<5;i++){ctx.fillRect(-16+i*3.5,-3,2,6)}
 
     ctx.restore();
 
-    // Trail glow line (behind the sword)
+    // ── Trail glow line ──
     ctx.save();
     const col=isSugarRush?'#f093fb':'#00f2fe';
     const glow=isSugarRush?'rgba(240,147,251,0.15)':'rgba(0,242,254,0.12)';
     ctx.lineCap='round';ctx.lineJoin='round';
-    // Outer glow
     ctx.beginPath();ctx.moveTo(trail[0].x,trail[0].y);
     for(let j=1;j<trail.length;j++)ctx.lineTo(trail[j].x,trail[j].y);
     ctx.strokeStyle=glow;ctx.lineWidth=20;ctx.stroke();
-    // Color core
     ctx.beginPath();ctx.moveTo(trail[0].x,trail[0].y);
     for(let j=1;j<trail.length;j++)ctx.lineTo(trail[j].x,trail[j].y);
     ctx.strokeStyle=col;ctx.lineWidth=4;ctx.stroke();
-    // White tip
-    if(trail.length>=3){
-      ctx.beginPath();ctx.moveTo(trail[trail.length-3].x,trail[trail.length-3].y);
-      ctx.lineTo(trail[trail.length-1].x,trail[trail.length-1].y);
-      ctx.strokeStyle='rgba(255,255,255,0.85)';ctx.lineWidth=2;ctx.stroke();
-    }
+    if(trail.length>=3){ctx.beginPath();ctx.moveTo(trail[trail.length-3].x,trail[trail.length-3].y);
+    ctx.lineTo(trail[trail.length-1].x,trail[trail.length-1].y);ctx.strokeStyle='rgba(255,255,255,0.85)';ctx.lineWidth=2;ctx.stroke()}
     ctx.restore();
 
     // Spark particles along trail
-    if(isActive&&Math.random()<0.6){
-      const sp=trail[trail.length-1];
-      particles.push({x:sp.x+Math.random()*10-5,y:sp.y+Math.random()*10-5,vx:Math.random()*3-1.5,vy:Math.random()*3-1.5,life:1,size:Math.random()*3+1,color:isSugarRush?'#f093fb':'#00f2fe',type:'spark'});
-    }
+    if(Math.random()<0.6){const sp=trail[trail.length-1];
+    particles.push({x:sp.x+Math.random()*10-5,y:sp.y+Math.random()*10-5,vx:Math.random()*3-1.5,vy:Math.random()*3-1.5,life:1,size:Math.random()*3+1,color:isSugarRush?'#f093fb':'#00f2fe',type:'spark'})}
   }
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  HIGH SCORE
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 async function loadHS(){try{const r=await window.storage.get('rk-hs');return r?(parseInt(r.value)||0):0}catch{return 0}}
 async function saveHS(v){try{await window.storage.set('rk-hs',String(v))}catch(_){}}
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  HUD
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 function updateHUD(){
   document.getElementById('scoreNum').textContent=score;
   document.getElementById('waveNum').textContent=wave;
@@ -590,16 +721,15 @@ function updateHUD(){
   document.getElementById('pills').innerHTML=(isFrozen?'<span class="pill pill-freeze">❄️ FREEZE</span>':'')+(hasShield?'<span class="pill pill-shield">🛡️ SHIELD</span>':'');
 }
 
-// ═══════════════════════════════════════════════════════════
-//  ANNOUNCEMENTS + TAUNTS (RILEY-SPECIFIC!)
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+//  ANNOUNCEMENTS + TAUNTS (RILEY-SPECIFIC)
+// ═══════════════════════════════════════════════════════════════════
 function showAnn(title,sub='',color='#ffd700'){
   const el=document.getElementById('ann'),t=document.getElementById('annTitle');
   t.textContent=title;t.style.color=color;t.style.textShadow=`0 0 28px ${color},0 0 56px ${color}`;
   document.getElementById('annSub').textContent=sub;el.classList.add('show');annTimer=125;
 }
 
-// RILEY-SPECIFIC TAUNTS
 const TAUNTS=[
   'You can do better, Riley! 💅','What type of ninja are you, Riley? 🤨',
   "Can't defeat broccoli thrown by a tiny dancer, Riley? 💃",
@@ -609,45 +739,40 @@ const TAUNTS=[
   'Riley, are you even trying? 😴','That was SAD, Riley! 😭',
   'Riley vs Broccoli — broccoli wins! 🥦🏆',
 ];
-const BOMB_TAUNTS=[
-  'BOOM Riley! 💥','Gotcha Riley! 😈','Should\'ve dodged, Riley! 💣',
-  'KABOOM Riley! 🎯','Explosive, Riley! 💥',
-];
-const BOSS_TAUNTS=[
-  'FEAR ME RILEY! 👑','This is MY kingdom, Riley! 🏰',
-  'You cannot win, Riley! ⚔️','Riley, bow before your queen! 👸',
-];
+const BOMB_TAUNTS=['BOOM Riley! 💥','Gotcha Riley! 😈','Should\'ve dodged, Riley! 💣','KABOOM Riley! 🎯','Explosive, Riley! 💥'];
+const BOSS_TAUNTS=['FEAR ME RILEY! 👑','This is MY kingdom, Riley! 🏰','You cannot win, Riley! ⚔️','Riley, bow before your queen! 👸'];
+
+let tauntCooldown = 0;
 
 function showTaunt(msg){
+  if (tauntCooldown > 0) return; // Don't spam
   const t=document.getElementById('taunt');t.textContent=msg;t.classList.add('show');
+  tauntCooldown = 90; // ~1.5s cooldown
+  sfx.taunt();
   setTimeout(()=>t.classList.remove('show'),1400);
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  PARTICLES + FLOAT TEXTS + SHOCKWAVES
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 function burst(x,y,color,n=18){
-  for(let i=0;i<n;i++){
-    const a=(Math.PI*2/n)*i+Math.random()*0.5;const sp=Math.random()*7+3;
-    particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-2,life:1,size:Math.random()*5+3,color,type:'debris'});
-  }
+  for(let i=0;i<n;i++){const a=(Math.PI*2/n)*i+Math.random()*0.5;const sp=Math.random()*7+3;
+  particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-2,life:1,size:Math.random()*5+3,color,type:'debris'})}
 }
 function sparkBurst(x,y,color,n=12){
-  for(let i=0;i<n;i++){
-    const a=Math.random()*Math.PI*2;const sp=Math.random()*8+4;
-    particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,life:1,size:Math.random()*2+1,color,type:'spark'});
-  }
+  for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2;const sp=Math.random()*8+4;
+  particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1,life:1,size:Math.random()*2+1,color,type:'spark'})}
 }
 function addShockwave(x,y,color='rgba(255,255,255,0.5)'){shockwaves.push({x,y,radius:5,maxRadius:80,life:1,color})}
 function floatTxt(x,y,text,color='#fff',size=24){floatTexts.push({x,y,text,color,life:1,vy:-2,size})}
 function ninjaShoutText(x,y){
-  const shout=NINJA_SHOUTS[lastShoutIdx%NINJA_SHOUTS.length];lastShoutIdx++;
-  floatTexts.push({x,y,text:shout,color:'#ff0',life:1,vy:-2.5,size:30});
+  const shout=NINJA_WORDS[(lastShoutIdx-1)%NINJA_WORDS.length];
+  floatTexts.push({x,y,text:shout,color:'#ff0',life:1,vy:-2.5,size:32});
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  SPAWNING — princess throws with animation
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 function rndf(min,max){return Math.random()*(max-min)+min}
 function launchVy(){const h=rndf(cfg.vyMin*kenzie.y,cfg.vyMax*kenzie.y);return-Math.sqrt(2*cfg.grav*h)}
 
@@ -656,27 +781,15 @@ let spawnQueue=[];
 function queueSpawn(){
   kenzie.targetX=rndf(80,W-80);
   const food=pickFood(cfg.bomb);
-  kenzie.pendingFood=food;
-  kenzie.throwAnim=1.0;
-  kenzie.throwReleased=false;
+  kenzie.pendingFood=food;kenzie.throwAnim=1.0;kenzie.throwReleased=false;
   spawnQueue.push(food);
 }
 
 function releaseThrow(){
   if(spawnQueue.length===0)return;
-  const food=spawnQueue.shift();
-  const hand=getHandPos();
-  const targetX=kenzie.targetX;
-  const dx=targetX-hand.x;
-  objs.push({
-    food,
-    x:hand.x,y:hand.y,
-    vx:dx*0.02+rndf(-2,2),
-    vy:launchVy()*0.85,
-    angle:0,va:rndf(-0.08,0.08),
-    sliced:false,sliceTimer:0,
-    trail:[],
-  });
+  const food=spawnQueue.shift();const hand=getHandPos();
+  const dx=kenzie.targetX-hand.x;
+  objs.push({food,x:hand.x,y:hand.y,vx:dx*0.02+rndf(-2,2),vy:launchVy()*0.85,angle:0,va:rndf(-0.08,0.08),sliced:false,sliceTimer:0,born:performance.now()});
   kenzie.pendingFood=null;
 }
 
@@ -689,9 +802,9 @@ function maybeSpawn(ts){
   lastSpawnTs=ts;
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  SLICING
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 function trailHits(trail,o){
   if(trail.length<3)return false;
   const head=trail[trail.length-1],tail=trail[0];
@@ -701,11 +814,11 @@ function trailHits(trail,o){
 
 function handleSlice(o){
   o.sliced=true;o.sliceTimer=40;o.vx*=0.25;o.vy=-0.8;
-  sfx.sliceHit(); // Slash + ninja shout sound
+  sfx.sliceHit();  // Slash sound + SPOKEN ninja shout + SFX
   burst(o.x,o.y,o.food.col,20);
   sparkBurst(o.x,o.y,'#fff',10);
-  addShockwave(o.x,o.y,o.food.col);
-  ninjaShoutText(o.x,o.y-30); // Visual "KEEEYA!" text
+  addShockwave(o.x,o.y,o.food.glow);
+  ninjaShoutText(o.x,o.y-30);  // Visual text overlay
   const f=o.food;
 
   if(f.pwr==='sugar'){sfx.power();if(!isSugarRush){power=Math.min(100,power+28);if(power>=100)triggerSugarRush();updateHUD()}floatTxt(o.x,o.y,'⚡ +Power!',f.col)}
@@ -721,9 +834,9 @@ function handleSlice(o){
   }
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  WAVE
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 function nextWave(){
   wave++;waveSliced=0;waveNeeded=Math.min(32,10+wave*2);
   cfg.spawnMs=Math.max(cfg.spawnMin,cfg.spawnMs-52);
@@ -732,25 +845,23 @@ function nextWave(){
   if(wave%5===0){
     cfg.spawnMs=Math.max(cfg.spawnMin,cfg.spawnMs-70);cfg.bomb=Math.min(0.42,cfg.bomb+0.05);
     showAnn(`🔥 BOSS WAVE ${wave}! 🔥`,'Maximum chaos!','#ff416c');
-    kenzie.face='😈';kenzie.boss=true;
-    screenFlash=0.5;flashR=255;flashG=65;flashB=50;
+    kenzie.face='😈';kenzie.boss=true;screenFlash=0.5;flashR=255;flashG=65;flashB=50;
     setTimeout(()=>showTaunt(BOSS_TAUNTS[Math.floor(Math.random()*BOSS_TAUNTS.length)]),600);
   }else{
     const s=['Keep slicing!','Bring it on!',"Can't stop me!",'Too slow, Riley!','Getting spicier!'];
-    showAnn(`Wave ${wave}!`,s[(wave-2)%s.length],'#ffd700');
-    kenzie.face='👸';kenzie.boss=false;
+    showAnn(`Wave ${wave}!`,s[(wave-2)%s.length],'#ffd700');kenzie.face='👸';kenzie.boss=false;
   }
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  POWER MODES
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 function triggerSugarRush(){isSugarRush=true;sugarTimer=380;timeScale=0.38;showAnn('⚡ SUGAR RUSH! ⚡','2× Points + Slow motion!','#f093fb');screenFlash=0.6;flashR=180;flashG=60;flashB=255}
 function triggerFreeze(){isFrozen=true;frozenTimer=260;sfx.freeze();screenFlash=0.45;flashR=80;flashG=170;flashB=255;updateHUD()}
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  DAMAGE
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 function takeDmg(reason){
   if(!running)return;
   if(hasShield){hasShield=false;updateHUD();floatTxt(W/2,H*0.42,'🛡️ Shield absorbed!','#fdcb6e');screenFlash=0.3;flashR=255;flashG=200;flashB=80;return}
@@ -763,9 +874,9 @@ function takeDmg(reason){
   if(lives<=0)setTimeout(doGameOver,700);
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  GAME INIT / OVER
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 async function startGame(level){
   getAC();highScore=await loadHS();
   document.getElementById('start').style.display='none';
@@ -778,7 +889,7 @@ async function startGame(level){
   wave=1;waveSliced=0;waveNeeded=10;
   power=0;isSugarRush=false;sugarTimer=0;
   isFrozen=false;frozenTimer=0;hasShield=false;
-  timeScale=1;screenFlash=0;
+  timeScale=1;screenFlash=0;tauntCooldown=0;
   objs=[];particles=[];floatTexts=[];shockwaves=[];spawnQueue=[];
   trails.clear();bgmMs=0;bgmStep=0;
   lastSpawnTs=performance.now();lastFrameTs=0;
@@ -790,7 +901,10 @@ async function startGame(level){
 window.startGame=startGame;
 
 async function doGameOver(){
-  running=false;const newHS=score>highScore;
+  running=false;
+  // Cancel any lingering speech
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  const newHS=score>highScore;
   if(newHS){highScore=score;await saveHS(score)}
   document.getElementById('goScore').textContent=score;
   document.getElementById('goWave').textContent=wave;
@@ -802,15 +916,16 @@ async function doGameOver(){
   document.getElementById('over').style.display='flex';
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  MAIN LOOP
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 let lastFrameTs=0;
 function loop(ts){
   if(!running)return;
   const dt=Math.min(ts-lastFrameTs,50);lastFrameTs=ts;
   tickBGM(dt);
   if(annTimer>0){annTimer--;if(annTimer<=0)document.getElementById('ann').classList.remove('show')}
+  if(tauntCooldown>0)tauntCooldown--;
 
   // ── Background ──
   drawBackground(ts);
@@ -829,7 +944,6 @@ function loop(ts){
 
   // ── Timers ──
   const phys=timeScale*(isFrozen?0.22:1);
-
   if(isSugarRush){sugarTimer-=phys*dt/16.67;power=Math.max(0,(sugarTimer/380)*100);if(sugarTimer<=0){isSugarRush=false;timeScale=1;power=0;updateHUD()}else updateHUD()}
   if(isFrozen){frozenTimer-=dt/16.67;if(frozenTimer<=0){isFrozen=false;timeScale=isSugarRush?0.38:1;updateHUD()}}
   if(comboTimer>0){comboTimer-=phys;if(comboTimer<=0){combo=0;updateHUD()}}
@@ -838,11 +952,7 @@ function loop(ts){
   kenzie.x+=(kenzie.targetX-kenzie.x)*cfg.kSpd;
   if(kenzie.throwAnim>0){
     kenzie.throwAnim=Math.max(0,kenzie.throwAnim-0.035);
-    // Release food at the peak of the throw
-    if(kenzie.throwAnim<0.5&&!kenzie.throwReleased&&spawnQueue.length>0){
-      kenzie.throwReleased=true;
-      releaseThrow();
-    }
+    if(kenzie.throwAnim<0.5&&!kenzie.throwReleased&&spawnQueue.length>0){kenzie.throwReleased=true;releaseThrow()}
   }
 
   // ── Draw Princess ──
@@ -857,9 +967,6 @@ function loop(ts){
     if(!o.sliced){
       o.x+=o.vx*phys;o.y+=o.vy*phys;o.vy+=cfg.grav*phys;o.angle+=o.va*phys;
       if(o.y<28&&o.vy<0){o.y=28;o.vy=Math.abs(o.vy)*0.35}
-      // Food trail (faint glow trail behind flying items)
-      if(o.trail){o.trail.push({x:o.x,y:o.y});if(o.trail.length>8)o.trail.shift()}
-      // Slice check
       let hit=false;
       for(const[,trail]of trails){
         if(!trailHits(trail,o))continue;hit=true;
@@ -875,37 +982,8 @@ function loop(ts){
     }
   }
 
-  // ── Draw food objects ──
-  for(const o of objs){
-    ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.angle);
-    const sc=o.sliced?Math.min(1.35,1+(40-o.sliceTimer)*0.012):1;
-    ctx.scale(sc,sc);ctx.globalAlpha=o.sliced?Math.max(0,o.sliceTimer/40):1;
-
-    // Food trail glow
-    if(!o.sliced&&o.trail&&o.trail.length>2){
-      ctx.save();ctx.rotate(-o.angle); // undo rotation for trail
-      ctx.beginPath();ctx.moveTo(o.trail[0].x-o.x,o.trail[0].y-o.y);
-      for(let j=1;j<o.trail.length;j++)ctx.lineTo(o.trail[j].x-o.x,o.trail[j].y-o.y);
-      ctx.strokeStyle=o.food.col.replace(')',',0.15)').replace('rgb','rgba');
-      ctx.lineWidth=12;ctx.lineCap='round';ctx.stroke();
-      ctx.restore();
-    }
-
-    // Glow behind food
-    ctx.shadowColor=o.food.col;ctx.shadowBlur=o.sliced?22:12;
-    // Draw food icon
-    ctx.font=(o.food.r*1.9)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(o.sliced?'💥':o.food.icon,0,0);
-
-    // Slice half effect — draw two halves drifting apart
-    if(o.sliced){
-      ctx.globalAlpha=Math.max(0,o.sliceTimer/40)*0.5;
-      ctx.save();ctx.translate(-12,-5);ctx.rotate(-0.3);ctx.fillText(o.food.icon,0,0);ctx.restore();
-      ctx.save();ctx.translate(12,5);ctx.rotate(0.3);ctx.fillText(o.food.icon,0,0);ctx.restore();
-    }
-
-    ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.restore();
-  }
+  // ── Draw food objects (premium renderer) ──
+  for(const o of objs){drawFoodItem(o,ts)}
 
   // ── Shockwaves ──
   for(let i=shockwaves.length-1;i>=0;i--){
@@ -922,13 +1000,8 @@ function loop(ts){
     if(p.life<=0){particles.splice(i,1);continue}
     ctx.globalAlpha=p.life;ctx.shadowColor=p.color;ctx.shadowBlur=p.type==='spark'?8:6;
     ctx.fillStyle=p.color;
-    if(p.type==='spark'){
-      // Draw spark as a small bright line
-      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(Math.atan2(p.vy,p.vx));
-      ctx.fillRect(-p.size*2,-0.5,p.size*4,1);ctx.restore();
-    }else{
-      ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);ctx.fill();
-    }
+    if(p.type==='spark'){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(Math.atan2(p.vy,p.vx));ctx.fillRect(-p.size*2,-0.5,p.size*4,1);ctx.restore()}
+    else{ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);ctx.fill()}
     ctx.shadowBlur=0;
   }
   ctx.globalAlpha=1;
@@ -939,44 +1012,34 @@ function loop(ts){
     if(ft.life<=0){floatTexts.splice(i,1);continue}
     ctx.globalAlpha=ft.life;ctx.shadowColor=ft.color;ctx.shadowBlur=9;
     ctx.fillStyle=ft.color;ctx.font=`900 ${ft.size}px -apple-system,sans-serif`;ctx.textAlign='center';
-    // Text outline for readability
     ctx.strokeStyle='rgba(0,0,0,0.5)';ctx.lineWidth=3;ctx.strokeText(ft.text,ft.x,ft.y);
     ctx.fillText(ft.text,ft.x,ft.y);ctx.shadowBlur=0;
   }
   ctx.globalAlpha=1;
 
-  // ── Sword trail (drawn on top of everything) ──
+  // ── Sword trail (on top) ──
   drawSwordTrail(ts);
 
   requestAnimationFrame(loop);
 }
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  INPUT — multi-touch with active tracking
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 canvas.addEventListener('pointerdown',e=>{
-  e.preventDefault();getAC();
-  trails.set(e.pointerId,[{x:e.clientX,y:e.clientY}]);
-  sfx.swordWhoosh();
-});
+  e.preventDefault();getAC();trails.set(e.pointerId,[{x:e.clientX,y:e.clientY}]);sfx.swordWhoosh();
+},{passive:false});
 canvas.addEventListener('pointermove',e=>{
-  e.preventDefault();if(!running)return;
-  const t=trails.get(e.pointerId);if(!t)return;
-  t.push({x:e.clientX,y:e.clientY});
-  const max=isSugarRush?22:14;if(t.length>max)t.shift();
-});
-canvas.addEventListener('pointerup',e=>{
-  e.preventDefault();
-  setTimeout(()=>trails.delete(e.pointerId),80);
-});
+  e.preventDefault();if(!running)return;const t=trails.get(e.pointerId);if(!t)return;
+  t.push({x:e.clientX,y:e.clientY});const max=isSugarRush?22:14;if(t.length>max)t.shift();
+},{passive:false});
+canvas.addEventListener('pointerup',e=>{e.preventDefault();setTimeout(()=>trails.delete(e.pointerId),80)},{passive:false});
 canvas.addEventListener('pointercancel',e=>trails.delete(e.pointerId));
 
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 //  BOOT
-// ═══════════════════════════════════════════════════════════
-loadHS().then(hs=>{
-  highScore=hs;if(hs>0){document.getElementById('startHs').style.display='inline-block';document.getElementById('startHsVal').textContent=hs}
-});
+// ═══════════════════════════════════════════════════════════════════
+loadHS().then(hs=>{highScore=hs;if(hs>0){document.getElementById('startHs').style.display='inline-block';document.getElementById('startHsVal').textContent=hs}});
 </script>
 </body>
 </html>
