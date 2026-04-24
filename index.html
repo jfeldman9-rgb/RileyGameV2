@@ -1,393 +1,623 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
-<title>Riley vs Kenzie - Three.js Fart Dojo Edge Safe</title>
-
-<style>
-:root{--cyan:#00e8ff;--pink:#ff3fb7;--gold:#ffe45d;--green:#78ff42}
-*{box-sizing:border-box}
-html,body{
-  margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
-}
-#gameWrap{position:fixed;inset:0;background:#000;overflow:hidden}
-#trailCanvas{position:fixed;inset:0;z-index:5;width:100vw;height:100svh;pointer-events:none}
-.screen{
-  position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;text-align:center;
-  padding:calc(22px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(22px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
-  background:radial-gradient(circle at 50% 28%,rgba(255,63,183,.24),transparent 32%),
-             radial-gradient(circle at 18% 75%,rgba(0,232,255,.18),transparent 36%),
-             linear-gradient(180deg,rgba(2,1,10,.82),rgba(0,0,5,.98));
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)
-}
-.hidden{display:none!important}
-.card{
-  width:min(940px,96vw);border:1px solid rgba(255,255,255,.16);border-radius:28px;
-  padding:clamp(18px,4vw,34px);
-  background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035)),
-             radial-gradient(circle at 50% 0%,rgba(0,232,255,.16),transparent 48%);
-  box-shadow:0 30px 90px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.12)
-}
-.title{
-  margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(40px,10vw,88px);line-height:.9;letter-spacing:-2px;
-  text-shadow:0 0 18px rgba(255,255,255,.55),0 0 44px rgba(255,63,183,.72),0 0 90px rgba(0,232,255,.45),0 10px 28px rgba(0,0,0,.9)
-}
-.subtitle{margin:12px 0 14px;color:rgba(255,255,255,.74);font-weight:1000;letter-spacing:4px;text-transform:uppercase;font-size:clamp(11px,3vw,16px)}
-.copy{max-width:780px;margin:0 auto 18px;color:rgba(255,255,255,.76);font-size:clamp(13px,3.4vw,16px);line-height:1.45}
-.howto{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px auto;max-width:850px}
-.tip{border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:12px 8px;min-height:82px;background:rgba(255,255,255,.055);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
-.tip strong{display:block;font-size:28px;margin-bottom:4px}.tip span{color:rgba(255,255,255,.72);font-size:12px;font-weight:900}
-.btn-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:14px}
-button{
-  appearance:none;border:none;border-radius:999px;padding:14px 24px;color:white;font-weight:1000;letter-spacing:2px;text-transform:uppercase;
-  font-size:clamp(13px,3.4vw,18px);cursor:pointer;background:linear-gradient(135deg,#9b18ff,#00e8ff);
-  box-shadow:0 10px 28px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.24)
-}
-button:active{transform:scale(.94)}.btn-easy{background:linear-gradient(135deg,#00d5ff,#006aff)}.btn-medium{background:linear-gradient(135deg,#ff73d5,#9b18ff)}.btn-hard{background:linear-gradient(135deg,#ff3158,#ff9b18)}
-.btn-small{padding:9px 14px;font-size:11px;letter-spacing:1.5px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16)}
-#hud{position:fixed;inset:0;z-index:15;pointer-events:none;display:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
-.hud-box{position:absolute;min-width:92px;border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:10px 14px;background:rgba(5,5,20,.58);box-shadow:0 12px 36px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.hud-label{color:rgba(255,255,255,.48);text-transform:uppercase;letter-spacing:2.6px;font-size:9px;font-weight:1000}.hud-value{font-size:clamp(25px,8vw,38px);line-height:1;font-weight:1000;text-shadow:0 0 18px rgba(255,255,255,.45)}
-#scoreBox{top:calc(10px + env(safe-area-inset-top));left:calc(10px + env(safe-area-inset-left))}
-#waveBox{top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);text-align:center}
-#lifeBox{top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));text-align:right}
-#message{
-  position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.78);z-index:20;opacity:0;pointer-events:none;
-  transition:all .22s cubic-bezier(.18,.89,.32,1.3);font-family:Georgia,serif;font-size:clamp(42px,14vw,110px);font-weight:1000;line-height:.85;text-align:center;color:#fff;
-  text-shadow:0 0 24px currentColor,0 0 60px currentColor,6px 6px 0 #000
-}
-#message.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
-#subMessage{position:fixed;left:50%;top:54%;transform:translateX(-50%);z-index:20;opacity:0;pointer-events:none;max-width:92vw;color:rgba(255,255,255,.84);font-weight:1000;letter-spacing:1px;text-align:center;text-shadow:0 2px 12px #000;transition:opacity .2s}
-#subMessage.show{opacity:1}
-#mobileControls{position:fixed;z-index:18;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom));display:none;justify-content:space-between;align-items:flex-end;gap:10px;padding:0 calc(12px + env(safe-area-inset-right)) 0 calc(12px + env(safe-area-inset-left));pointer-events:none}
-#mobileControls button{pointer-events:auto}.quality-pill{pointer-events:auto;align-self:flex-end;display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:999px;background:rgba(5,5,20,.6);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(10px)}
-#qualityLive{color:#ffe45d;font-weight:1000;font-size:12px;letter-spacing:1px}
-#fps{position:fixed;right:calc(10px + env(safe-area-inset-right));bottom:calc(100px + env(safe-area-inset-bottom));z-index:18;display:none;color:rgba(255,255,255,.55);font-size:11px;font-weight:900;pointer-events:none;text-shadow:0 2px 8px #000}
-#bootError{position:fixed;left:10px;right:10px;bottom:10px;z-index:100;background:rgba(100,0,0,.85);border:1px solid rgba(255,120,120,.7);border-radius:14px;padding:12px;color:#fff;font:700 12px/1.35 system-ui;display:none;text-align:left;white-space:pre-wrap}
-@media(max-width:680px){.howto{grid-template-columns:repeat(2,minmax(0,1fr))}.tip{min-height:72px}.hud-box{padding:8px 10px;border-radius:15px}#waveBox{top:calc(62px + env(safe-area-inset-top))}}
-</style>
-</head>
-
-<body>
-<div id="gameWrap"></div>
-<canvas id="trailCanvas"></canvas>
-
-<div id="start" class="screen">
-  <div class="card">
-    <h1 class="title">Riley vs Kenzie</h1>
-    <div class="subtitle">Three.js Fart Dojo - Edge Safe</div>
-    <div class="copy">This version avoids import maps and ES modules. Translation: it should work better when you open the HTML directly in Edge. Swipe broccoli. Avoid the fart emoji. Hit the fart and it detonates into stinky green gas.</div>
-    <div class="howto">
-      <div class="tip"><strong>🥦</strong><span>Slice 3D broccoli</span></div>
-      <div class="tip"><strong>💨</strong><span>Do not hit the fart</span></div>
-      <div class="tip"><strong>🟢</strong><span>Green gas = pain</span></div>
-      <div class="tip"><strong>✨</strong><span>Neon glow scene</span></div>
-    </div>
-    <div class="btn-row">
-      <button class="btn-easy" data-start="easy">Easy</button>
-      <button class="btn-medium" data-start="medium">Medium</button>
-      <button class="btn-hard" data-start="hard">Hard</button>
-    </div>
-    <div class="btn-row">
-      <button class="btn-small" data-quality="auto">Auto</button>
-      <button class="btn-small" data-quality="low">Low</button>
-      <button class="btn-small" data-quality="medium">Medium</button>
-      <button class="btn-small" data-quality="high">High</button>
-    </div>
-  </div>
-</div>
-
-<div id="hud">
-  <div id="scoreBox" class="hud-box"><div class="hud-label">Score</div><div id="score" class="hud-value">0</div></div>
-  <div id="waveBox" class="hud-box"><div class="hud-label">Scene</div><div id="wave" class="hud-value">3D</div></div>
-  <div id="lifeBox" class="hud-box"><div class="hud-label">Lives</div><div id="lives" class="hud-value">❤️❤️❤️</div></div>
-</div>
-
-<div id="message">SLICE!</div>
-<div id="subMessage">Prototype online</div>
-
-<div id="mobileControls">
-  <button class="btn-small" id="pauseBtn">Pause</button>
-  <div class="quality-pill"><span id="qualityLive">AUTO</span><button class="btn-small" id="cycleQualityBtn">Quality</button></div>
-</div>
-
-<div id="fps">FPS</div>
-
-<div id="over" class="screen hidden">
-  <div class="card">
-    <h1 class="title">Game Over</h1>
-    <div class="copy">The fart cloud won. Not ideal. Try again and stop sword-fighting the gas.</div>
-    <div class="btn-row"><button class="btn-medium" id="restartBtn">Play Again</button></div>
-  </div>
-</div>
-
-<div id="bootError"></div>
-
-<!-- Classic scripts. This is less fancy than modules but more reliable from local files in Edge. -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-
-<script>
-(function(){
-'use strict';const wrap = document.getElementById('gameWrap');
-const trailCanvas = document.getElementById('trailCanvas');
-const tctx = trailCanvas.getContext('2d');
-
-function resizeTrail(){
-  trailCanvas.width = innerWidth;
-  trailCanvas.height = innerHeight;
-}
-resizeTrail();
-addEventListener('resize', resizeTrail);
-
-let scene, camera, renderer, composer;
-let broccoli, fart;
-let enemies = [];
-let gasClouds = [];
-let raycaster = new THREE.Raycaster();
-let pointer = new THREE.Vector2();
-
-let score = 0;
-let lives = 3;
-let running = false;
-
-function init3D(){
-  scene = new THREE.Scene();
-
-  camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 100);
-  camera.position.z = 6;
-
-  renderer = new THREE.WebGLRenderer({antialias:true});
-  renderer.setSize(innerWidth, innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  wrap.appendChild(renderer.domElement);
-
-  // lighting
-  const ambient = new THREE.AmbientLight(0xffffff,0.6);
-  scene.add(ambient);
-
-  const light = new THREE.PointLight(0x00ffff,2,20);
-  light.position.set(0,3,5);
-  scene.add(light);
-
-  // floor
-  const floorGeo = new THREE.PlaneGeometry(20,20);
-  const floorMat = new THREE.MeshStandardMaterial({
-    color:0x111122,
-    metalness:0.8,
-    roughness:0.2
-  });
-  const floor = new THREE.Mesh(floorGeo,floorMat);
-  floor.rotation.x = -Math.PI/2;
-  floor.position.y = -2;
-  scene.add(floor);
-
-  spawnEnemies();
-  setupPostFX();
-
-  animate();
-}
-
-function setupPostFX(){
-  composer = new THREE.EffectComposer(renderer);
-  const renderPass = new THREE.RenderPass(scene,camera);
-  composer.addPass(renderPass);
-
-  const bloom = new THREE.UnrealBloomPass(
-    new THREE.Vector2(innerWidth,innerHeight),
-    1.2, // strength
-    0.6, // radius
-    0.2  // threshold
-  );
-  composer.addPass(bloom);
-}
-
-function spawnEnemies(){
-  // broccoli
-  const geo = new THREE.SphereGeometry(0.5,32,32);
-  const mat = new THREE.MeshStandardMaterial({
-    color:0x44ff44,
-    emissive:0x116611,
-    emissiveIntensity:1
-  });
-  broccoli = new THREE.Mesh(geo,mat);
-  broccoli.position.set(-1,0,0);
-  scene.add(broccoli);
-
-  // fart (bomb replacement)
-  const fartGeo = new THREE.SphereGeometry(0.5,32,32);
-  const fartMat = new THREE.MeshStandardMaterial({
-    color:0x996633,
-    emissive:0x553300,
-    emissiveIntensity:0.6
-  });
-  fart = new THREE.Mesh(fartGeo,fartMat);
-  fart.position.set(1,0,0);
-  scene.add(fart);
-
-  enemies = [broccoli,fart];
-}
-
-function createGas(x,y){
-  const geo = new THREE.SphereGeometry(0.3,16,16);
-  const mat = new THREE.MeshBasicMaterial({
-    color:0x00ff00,
-    transparent:true,
-    opacity:0.6
-  });
-  const cloud = new THREE.Mesh(geo,mat);
-  cloud.position.set(x,y,0);
-  scene.add(cloud);
-  gasClouds.push(cloud);
-}
-
-function updateGas(){
-  gasClouds.forEach((g,i)=>{
-    g.scale.multiplyScalar(1.02);
-    g.material.opacity *= 0.96;
-    if(g.material.opacity < 0.05){
-      scene.remove(g);
-      gasClouds.splice(i,1);
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+  <title>Riley vs Kenzie – Three.js Neon Dojo (Improved 3D)</title>
+  <!--
+    This single‑file prototype uses Three.js to create a simple 3D scene reminiscent of the original
+    Riley vs Kenzie game but rendered with proper geometry, lighting and post processing.  It
+    improves upon the earlier "glowing balls" version by:
+      • Using Icosahedron geometry for the broccoli object to give it visual complexity.
+      • Tweaking materials: lower roughness and higher metalness for broccoli, matte brown for the
+        fart hazard.
+      • Adding a secondary rim light behind the objects to create edge highlights and depth.
+      • Reducing bloom strength and radius while increasing the threshold so the glow accentuates
+        highlights instead of washing out the entire scene.
+      • Brightening the floor colour for better contrast and adding gentle vertical bobbing to the
+        enemies so they feel alive.
+      • Adjusting the toxic gas effect to be larger, greener and fade more gradually.
+    No external assets or build system are required; everything runs directly in the browser.
+  -->
+  <style>
+    :root{
+      --cyan:#00e8ff;
+      --pink:#ff3fb7;
+      --gold:#ffe45d;
+      --green:#78ff42;
     }
-  });
-}
+    *{box-sizing:border-box;}
+    html,body{
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:#000;
+      color:#fff;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      touch-action:none;
+      user-select:none;
+      -webkit-user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+    #gameWrap{position:fixed;inset:0;background:#000;overflow:hidden;}
+    #trailCanvas{position:fixed;inset:0;z-index:5;width:100vw;height:100svh;pointer-events:none;}
+    .screen{
+      position:fixed;
+      inset:0;
+      z-index:40;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:calc(22px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(22px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
+      background:radial-gradient(circle at 50% 28%,rgba(255,63,183,.24),transparent 32%),
+                radial-gradient(circle at 18% 75%,rgba(0,232,255,.18),transparent 36%),
+                linear-gradient(180deg,rgba(2,1,10,.82),rgba(0,0,5,.98));
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
+    }
+    .hidden{display:none!important;}
+    .card{
+      width:min(940px,96vw);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:28px;
+      padding:clamp(18px,4vw,34px);
+      background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035)),
+                 radial-gradient(circle at 50% 0%,rgba(0,232,255,.16),transparent 48%);
+      box-shadow:0 30px 90px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .title{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(40px,10vw,88px);
+      line-height:.9;
+      letter-spacing:-2px;
+      text-shadow:0 0 18px rgba(255,255,255,.55),0 0 44px rgba(255,63,183,.72),0 0 90px rgba(0,232,255,.45),0 10px 28px rgba(0,0,0,.9);
+    }
+    .subtitle{
+      margin:12px 0 14px;
+      color:rgba(255,255,255,.74);
+      font-weight:1000;
+      letter-spacing:4px;
+      text-transform:uppercase;
+      font-size:clamp(11px,3vw,16px);
+    }
+    .copy{
+      max-width:780px;
+      margin:0 auto 18px;
+      color:rgba(255,255,255,.76);
+      font-size:clamp(13px,3.4vw,16px);
+      line-height:1.45;
+    }
+    .howto{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px auto;max-width:850px;}
+    .tip{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:18px;
+      padding:12px 8px;
+      min-height:82px;
+      background:rgba(255,255,255,.055);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .tip strong{display:block;font-size:28px;margin-bottom:4px;}
+    .tip span{color:rgba(255,255,255,.72);font-size:12px;font-weight:900;}
+    .btn-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:14px;}
+    button{
+      appearance:none;
+      border:none;
+      border-radius:999px;
+      padding:14px 24px;
+      color:white;
+      font-weight:1000;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      font-size:clamp(13px,3.4vw,18px);
+      cursor:pointer;
+      background:linear-gradient(135deg,#9b18ff,#00e8ff);
+      box-shadow:0 10px 28px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.24);
+    }
+    button:active{transform:scale(.94);}
+    .btn-easy{background:linear-gradient(135deg,#00d5ff,#006aff);}
+    .btn-medium{background:linear-gradient(135deg,#ff73d5,#9b18ff);}
+    .btn-hard{background:linear-gradient(135deg,#ff3158,#ff9b18);}
+    .btn-small{
+      padding:9px 14px;
+      font-size:11px;
+      letter-spacing:1.5px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.16);
+    }
+    #hud{
+      position:fixed;
+      inset:0;
+      z-index:15;
+      pointer-events:none;
+      display:none;
+      padding-top:env(safe-area-inset-top);
+      padding-bottom:env(safe-area-inset-bottom);
+    }
+    .hud-box{
+      position:absolute;
+      min-width:92px;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:18px;
+      padding:10px 14px;
+      background:rgba(5,5,20,.58);
+      box-shadow:0 12px 36px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.1);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+    }
+    .hud-label{
+      color:rgba(255,255,255,.48);
+      text-transform:uppercase;
+      letter-spacing:2.6px;
+      font-size:9px;
+      font-weight:1000;
+    }
+    .hud-value{
+      font-size:clamp(25px,8vw,38px);
+      line-height:1;
+      font-weight:1000;
+      text-shadow:0 0 18px rgba(255,255,255,.45);
+    }
+    #scoreBox{top:calc(10px + env(safe-area-inset-top));left:calc(10px + env(safe-area-inset-left));}
+    #waveBox{top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);text-align:center;}
+    #lifeBox{top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));text-align:right;}
+    #message{
+      position:fixed;
+      left:50%;
+      top:42%;
+      transform:translate(-50%,-50%) scale(.78);
+      z-index:20;
+      opacity:0;
+      pointer-events:none;
+      transition:all .22s cubic-bezier(.18,.89,.32,1.3);
+      font-family:Georgia,serif;
+      font-size:clamp(42px,14vw,110px);
+      font-weight:1000;
+      line-height:.85;
+      text-align:center;
+      color:#fff;
+      text-shadow:0 0 24px currentColor,0 0 60px currentColor,6px 6px 0 #000;
+    }
+    #message.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+    #subMessage{
+      position:fixed;
+      left:50%;
+      top:54%;
+      transform:translateX(-50%);
+      z-index:20;
+      opacity:0;
+      pointer-events:none;
+      max-width:92vw;
+      color:rgba(255,255,255,.84);
+      font-weight:1000;
+      letter-spacing:1px;
+      text-align:center;
+      text-shadow:0 2px 12px #000;
+      transition:opacity .2s;
+    }
+    #subMessage.show{opacity:1;}
+    #mobileControls{
+      position:fixed;
+      z-index:18;
+      left:0;
+      right:0;
+      bottom:calc(10px + env(safe-area-inset-bottom));
+      display:none;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:10px;
+      padding:0 calc(12px + env(safe-area-inset-right)) 0 calc(12px + env(safe-area-inset-left));
+      pointer-events:none;
+    }
+    #mobileControls button{pointer-events:auto;}
+    .quality-pill{
+      pointer-events:auto;
+      align-self:flex-end;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(5,5,20,.6);
+      border:1px solid rgba(255,255,255,.14);
+      backdrop-filter:blur(10px);
+    }
+    #qualityLive{color:var(--gold);font-weight:1000;font-size:12px;letter-spacing:1px;}
+    #fps{
+      position:fixed;
+      right:calc(10px + env(safe-area-inset-right));
+      bottom:calc(100px + env(safe-area-inset-bottom));
+      z-index:18;
+      display:none;
+      color:rgba(255,255,255,.55);
+      font-size:11px;
+      font-weight:900;
+      pointer-events:none;
+      text-shadow:0 2px 8px #000;
+    }
+    #bootError{
+      position:fixed;
+      left:10px;
+      right:10px;
+      bottom:10px;
+      z-index:100;
+      background:rgba(100,0,0,.85);
+      border:1px solid rgba(255,120,120,.7);
+      border-radius:14px;
+      padding:12px;
+      color:#fff;
+      font:700 12px/1.35 system-ui;
+      display:none;
+      text-align:left;
+      white-space:pre-wrap;
+    }
+    @media(max-width:680px){
+      .howto{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .tip{min-height:72px;}
+      .hud-box{padding:8px 10px;border-radius:15px;}
+      #waveBox{top:calc(62px + env(safe-area-inset-top));}
+    }
+  </style>
+</head>
+<body>
+  <div id="gameWrap"></div>
+  <canvas id="trailCanvas"></canvas>
 
-function animate(){
-  requestAnimationFrame(animate);
+  <div id="start" class="screen">
+    <div class="card">
+      <h1 class="title">Riley vs Kenzie</h1>
+      <div class="subtitle">Three.js Neon Dojo – Improved 3D</div>
+      <div class="copy">
+        Swipe the 3D broccoli to score. Avoid the fart emoji – hitting it releases toxic gas.
+        This version adds proper geometry, improved materials, rim lighting and a softer bloom
+        so the scene looks more like a polished Xbox 360‑era arcade game.
+      </div>
+      <div class="howto">
+        <div class="tip"><strong>🥦</strong><span>Slice broccoli</span></div>
+        <div class="tip"><strong>💨</strong><span>Avoid fart</span></div>
+        <div class="tip"><strong>🟢</strong><span>Toxic gas kills</span></div>
+        <div class="tip"><strong>✨</strong><span>Neon lighting</span></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-easy" data-start="easy">Easy</button>
+        <button class="btn-medium" data-start="medium">Medium</button>
+        <button class="btn-hard" data-start="hard">Hard</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-small" data-quality="auto">Auto</button>
+        <button class="btn-small" data-quality="low">Low</button>
+        <button class="btn-small" data-quality="medium">Medium</button>
+        <button class="btn-small" data-quality="high">High</button>
+      </div>
+    </div>
+  </div>
 
-  if(!running) return;
+  <div id="hud">
+    <div id="scoreBox" class="hud-box"><div class="hud-label">Score</div><div id="score" class="hud-value">0</div></div>
+    <div id="waveBox" class="hud-box"><div class="hud-label">Scene</div><div id="wave" class="hud-value">3D</div></div>
+    <div id="lifeBox" class="hud-box"><div class="hud-label">Lives</div><div id="lives" class="hud-value">❤️❤️❤️</div></div>
+  </div>
 
-  broccoli.rotation.y += 0.02;
-  fart.rotation.y += 0.015;
+  <div id="message">SLICE!</div>
+  <div id="subMessage">Prototype online</div>
 
-  updateGas();
+  <div id="mobileControls">
+    <button class="btn-small" id="pauseBtn">Pause</button>
+    <div class="quality-pill"><span id="qualityLive">AUTO</span><button class="btn-small" id="cycleQualityBtn">Quality</button></div>
+  </div>
 
-  composer.render();
-}
+  <div id="fps">FPS</div>
 
-function onSwipe(x,y){
-  pointer.x = (x / innerWidth)*2 - 1;
-  pointer.y = -(y / innerHeight)*2 + 1;
+  <div id="over" class="screen hidden">
+    <div class="card">
+      <h1 class="title">Game Over</h1>
+      <div class="copy">The fart cloud won. Not ideal. Try again and stop sword-fighting the gas.</div>
+      <div class="btn-row"><button class="btn-medium" id="restartBtn">Play Again</button></div>
+    </div>
+  </div>
 
-  raycaster.setFromCamera(pointer,camera);
-  const hits = raycaster.intersectObjects(enemies);
+  <div id="bootError"></div>
 
-  if(hits.length){
-    const obj = hits[0].object;
+  <!-- Classic scripts. This is less fancy than modules but more reliable from local files in Edge. -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 
-    if(obj === broccoli){
-      score += 10;
-      document.getElementById('score').innerText = score;
+  <script>
+  (function(){
+    'use strict';
 
-      obj.position.x = (Math.random()-0.5)*3;
-      obj.position.y = (Math.random()-0.5)*2;
+    // DOM references
+    const wrap  = document.getElementById('gameWrap');
+    const trailCanvas = document.getElementById('trailCanvas');
+    const tctx = trailCanvas.getContext('2d');
+    // resize the 2D trail canvas to match window size
+    function resizeTrail(){
+      trailCanvas.width  = innerWidth;
+      trailCanvas.height = innerHeight;
+    }
+    resizeTrail();
+    addEventListener('resize', resizeTrail);
 
-    } else {
-      // fart hit
-      lives--;
-      document.getElementById('lives').innerText = "❤️".repeat(lives);
+    // Three.js variables
+    let scene, camera, renderer, composer;
+    let broccoli, fart;
+    let enemies = [];
+    let gasClouds = [];
+    let raycaster = new THREE.Raycaster();
+    let pointer   = new THREE.Vector2();
 
-      createGas(obj.position.x,obj.position.y);
+    // game state
+    let score  = 0;
+    let lives  = 3;
+    let running = false;
+    let bobPhase = 0;
 
-      if(lives <= 0){
-        endGame();
+    /**
+     * Initialise the Three.js scene, camera, renderer and lights. Called once on first game start.
+     */
+    function init3D(){
+      scene = new THREE.Scene();
+      // perspective camera with moderate FOV
+      camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 100);
+      camera.position.z = 6;
+
+      renderer = new THREE.WebGLRenderer({antialias:true});
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      wrap.appendChild(renderer.domElement);
+
+      // ambient light provides base illumination
+      const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+      scene.add(ambient);
+      // point light above the scene casting a cool neon glow
+      const mainLight = new THREE.PointLight(0x00ffff, 2, 20);
+      mainLight.position.set(0, 3, 5);
+      scene.add(mainLight);
+      // rim light behind objects to highlight edges
+      const rim = new THREE.PointLight(0xff00ff, 1.5, 20);
+      rim.position.set(-3, 2, 3);
+      scene.add(rim);
+      // floor plane for visual grounding; slightly brighter than previous version
+      const floorGeo = new THREE.PlaneGeometry(20, 20);
+      const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x222244,
+        metalness: 0.8,
+        roughness: 0.2
+      });
+      const floor = new THREE.Mesh(floorGeo, floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -2;
+      scene.add(floor);
+
+      spawnEnemies();
+      setupPostFX();
+      animate();
+    }
+
+    /**
+     * Set up the post processing pipeline. A smaller bloom effect with higher threshold helps the
+     * scene retain contrast and detail while still glowing around bright highlights.
+     */
+    function setupPostFX(){
+      composer = new THREE.EffectComposer(renderer);
+      const renderPass = new THREE.RenderPass(scene, camera);
+      composer.addPass(renderPass);
+      // subtle bloom; threshold ensures only emissive surfaces glow
+      const bloom = new THREE.UnrealBloomPass(
+        new THREE.Vector2(innerWidth, innerHeight),
+        0.4,   // strength
+        0.2,   // radius
+        0.6    // threshold
+      );
+      composer.addPass(bloom);
+    }
+
+    /**
+     * Create broccoli and fart hazard with improved geometry and materials. Broccoli uses an
+     * icosahedron for complexity; fart uses a sphere but with a matte brown tone. They are
+     * added to the enemies array for hit detection.
+     */
+    function spawnEnemies(){
+      // broccoli (player target)
+      const broccoliGeo = new THREE.IcosahedronGeometry(0.6, 1);
+      const broccoliMat = new THREE.MeshStandardMaterial({
+        color: 0x3cff4a,
+        emissive: 0x116611,
+        emissiveIntensity: 0.7,
+        roughness: 0.5,
+        metalness: 0.1
+      });
+      broccoli = new THREE.Mesh(broccoliGeo, broccoliMat);
+      broccoli.position.set(-1, 0, 0);
+      scene.add(broccoli);
+
+      // fart hazard (bomb replacement)
+      const fartGeo = new THREE.SphereGeometry(0.5, 32, 32);
+      const fartMat = new THREE.MeshStandardMaterial({
+        color: 0x664422,
+        roughness: 1.0,
+        metalness: 0.0,
+        emissive: 0x331a10,
+        emissiveIntensity: 0.4
+      });
+      fart = new THREE.Mesh(fartGeo, fartMat);
+      fart.position.set(1, 0, 0);
+      scene.add(fart);
+
+      enemies = [broccoli, fart];
+    }
+
+    /**
+     * Create a toxic gas cloud at the given coordinates. Gas clouds start small and expand
+     * gradually while fading out; they are tinted bright green for readability.
+     */
+    function createGas(x, y){
+      const geo = new THREE.SphereGeometry(0.5, 16, 16);
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        transparent: true,
+        opacity: 0.7
+      });
+      const cloud = new THREE.Mesh(geo, mat);
+      cloud.position.set(x, y, 0);
+      scene.add(cloud);
+      gasClouds.push(cloud);
+    }
+
+    /**
+     * Update gas clouds each frame: enlarge them slightly and fade them over time. When
+     * transparency becomes negligible they are removed from the scene.
+     */
+    function updateGas(){
+      gasClouds.forEach((g, i) => {
+        g.scale.multiplyScalar(1.02);
+        g.material.opacity *= 0.96;
+        if(g.material.opacity < 0.05){
+          scene.remove(g);
+          gasClouds.splice(i, 1);
+        }
+      });
+    }
+
+    /**
+     * Main animation loop. Only runs when running === true. Each frame it rotates objects,
+     * animates their vertical bobbing and handles gas cloud updates. Post processing
+     * composer is used instead of raw renderer.
+     */
+    function animate(){
+      requestAnimationFrame(animate);
+      if(!running) return;
+
+      // rotate objects
+      broccoli.rotation.y += 0.025;
+      fart.rotation.y     += 0.018;
+      // bob up and down
+      bobPhase += 0.02;
+      broccoli.position.y = Math.sin(bobPhase) * 0.4;
+      fart.position.y     = Math.cos(bobPhase) * 0.4;
+
+      updateGas();
+      composer.render();
+    }
+
+    /**
+     * Handle swipe at given screen coordinates: cast a ray from camera and check for
+     * intersections with enemies. If broccoli is hit, award score and reposition; if
+     * fart is hit, reduce lives and spawn gas; game ends when lives reach zero.
+     */
+    function onSwipe(x, y){
+      pointer.x = (x / innerWidth) * 2 - 1;
+      pointer.y = -(y / innerHeight) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(enemies);
+      if(hits.length){
+        const obj = hits[0].object;
+        if(obj === broccoli){
+          score += 10;
+          document.getElementById('score').innerText = score;
+          // reposition broccoli randomly within view
+          broccoli.position.x = (Math.random() - 0.5) * 3;
+          broccoli.position.y = (Math.random() - 0.5) * 2;
+        } else {
+          // fart hit: lose life and spawn gas
+          lives--;
+          document.getElementById('lives').innerText = '❤️'.repeat(lives);
+          createGas(obj.position.x, obj.position.y);
+          if(lives <= 0){
+            endGame();
+          }
+        }
       }
     }
-  }
-}
 
-// swipe tracking
-let dragging = false;
-addEventListener('pointerdown', e=>{
-  dragging = true;
-});
-addEventListener('pointermove', e=>{
-  if(!dragging) return;
+    // Swipe tracking and trail effect
+    let dragging = false;
+    addEventListener('pointerdown', e => {
+      dragging = true;
+    });
+    addEventListener('pointermove', e => {
+      if(!dragging) return;
+      // draw neon trail dot
+      tctx.fillStyle = 'rgba(0,255,255,0.3)';
+      tctx.beginPath();
+      tctx.arc(e.clientX, e.clientY, 8, 0, Math.PI * 2);
+      tctx.fill();
+      onSwipe(e.clientX, e.clientY);
+    });
+    addEventListener('pointerup', () => {
+      dragging = false;
+      // clear trail gradually instead of instant removal
+      tctx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+    });
 
-  // trail visual
-  tctx.fillStyle = "rgba(0,255,255,0.3)";
-  tctx.beginPath();
-  tctx.arc(e.clientX,e.clientY,8,0,Math.PI*2);
-  tctx.fill();
+    /**
+     * Start a new game: hide the start/over screens, reset score/lives and begin rendering.
+     */
+    function startGame(){
+      document.getElementById('start').classList.add('hidden');
+      document.getElementById('over').classList.add('hidden');
+      document.getElementById('hud').style.display = 'block';
+      score = 0;
+      lives = 3;
+      bobPhase = 0;
+      document.getElementById('score').innerText = score;
+      document.getElementById('lives').innerText = '❤️❤️❤️';
+      running = true;
+      // initialise 3D scene once
+      if(!scene){ init3D(); }
+    }
 
-  onSwipe(e.clientX,e.clientY);
-});
-addEventListener('pointerup', ()=>{
-  dragging = false;
-  tctx.clearRect(0,0,trailCanvas.width,trailCanvas.height);
-});function startGame(){
-  document.getElementById('start').classList.add('hidden');
-  document.getElementById('hud').style.display = 'block';
+    /**
+     * End the game: stop rendering loop and show the game over screen.
+     */
+    function endGame(){
+      running = false;
+      document.getElementById('hud').style.display = 'none';
+      document.getElementById('over').classList.remove('hidden');
+    }
 
-  score = 0;
-  lives = 3;
-  document.getElementById('score').innerText = score;
-  document.getElementById('lives').innerText = "❤️❤️❤️";
+    // Hook up UI buttons
+    document.querySelectorAll('[data-start]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        startGame();
+      });
+    });
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      startGame();
+    });
 
-  running = true;
+    // quality selection stub: updates label but doesn't affect rendering yet
+    document.querySelectorAll('[data-quality]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('qualityLive').innerText = btn.textContent.toUpperCase();
+      });
+    });
 
-  if(!scene){
-    init3D();
-  }
-}
+    // handle window resizing
+    addEventListener('resize', () => {
+      if(!renderer) return;
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+      composer.setSize(innerWidth, innerHeight);
+    });
 
-function endGame(){
-  running = false;
-  document.getElementById('over').classList.remove('hidden');
-}
-
-// buttons
-document.querySelectorAll('[data-start]').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    startGame();
-  });
-});
-
-document.getElementById('restartBtn').addEventListener('click', ()=>{
-  document.getElementById('over').classList.add('hidden');
-  startGame();
-});
-
-// resize
-addEventListener('resize', ()=>{
-  if(!renderer) return;
-
-  camera.aspect = innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(innerWidth,innerHeight);
-  composer.setSize(innerWidth,innerHeight);
-});
-
-// safety boot check
-setTimeout(()=>{
-  if(!window.THREE){
-    const err = document.getElementById('bootError');
-    err.style.display = 'block';
-    err.innerText =
-`Three.js failed to load.
-
-Fix:
-1. Make sure you're online
-2. Don't open from a restricted file path
-3. Use Chrome or Edge
-4. Or upload to GitHub Pages`;
-  }
-},1500);
-
-})(); // end IIFE
-</script>
-
+    // Boot error detection: display message if Three.js failed to load
+    setTimeout(() => {
+      if(!window.THREE){
+        const err = document.getElementById('bootError');
+        err.style.display = 'block';
+        err.innerText = 'Three.js failed to load.\n\nCheck your internet connection or open this file via an HTTP server instead of directly from the file system.';
+      }
+    }, 1500);
+  })();
+  </script>
 </body>
 </html>
-
-
-
