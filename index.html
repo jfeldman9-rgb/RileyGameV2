@@ -255,13 +255,8 @@
             animation: pulseBar .5s ease-in-out infinite;
         }
         @keyframes pulseBar {
-            0%,
-            100% {
-                filter: brightness(1)
-            }
-            50% {
-                filter: brightness(1.4)
-            }
+            0%, 100% { filter: brightness(1) }
+            50% { filter: brightness(1.4) }
         }
         #pills {
             position: absolute;
@@ -458,24 +453,41 @@
                 hard: { spawnMs: 460, bombChance: 0.23, speed: 1.18, waveGoal: 14 }
             },
             taunts: [
-                'You can do better, Riley.',
-                'That slash was embarrassing.',
-                'Tiny ninja. Tiny effort.',
-                'My grandma swings faster.',
-                'Broccoli owns you, Riley.',
-                'You call that a hit?',
-                'Wake up, Riley!',
-                'Sloppy. Very sloppy.'
+                "Dance around my blade, Riley!",
+                "Your slashes have zero rhythm!",
+                "Shadow clone technique beats your swipes!",
+                "Feel the flow or get sliced!",
+                "Stealth mode engaged — you're too loud!",
+                "Groove to my beat or get cut!",
+                "Kunoichi style is too advanced for you!",
+                "Spin, slice, repeat — keep up!",
+                "Your moves have no flow, no chi!",
+                "I’m the queen of the blade dance!",
+                "Ninja vanish! ...too bad you can’t.",
+                "That slash was off-beat, rookie!",
+                "My katana has better timing than you!",
+                "Breakdance or break, Riley!",
+                "Too slow for my ninja flips!",
+                "Dodge this deadly dance drop!",
+                "Your form is stiff — loosen up!",
+                "Kenzie’s dance floor of doom!",
+                "Slice to the beat or lose the beat!",
+                "Ninja arts: Shadow Step!",
+                "Your footwork is amateur hour!",
+                "Dance with death, Riley!",
+                "My rhythm is flawless!",
+                "Blade ballet incoming!",
+                "You call that a combo?"
             ],
-            bombTaunts: ['Boom, Riley.', 'That was stupid.', 'You should have dodged.', 'Explosive mistake.', 'Watch out!'],
-            bossTaunts: ['This is my kingdom, Riley.', 'Bow before your queen.', 'You cannot win.', 'I am just getting started.', 'Feel my wrath!']
+            bombTaunts: ['Boom goes the rhythm!', 'Explosive dance party!', 'You danced right into that one!', 'Kaboom on the dance floor!'],
+            bossTaunts: ['This is MY kingdom dance, Riley!', 'Bow before the ninja queen!', 'You cannot out-dance destiny!', 'Witness true blade ballet!', 'My wrath has perfect timing!']
         };
 
         class AudioEngine {
             constructor() { this.ctx = null; this.master = null; this.ready = false; }
             async init() {
                 if (!this.ctx) {
-                    this.ctx = new(window.AudioContext || window.webkitAudioContext)();
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                     this.master = this.ctx.createGain();
                     this.master.gain.value = 0.75;
                     this.master.connect(this.ctx.destination);
@@ -595,18 +607,115 @@
         }
 
         class AssetManager {
-            constructor() { this.size = 160; this.cache = {}; }
-            init() { this.make('broccoli', c => this.drawBroccoli(c)); this.make('bomb', c => this.drawBomb(c)); this.make('pizza', c => this.drawPizza(c)); this.make('donut', c => this.drawDonut(c)); this.make('candy', c => this.drawCandy(c)); this.make('freeze', c => this.drawFreeze(c)); this.make('shield', c => this.drawShield(c)); this.make('heart', c => this.drawHeart(c)); }
-            make(name, fn) { const cv = document.createElement('canvas'); cv.width = cv.height = this.size; const c = cv.getContext('2d'); c.translate(this.size/2, this.size/2); fn(c); this.cache[name] = cv; }
+            constructor() { this.size = 172; this.cache = {}; }
+            init() {
+                this.make('broccoli', c => this.drawBroccoli(c));
+                this.make('bomb', c => this.drawBomb(c));
+                this.make('pizza', c => this.drawPizza(c));
+                this.make('donut', c => this.drawDonut(c));
+                this.make('candy', c => this.drawCandy(c));
+                this.make('freeze', c => this.drawFreeze(c));
+                this.make('shield', c => this.drawShield(c));
+                this.make('heart', c => this.drawHeart(c));
+            }
+            make(name, fn) {
+                const cv = document.createElement('canvas');
+                cv.width = cv.height = this.size;
+                const c = cv.getContext('2d');
+                c.translate(this.size/2, this.size/2);
+                fn(c);
+                this.cache[name] = cv;
+            }
             get(name) { return this.cache[name]; }
-            drawBroccoli(c) { const florets = [{x:0,y:-22,r:22},{x:-20,y:-11,r:16},{x:20,y:-11,r:16},{x:-12,y:-33,r:13},{x:12,y:-33,r:13},{x:0,y:-40,r:11}]; const stalk = c.createLinearGradient(-8,12,8,48); stalk.addColorStop(0,'#e5ffb0'); stalk.addColorStop(1,'#7a9a40'); c.fillStyle = stalk; c.beginPath(); c.moveTo(-8,12); c.quadraticCurveTo(-12,34,-8,48); c.lineTo(8,48); c.quadraticCurveTo(12,34,8,12); c.closePath(); c.fill(); florets.forEach(f=>{ const g = c.createRadialGradient(f.x-f.r*.3, f.y-f.r*.3, 2, f.x, f.y, f.r); g.addColorStop(0,'#8ee85a'); g.addColorStop(.5,'#3d8a1e'); g.addColorStop(1,'#1a3010'); c.fillStyle = g; c.beginPath(); c.arc(f.x, f.y, f.r, 0, Math.PI*2); c.fill(); c.fillStyle = 'rgba(220,255,190,.4)'; c.beginPath(); c.arc(f.x-f.r*.2, f.y-f.r*.2, f.r*.22, 0, Math.PI*2); c.fill(); }); }
-            drawBomb(c) { const g = c.createRadialGradient(-14,-18,2,0,2,46); g.addColorStop(0,'#7a7e86'); g.addColorStop(.3,'#2a2e38'); g.addColorStop(1,'#020308'); c.fillStyle = g; c.beginPath(); c.arc(0,0,46,0,Math.PI*2); c.fill(); c.fillStyle='rgba(255,255,255,.3)'; c.beginPath(); c.ellipse(-13,-18,13,18,.35,0,Math.PI*2); c.fill(); c.fillStyle='#4a3020'; c.fillRect(-9,-54,18,12); c.strokeStyle='#e8c070'; c.lineWidth=5; c.lineCap='round'; c.beginPath(); c.moveTo(0,-54); c.quadraticCurveTo(16,-70,7,-86); c.stroke(); c.fillStyle='#ff6030'; c.beginPath(); c.arc(2,-84,6,0,Math.PI*2); c.fill(); }
-            drawPizza(c) { c.save(); c.rotate(-.2); const cheese = c.createLinearGradient(0,-42,0,34); cheese.addColorStop(0,'#ffe09a'); cheese.addColorStop(1,'#e08020'); c.fillStyle=cheese; c.beginPath(); c.moveTo(0,-42); c.lineTo(-38,34); c.quadraticCurveTo(0,44,38,34); c.closePath(); c.fill(); c.fillStyle='#c03020'; [{x:-12,y:-10,r:7},{x:10,y:2,r:8},{x:-6,y:16,r:6}].forEach(p=>{ c.beginPath(); c.arc(p.x,p.y,p.r,0,Math.PI*2); c.fill(); }); c.fillStyle='#c08840'; c.beginPath(); c.moveTo(-40,38); c.quadraticCurveTo(0,50,40,38); c.lineTo(34,28); c.quadraticCurveTo(0,42,-34,28); c.closePath(); c.fill(); c.restore(); }
-            drawDonut(c) { const base = c.createRadialGradient(-10,-10,0,0,2,44); base.addColorStop(0,'#f0c880'); base.addColorStop(1,'#8a5020'); c.fillStyle=base; c.beginPath(); c.arc(0,0,44,0,Math.PI*2); c.fill(); c.fillStyle='#ff88c0'; c.beginPath(); c.arc(0,0,34,0,Math.PI*2); c.fill(); c.fillStyle='#080418'; c.beginPath(); c.arc(0,0,13,0,Math.PI*2); c.fill(); c.fillStyle='rgba(255,200,230,.5)'; c.beginPath(); c.arc(-8,-10,6,0,Math.PI*2); c.fill(); }
-            drawCandy(c) { c.save(); c.rotate(-.12); c.fillStyle='#d080f0'; c.beginPath(); c.moveTo(-44,-12); c.lineTo(-24,-10); c.lineTo(-16,0); c.lineTo(-24,10); c.lineTo(-44,12); c.closePath(); c.fill(); c.beginPath(); c.moveTo(44,-12); c.lineTo(24,-10); c.lineTo(16,0); c.lineTo(24,10); c.lineTo(44,12); c.closePath(); c.fill(); const g = c.createLinearGradient(0,-24,0,24); g.addColorStop(0,'#ffe8f8'); g.addColorStop(1,'#b040e0'); c.fillStyle=g; c.beginPath(); c.ellipse(0,0,28,20,0,0,Math.PI*2); c.fill(); c.fillStyle='rgba(255,255,255,.4)'; c.beginPath(); c.ellipse(-6,-8,8,5,-.3,0,Math.PI*2); c.fill(); c.restore(); }
-            drawFreeze(c) { c.strokeStyle='#c0f8ff'; c.lineWidth=7; c.shadowColor='#80e0ff'; c.shadowBlur=14; for(let i=0;i<3;i++){ c.save(); c.rotate(i*Math.PI/3); c.beginPath(); c.moveTo(0,-46); c.lineTo(0,46); c.stroke(); c.beginPath(); c.moveTo(0,-26); c.lineTo(14,-36); c.moveTo(0,-26); c.lineTo(-14,-36); c.moveTo(0,26); c.lineTo(14,36); c.moveTo(0,26); c.lineTo(-14,36); c.stroke(); c.restore(); } c.shadowBlur=0; }
-            drawShield(c) { const sg = c.createLinearGradient(0,-44,0,46); sg.addColorStop(0,'#ffe860'); sg.addColorStop(1,'#d09000'); c.fillStyle=sg; c.beginPath(); c.moveTo(0,-44); c.lineTo(30,-26); c.lineTo(26,12); c.quadraticCurveTo(20,32,0,46); c.quadraticCurveTo(-20,32,-26,12); c.lineTo(-30,-26); c.closePath(); c.fill(); c.strokeStyle='#fff8c0'; c.lineWidth=5; c.stroke(); c.fillStyle='rgba(255,255,255,.35)'; c.beginPath(); c.moveTo(0,-30); c.lineTo(16,-10); c.lineTo(10,16); c.lineTo(0,26); c.lineTo(-10,16); c.lineTo(-16,-10); c.closePath(); c.fill(); }
-            drawHeart(c) { const hg = c.createRadialGradient(0,-6,0,0,10,50); hg.addColorStop(0,'#ff7090'); hg.addColorStop(1,'#c01030'); c.fillStyle=hg; c.beginPath(); c.moveTo(0,32); c.bezierCurveTo(-40,8,-46,-24,-16,-28); c.bezierCurveTo(-2,-30,0,-16,0,-10); c.bezierCurveTo(0,-16,2,-30,16,-28); c.bezierCurveTo(46,-24,40,8,0,32); c.fill(); c.fillStyle='rgba(255,255,255,.3)'; c.beginPath(); c.arc(-6,-10,8,0,Math.PI*2); c.fill(); }
+
+            drawBroccoli(c) {
+                const florets = [{x:0,y:-26,r:26},{x:-22,y:-13,r:19},{x:22,y:-13,r:19},{x:-14,y:-37,r:15},{x:14,y:-37,r:15},{x:0,y:-46,r:13}];
+                const stalk = c.createLinearGradient(-9,14,9,52);
+                stalk.addColorStop(0,'#e5ffb0'); stalk.addColorStop(1,'#6a8a35');
+                c.fillStyle = stalk;
+                c.beginPath(); c.moveTo(-9,14); c.quadraticCurveTo(-14,38,-9,52); c.lineTo(9,52); c.quadraticCurveTo(14,38,9,14); c.closePath(); c.fill();
+                florets.forEach(f => {
+                    const g = c.createRadialGradient(f.x-f.r*.3, f.y-f.r*.3, 3, f.x, f.y, f.r);
+                    g.addColorStop(0,'#9cf56a'); g.addColorStop(.5,'#4a9f2a'); g.addColorStop(1,'#1f3a18');
+                    c.fillStyle = g;
+                    c.beginPath(); c.arc(f.x, f.y, f.r, 0, Math.PI*2); c.fill();
+                    c.fillStyle = 'rgba(230,255,200,.5)';
+                    c.beginPath(); c.arc(f.x-f.r*.25, f.y-f.r*.25, f.r*.26, 0, Math.PI*2); c.fill();
+                });
+            }
+            drawBomb(c) {
+                const g = c.createRadialGradient(-16,-20,3,0,4,52);
+                g.addColorStop(0,'#8a8e96'); g.addColorStop(.3,'#2f333f'); g.addColorStop(1,'#0a0c12');
+                c.fillStyle = g;
+                c.beginPath(); c.arc(0,0,52,0,Math.PI*2); c.fill();
+                c.fillStyle='rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(-15,-20,15,20,.35,0,Math.PI*2); c.fill();
+                c.fillStyle='#4a3020'; c.fillRect(-10,-60,20,14);
+                c.strokeStyle='#f0d080'; c.lineWidth=6; c.lineCap='round';
+                c.beginPath(); c.moveTo(0,-60); c.quadraticCurveTo(18,-78,8,-96); c.stroke();
+                c.fillStyle='#ff7040'; c.beginPath(); c.arc(3,-94,8,0,Math.PI*2); c.fill();
+            }
+            drawPizza(c) {
+                c.save(); c.rotate(-0.25);
+                const cheese = c.createLinearGradient(0,-48,0,38);
+                cheese.addColorStop(0,'#ffe8a8'); cheese.addColorStop(1,'#e89030');
+                c.fillStyle=cheese;
+                c.beginPath(); c.moveTo(0,-48); c.lineTo(-42,38); c.quadraticCurveTo(0,50,42,38); c.closePath(); c.fill();
+                c.fillStyle='#c02020';
+                [{x:-14,y:-12,r:8},{x:12,y:3,r:9},{x:-7,y:18,r:7}].forEach(p => {
+                    c.beginPath(); c.arc(p.x,p.y,p.r,0,Math.PI*2); c.fill();
+                });
+                c.fillStyle='#c09050';
+                c.beginPath(); c.moveTo(-44,42); c.quadraticCurveTo(0,56,44,42); c.lineTo(38,32); c.quadraticCurveTo(0,46,-38,32); c.closePath(); c.fill();
+                c.restore();
+            }
+            drawDonut(c) {
+                const base = c.createRadialGradient(-12,-12,0,0,3,48);
+                base.addColorStop(0,'#f8d090'); base.addColorStop(1,'#9a5a28');
+                c.fillStyle=base; c.beginPath(); c.arc(0,0,48,0,Math.PI*2); c.fill();
+                c.fillStyle='#ff98c8'; c.beginPath(); c.arc(0,0,36,0,Math.PI*2); c.fill();
+                c.fillStyle='#0a061c'; c.beginPath(); c.arc(0,0,15,0,Math.PI*2); c.fill();
+                c.fillStyle='rgba(255,220,240,.6)'; c.beginPath(); c.arc(-10,-12,7,0,Math.PI*2); c.fill();
+            }
+            drawCandy(c) {
+                c.save(); c.rotate(-0.15);
+                c.fillStyle='#e070ff'; c.beginPath(); c.moveTo(-48,-14); c.lineTo(-26,-11); c.lineTo(-18,2); c.lineTo(-26,13); c.lineTo(-48,15); c.closePath(); c.fill();
+                c.beginPath(); c.moveTo(48,-14); c.lineTo(26,-11); c.lineTo(18,2); c.lineTo(26,13); c.lineTo(48,15); c.closePath(); c.fill();
+                const g = c.createLinearGradient(0,-27,0,27);
+                g.addColorStop(0,'#ffe8ff'); g.addColorStop(1,'#c050f0');
+                c.fillStyle=g; c.beginPath(); c.ellipse(0,0,32,23,0,0,Math.PI*2); c.fill();
+                c.fillStyle='rgba(255,255,255,.45)'; c.beginPath(); c.ellipse(-8,-10,9,6,-0.3,0,Math.PI*2); c.fill();
+                c.restore();
+            }
+            drawFreeze(c) {
+                c.strokeStyle='#c8f8ff'; c.lineWidth=9; c.shadowColor='#90e8ff'; c.shadowBlur=18;
+                for(let i=0;i<4;i++){
+                    c.save(); c.rotate(i*Math.PI/2);
+                    c.beginPath(); c.moveTo(0,-52); c.lineTo(0,52); c.stroke();
+                    c.beginPath(); c.moveTo(0,-30); c.lineTo(18,-42); c.moveTo(0,-30); c.lineTo(-18,-42);
+                    c.moveTo(0,30); c.lineTo(18,42); c.moveTo(0,30); c.lineTo(-18,42); c.stroke();
+                    c.restore();
+                }
+                c.shadowBlur=0;
+            }
+            drawShield(c) {
+                const sg = c.createLinearGradient(0,-48,0,52);
+                sg.addColorStop(0,'#fff070'); sg.addColorStop(1,'#e0a000');
+                c.fillStyle=sg;
+                c.beginPath(); c.moveTo(0,-48); c.lineTo(34,-28); c.lineTo(29,14); c.quadraticCurveTo(22,36,0,52);
+                c.quadraticCurveTo(-22,36,-29,14); c.lineTo(-34,-28); c.closePath(); c.fill();
+                c.strokeStyle='#fff8d0'; c.lineWidth=6; c.stroke();
+                c.fillStyle='rgba(255,255,255,.4)';
+                c.beginPath(); c.moveTo(0,-32); c.lineTo(18,-12); c.lineTo(12,18); c.lineTo(0,30); c.lineTo(-12,18); c.lineTo(-18,-12); c.closePath(); c.fill();
+            }
+            drawHeart(c) {
+                const hg = c.createRadialGradient(0,-8,0,0,12,55);
+                hg.addColorStop(0,'#ff8098'); hg.addColorStop(1,'#d02040');
+                c.fillStyle=hg;
+                c.beginPath(); c.moveTo(0,36); c.bezierCurveTo(-44,10,-50,-26,-18,-32);
+                c.bezierCurveTo(-3,-34,0,-18,0,-12); c.bezierCurveTo(0,-18,3,-34,18,-32);
+                c.bezierCurveTo(50,-26,44,10,0,36); c.fill();
+                c.fillStyle='rgba(255,255,255,.35)'; c.beginPath(); c.arc(-8,-12,9,0,Math.PI*2); c.fill();
+            }
         }
 
         class Game {
@@ -623,6 +732,7 @@
                 this.w = 0; this.h = 0; this.dpr = Math.min(devicePixelRatio || 1, 2);
                 this.lastTime = 0;
                 this.starField = [];
+                this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                 this.bindUI();
                 this.bindInput();
                 this.resize();
@@ -634,7 +744,8 @@
             async prime() { await this.audio.init(); this.voice.init(); }
             generateStars() {
                 this.starField = [];
-                for (let i = 0; i < 200; i++) {
+                const count = this.isMobile ? 120 : 200;
+                for (let i = 0; i < count; i++) {
                     this.starField.push({
                         x: Math.random() * this.w,
                         y: Math.random() * this.h,
@@ -657,7 +768,7 @@
                 });
                 $('testVoiceBtn').addEventListener('click', () => {
                     const ok = this.voice.test();
-                    this.showAnn(ok ? 'Voice Online' : 'Voice Failed', ok ? 'Kenzie can speak now.' : 'Browser blocked speech.', ok ? '#00f2fe' : '#ff4b2b');
+                    this.showAnn(ok ? 'Voice Online' : 'Voice Failed', ok ? 'Kenzie is ready to roast.' : 'Browser blocked speech.', ok ? '#00f2fe' : '#ff4b2b');
                 });
                 addEventListener('resize', () => { this.resize(); this.generateStars(); });
             }
@@ -677,7 +788,7 @@
                     this.sliceBetween(p1, p2);
                     this.lastPoint = p2;
                     this.trail.push({x, y, life:1, vel:this.swipeVelocity});
-                    if(this.trail.length > CONFIG.trailMax) this.trail.shift();
+                    if(this.trail.length > (this.isMobile ? 12 : CONFIG.trailMax)) this.trail.shift();
                 };
                 const end = () => { this.pointerDown = false; this.lastPoint = null; this.swipeVelocity = 0; };
                 this.canvas.addEventListener('pointerdown', e => start(e.clientX, e.clientY));
@@ -758,13 +869,13 @@
                 if(this.tauntTimer > 0 && !force) return;
                 $('taunt').textContent = text;
                 $('taunt').classList.add('show');
-                this.tauntTimer = 90;
-                this.voice.speakNow(text, { minGap: 0, pitch: 1.55 });
+                this.tauntTimer = 110;
+                this.voice.speakNow(text, { minGap: 0, pitch: 1.52, rate: 1.05 });
             }
             flashAction(text) {
                 $('action').textContent = text;
                 $('action').classList.add('show');
-                this.actionTimer = 15;
+                this.actionTimer = 18;
             }
             updateHUD() {
                 $('score').textContent = this.score;
@@ -786,7 +897,7 @@
                     shield:   { r:24, score:0,  sprite:'shield', color:'#ffe05a', power:'shield' },
                     heart:    { r:24, score:0,  sprite:'heart', color:'#ff516d', power:'heart' }
                 };
-                this.objects.push(Object.assign({ type, x, y, vx, vy, rot: Math.random()*Math.PI*2, vr: (Math.random()-0.5)*0.2, dead:false, glowPhase:Math.random()*Math.PI*2 }, defs[type]));
+                this.objects.push(Object.assign({ type, x, y, vx, vy, rot: Math.random()*Math.PI*2, vr: (Math.random()-0.5)*0.22, dead:false, glowPhase:Math.random()*Math.PI*2 }, defs[type]));
             }
             spawn() {
                 const bossWave = this.wave % 5 === 0;
@@ -832,7 +943,7 @@
                 return dx*dx + dy*dy <= rr;
             }
             onSlice(o) {
-                const isCrit = this.swipeVelocity > 30 && Math.random() < 0.25;
+                const isCrit = this.swipeVelocity > 30 && Math.random() < 0.28;
                 const gained = o.score * (this.isRush ? 2 : 1) * (isCrit ? 2 : 1);
                 this.score += gained;
                 this.combo += 1;
@@ -847,14 +958,14 @@
                 else if(isCrit) this.flashAction('CRITICAL!');
                 else if(this.combo >= 3) this.flashAction('NICE!');
                 else this.flashAction('KEEEYA!');
-                this.burst(o.x, o.y, o.color, isCrit ? 28 : 18, isCrit);
-                this.spark(o.x, o.y, '#ffffff', isCrit ? 16 : 10);
-                this.ring(o.x, o.y, isCrit ? 'rgba(255,215,0,.8)' : 'rgba(255,255,255,.5)', isCrit ? 100 : 80);
-                this.floatText(o.x, o.y, '+' + gained, isCrit ? '#ffd700' : '#ffffff', isCrit ? 28 : 24);
+                this.burst(o.x, o.y, o.color, isCrit ? 32 : 20, isCrit);
+                this.spark(o.x, o.y, '#ffffff', isCrit ? 18 : 12);
+                this.ring(o.x, o.y, isCrit ? 'rgba(255,215,0,.85)' : 'rgba(255,255,255,.6)', isCrit ? 110 : 85);
+                this.floatText(o.x, o.y, '+' + gained, isCrit ? '#ffd700' : '#ffffff', isCrit ? 30 : 26);
                 if(isCrit) this.shockwave(o.x, o.y, '#ffd700');
                 if(this.power >= 100 && !this.isRush) {
                     this.isRush = true;
-                    this.rushTimer = 6000;  // 6 seconds in milliseconds (was frames)
+                    this.rushTimer = 6000;
                     this.audio.play('ult');
                     this.showAnn('SUGAR RUSH', 'Double score! Go wild!', '#ff4080');
                     this.voice.speak('Sugar rush! Try to keep up, Riley.', { minGap: 0, pitch: 1.45 });
@@ -872,11 +983,12 @@
                     this.shockwave(this.w*0.5, this.h*0.5, isBoss ? '#ff4b2b' : '#ffd700');
                 }
                 this.updateHUD();
+                if (Math.random() < 0.45) this.showTaunt(CONFIG.taunts[Math.floor(Math.random() * CONFIG.taunts.length)], false);
             }
             onPower(o) {
                 if(o.power === 'freeze') {
                     this.isFrozen = true;
-                    this.freezeTimer = 4000;  // 4 seconds in milliseconds (was frames)
+                    this.freezeTimer = 4000;
                     this.audio.play('freeze');
                     this.showAnn('❄️ Freeze', 'Everything slows down.', '#a6f0ff');
                     this.voice.speak('Freeze activated.', { minGap: 0, pitch: 1.35 });
@@ -891,8 +1003,8 @@
                     this.showAnn('❤️ Extra Life', 'You got lucky.', '#ff516d');
                     this.voice.speak('Extra life.', { minGap: 0, pitch: 1.35 });
                 }
-                this.burst(o.x, o.y, o.color, 16, false);
-                this.floatText(o.x, o.y, o.power.toUpperCase(), '#ffffff', 20);
+                this.burst(o.x, o.y, o.color, 18, false);
+                this.floatText(o.x, o.y, o.power.toUpperCase(), '#ffffff', 22);
                 this.shockwave(o.x, o.y, o.color);
                 this.updateHUD();
             }
@@ -901,34 +1013,34 @@
                 this.shakeTimer = 18;
                 this.shakeIntensity = 14;
                 this.screenFlash = 8;
-                this.ring(o.x, o.y, 'rgba(255,80,80,.8)', 110);
-                this.burst(o.x, o.y, '#ff5b5b', 28, false);
+                this.ring(o.x, o.y, 'rgba(255,80,80,.85)', 120);
+                this.burst(o.x, o.y, '#ff5b5b', 32, false);
                 this.shockwave(o.x, o.y, '#ff4040');
                 this.combo = 0;
                 this.comboTimer = 0;
                 if(this.hasShield) {
                     this.hasShield = false;
-                    this.floatText(o.x, o.y, 'SHIELD SAVED YOU', '#ffe05a', 18);
+                    this.floatText(o.x, o.y, 'SHIELD SAVED YOU', '#ffe05a', 20);
                     this.shockwave(o.x, o.y, '#ffe05a');
                 } else {
                     this.lives -= 1;
-                    this.floatText(o.x, o.y, '-1 LIFE', '#ff9aa3', 26);
+                    this.floatText(o.x, o.y, '-1 LIFE', '#ff9aa3', 28);
                 }
                 this.showTaunt(CONFIG.bombTaunts[Math.floor(Math.random() * CONFIG.bombTaunts.length)], true);
                 this.updateHUD();
                 if(this.lives <= 0) this.endGame();
             }
-            burst(x, y, color, n, isCrit) { for(let i=0; i<n; i++){ const a = (Math.PI*2/n)*i + Math.random()*.5; const sp = Math.random()*7+3; this.particles.push({ x, y, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp-3, life:1, size:Math.random()*6+2, color, spark: isCrit||false, glow:true }); } }
-            spark(x, y, color, n) { for(let i=0; i<n; i++){ const a = Math.random()*Math.PI*2; const sp = Math.random()*10+4; this.particles.push({ x, y, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp-2, life:1, size:Math.random()*2.5+1, color, spark:true, glow:false }); } }
-            floatText(x, y, text, color, size) { this.floaters.push({ x, y, text, color, size, life:1, vy:-2.5, bouncePhase:0 }); }
-            ring(x, y, color, maxR) { this.rings.push({ x, y, r:6, max:maxR, life:1, color }); }
-            shockwave(x, y, color) { this.shockwaves.push({ x, y, r:10, max:140, life:1, color }); }
+            burst(x, y, color, n, isCrit) { for(let i=0; i<n; i++){ const a = (Math.PI*2/n)*i + Math.random()*.5; const sp = Math.random()*8+3; this.particles.push({ x, y, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp-3, life:1, size:Math.random()*7+2, color, spark: isCrit||false, glow:true }); } }
+            spark(x, y, color, n) { for(let i=0; i<n; i++){ const a = Math.random()*Math.PI*2; const sp = Math.random()*11+4; this.particles.push({ x, y, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp-2, life:1, size:Math.random()*2.8+1, color, spark:true, glow:false }); } }
+            floatText(x, y, text, color, size) { this.floaters.push({ x, y, text, color, size, life:1, vy:-2.6, bouncePhase:0 }); }
+            ring(x, y, color, maxR) { this.rings.push({ x, y, r:7, max:maxR, life:1, color }); }
+            shockwave(x, y, color) { this.shockwaves.push({ x, y, r:12, max:155, life:1, color }); }
             tickBGM(dt) {
                 if(this.state !== 'playing') return;
                 this.bgmTimer -= dt;
                 if(this.bgmTimer > 0) return;
                 const notes = [392,440,494,523,587,523,494,392,349,392,440,523];
-                this.bgmTimer = this.isRush ? 110 : this.isFrozen ? 550 : 280;
+                this.bgmTimer = this.isRush ? 105 : this.isFrozen ? 520 : 265;
                 const note = notes[this.bgmStep % notes.length];
                 this.bgmStep += 1;
                 this.audio.play('bgm', note * (this.isRush ? 1.5 : 1));
@@ -968,11 +1080,11 @@
                 this.kenzie.x += (this.kenzie.targetX - this.kenzie.x) * 0.035;
                 this.kenzie.bobOffset = Math.sin(performance.now()*0.003) * 5;
 
-                for(const o of this.objects){ if(o.dead) continue; o.x += o.vx; o.y += o.vy; o.vy += gravity; o.rot += o.vr; o.glowPhase += 0.06; }
+                for(const o of this.objects){ if(o.dead) continue; o.x += o.vx; o.y += o.vy; o.vy += gravity; o.rot += o.vr; o.glowPhase += 0.065; }
                 for(const p of this.particles){ p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.life -= 0.024; p.size *= 0.992; }
                 for(const f of this.floaters){ f.y += f.vy; f.life -= 0.018; f.bouncePhase += 0.1; f.vy -= 0.03; }
-                for(const r of this.rings){ r.r += 5; r.life -= 0.035; }
-                for(const sw of this.shockwaves){ sw.r += 8; sw.life -= 0.03; }
+                for(const r of this.rings){ r.r += 5.2; r.life -= 0.035; }
+                for(const sw of this.shockwaves){ sw.r += 8.5; sw.life -= 0.03; }
                 for(const t of this.trail) t.life -= 0.06;
 
                 this.objects = this.objects.filter(o => !o.dead && o.y < this.h + 130 && o.x > -130 && o.x < this.w + 130);
@@ -982,7 +1094,7 @@
                 this.shockwaves = this.shockwaves.filter(sw => sw.life > 0 && sw.r < sw.max);
                 this.trail = this.trail.filter(t => t.life > 0);
 
-                if(Math.random() < 0.0035) this.showTaunt(CONFIG.taunts[Math.floor(Math.random() * CONFIG.taunts.length)], false);
+                if(Math.random() < (this.isMobile ? 0.003 : 0.0045)) this.showTaunt(CONFIG.taunts[Math.floor(Math.random() * CONFIG.taunts.length)], false);
             }
             drawBackground(c) {
                 const g = c.createLinearGradient(0,0,0,this.h); g.addColorStop(0,'#050318'); g.addColorStop(.5,'#0e0828'); g.addColorStop(1,'#1a0a38');
@@ -996,43 +1108,43 @@
                 }
                 c.globalAlpha = 1;
                 const nebulaG = c.createRadialGradient(this.w*0.5, this.h*0.65, 0, this.w*0.5, this.h*0.65, this.w*0.7);
-                nebulaG.addColorStop(0,'rgba(60,20,100,.08)'); nebulaG.addColorStop(1,'rgba(0,0,0,0)');
+                nebulaG.addColorStop(0,'rgba(60,20,100,.09)'); nebulaG.addColorStop(1,'rgba(0,0,0,0)');
                 c.fillStyle = nebulaG; c.fillRect(0,0,this.w,this.h);
                 const vignetteG = c.createRadialGradient(this.w*0.5, this.h*0.5, this.w*0.4, this.w*0.5, this.h*0.5, this.w*0.85);
-                vignetteG.addColorStop(0,'rgba(0,0,0,0)'); vignetteG.addColorStop(1,'rgba(0,0,0,.55)');
+                vignetteG.addColorStop(0,'rgba(0,0,0,0)'); vignetteG.addColorStop(1,'rgba(0,0,0,.58)');
                 c.fillStyle = vignetteG; c.fillRect(0,0,this.w,this.h);
             }
             drawKenzie(c) {
                 const x = this.kenzie.x, y = this.kenzie.y + this.kenzie.bobOffset, boss = this.wave % 5 === 0;
                 c.save(); c.translate(x, y);
-                c.shadowColor = boss ? 'rgba(255,40,80,.6)' : 'rgba(255,100,180,.4)'; c.shadowBlur = 24;
-                c.fillStyle = boss ? '#2a0a10' : '#3a1a0e'; c.beginPath(); c.arc(0,-32,38,0,Math.PI*2); c.fill();
-                const dg = c.createLinearGradient(0,-8,0,90); dg.addColorStop(0,boss ? '#ff4068' : '#ff80c8'); dg.addColorStop(1,boss ? '#8a00e0' : '#c030e0');
-                c.fillStyle = dg; c.beginPath(); c.moveTo(-20,-4); c.quadraticCurveTo(-46,44,-54,90); c.lineTo(54,90); c.quadraticCurveTo(46,44,20,-4); c.closePath(); c.fill();
-                c.fillStyle = '#ffe8cc'; c.fillRect(-6,-20,12,16); c.beginPath(); c.arc(0,-36,26,0,Math.PI*2); c.fill();
-                c.fillStyle = '#fff'; c.beginPath(); c.ellipse(-9,-38,5,7,0,0,Math.PI*2); c.ellipse(9,-38,5,7,0,0,Math.PI*2); c.fill();
-                c.fillStyle = '#000'; c.beginPath(); c.arc(-9,-37,2.5,0,Math.PI*2); c.arc(9,-37,2.5,0,Math.PI*2); c.fill();
-                c.fillStyle = 'rgba(255,255,255,.3)'; c.beginPath(); c.arc(-8,-40,2,0,Math.PI*2); c.arc(10,-40,2,0,Math.PI*2); c.fill();
-                c.strokeStyle = '#c00030'; c.lineWidth=2.5; c.beginPath(); c.arc(0,-27,9,0.2*Math.PI,0.8*Math.PI); c.stroke();
-                c.fillStyle = '#ffd700'; c.shadowColor='rgba(255,215,0,.8)'; c.shadowBlur=16; c.beginPath(); c.moveTo(-14,-58); c.lineTo(-4,-50); c.lineTo(0,-62); c.lineTo(4,-50); c.lineTo(14,-58); c.lineTo(9,-44); c.lineTo(-9,-44); c.closePath(); c.fill();
-                c.shadowBlur=0; c.strokeStyle = '#ffd700'; c.lineWidth=5; c.lineCap='round'; c.beginPath(); c.moveTo(0,-7); c.lineTo(-30,20); c.moveTo(0,-9); c.lineTo(30,20); c.stroke();
-                if(boss){ c.strokeStyle='rgba(255,50,50,.7)'; c.lineWidth=4; c.shadowColor='rgba(255,30,30,.7)'; c.shadowBlur=20; c.beginPath(); c.arc(0,-32,48,0,Math.PI*2); c.stroke(); c.shadowBlur=0; }
+                c.shadowColor = boss ? 'rgba(255,40,80,.7)' : 'rgba(255,100,180,.5)'; c.shadowBlur = 28;
+                c.fillStyle = boss ? '#2a0a10' : '#3a1a0e'; c.beginPath(); c.arc(0,-34,40,0,Math.PI*2); c.fill();
+                const dg = c.createLinearGradient(0,-10,0,95); dg.addColorStop(0,boss ? '#ff4068' : '#ff80c8'); dg.addColorStop(1,boss ? '#8a00e0' : '#c030e0');
+                c.fillStyle = dg; c.beginPath(); c.moveTo(-22,-5); c.quadraticCurveTo(-48,46,-56,95); c.lineTo(56,95); c.quadraticCurveTo(48,46,22,-5); c.closePath(); c.fill();
+                c.fillStyle = '#ffe8cc'; c.fillRect(-7,-22,14,18); c.beginPath(); c.arc(0,-38,28,0,Math.PI*2); c.fill();
+                c.fillStyle = '#fff'; c.beginPath(); c.ellipse(-10,-40,6,8,0,0,Math.PI*2); c.ellipse(10,-40,6,8,0,0,Math.PI*2); c.fill();
+                c.fillStyle = '#000'; c.beginPath(); c.arc(-10,-39,3,0,Math.PI*2); c.arc(10,-39,3,0,Math.PI*2); c.fill();
+                c.fillStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.arc(-9,-42,2.5,0,Math.PI*2); c.arc(11,-42,2.5,0,Math.PI*2); c.fill();
+                c.strokeStyle = '#c00030'; c.lineWidth=3; c.beginPath(); c.arc(0,-29,10,0.2*Math.PI,0.8*Math.PI); c.stroke();
+                c.fillStyle = '#ffd700'; c.shadowColor='rgba(255,215,0,.9)'; c.shadowBlur=20; c.beginPath(); c.moveTo(-16,-62); c.lineTo(-5,-52); c.lineTo(0,-66); c.lineTo(5,-52); c.lineTo(16,-62); c.lineTo(10,-46); c.lineTo(-10,-46); c.closePath(); c.fill();
+                c.shadowBlur=0; c.strokeStyle = '#ffd700'; c.lineWidth=6; c.lineCap='round'; c.beginPath(); c.moveTo(0,-8); c.lineTo(-32,22); c.moveTo(0,-10); c.lineTo(32,22); c.stroke();
+                if(boss){ c.strokeStyle='rgba(255,50,50,.8)'; c.lineWidth=5; c.shadowColor='rgba(255,30,30,.8)'; c.shadowBlur=26; c.beginPath(); c.arc(0,-34,52,0,Math.PI*2); c.stroke(); c.shadowBlur=0; }
                 c.restore();
             }
             drawObjects(c) {
                 for(const o of this.objects){
                     c.save(); c.translate(o.x, o.y); c.rotate(o.rot);
-                    if(o.type==='bomb'){ c.shadowColor='rgba(255,60,30,.5)'; c.shadowBlur=14+Math.sin(o.glowPhase)*6; }
-                    const img = this.assets.get(o.sprite); const size = o.r*2.6;
+                    if(o.type==='bomb'){ c.shadowColor='rgba(255,70,40,.6)'; c.shadowBlur=18+Math.sin(o.glowPhase)*8; }
+                    const img = this.assets.get(o.sprite); const size = o.r*2.7;
                     if(img) c.drawImage(img, -size/2, -size/2, size, size);
                     c.shadowBlur=0; c.restore();
                 }
             }
             drawFX(c) {
-                for(const sw of this.shockwaves){ c.globalAlpha=sw.life*0.5; c.strokeStyle=sw.color; c.lineWidth=6*sw.life; c.shadowColor=sw.color; c.shadowBlur=18; c.beginPath(); c.arc(sw.x,sw.y,sw.r,0,Math.PI*2); c.stroke(); c.shadowBlur=0; }
-                for(const p of this.particles){ c.globalAlpha=p.life; c.fillStyle=p.color; if(p.glow){ c.shadowColor=p.color; c.shadowBlur=10; } if(p.spark) c.fillRect(p.x,p.y,p.size*2.5,1.5); else { c.beginPath(); c.arc(p.x,p.y,p.size,0,Math.PI*2); c.fill(); } c.shadowBlur=0; }
-                for(const f of this.floaters){ c.globalAlpha=f.life; c.font = '900 '+(f.size+Math.sin(f.bouncePhase)*3)+'px Georgia, serif'; c.textAlign='center'; c.lineWidth=5; c.strokeStyle='#000'; c.shadowColor='rgba(0,0,0,.8)'; c.shadowBlur=8; c.strokeText(f.text,f.x,f.y); c.shadowBlur=0; c.fillStyle=f.color; c.shadowColor=f.color; c.shadowBlur=14; c.fillText(f.text,f.x,f.y); c.shadowBlur=0; }
-                for(const r of this.rings){ c.globalAlpha=r.life; c.strokeStyle=r.color; c.lineWidth=5; c.shadowColor=r.color; c.shadowBlur=8; c.beginPath(); c.arc(r.x,r.y,r.r,0,Math.PI*2); c.stroke(); c.shadowBlur=0; }
+                for(const sw of this.shockwaves){ c.globalAlpha=sw.life*0.55; c.strokeStyle=sw.color; c.lineWidth=7*sw.life; c.shadowColor=sw.color; c.shadowBlur=22; c.beginPath(); c.arc(sw.x,sw.y,sw.r,0,Math.PI*2); c.stroke(); c.shadowBlur=0; }
+                for(const p of this.particles){ c.globalAlpha=p.life; c.fillStyle=p.color; if(p.glow){ c.shadowColor=p.color; c.shadowBlur=12; } if(p.spark) c.fillRect(p.x,p.y,p.size*2.8,1.8); else { c.beginPath(); c.arc(p.x,p.y,p.size,0,Math.PI*2); c.fill(); } c.shadowBlur=0; }
+                for(const f of this.floaters){ c.globalAlpha=f.life; c.font = '900 '+(f.size+Math.sin(f.bouncePhase)*3.5)+'px Georgia, serif'; c.textAlign='center'; c.lineWidth=5.5; c.strokeStyle='#000'; c.shadowColor='rgba(0,0,0,.85)'; c.shadowBlur=9; c.strokeText(f.text,f.x,f.y); c.shadowBlur=0; c.fillStyle=f.color; c.shadowColor=f.color; c.shadowBlur=16; c.fillText(f.text,f.x,f.y); c.shadowBlur=0; }
+                for(const r of this.rings){ c.globalAlpha=r.life; c.strokeStyle=r.color; c.lineWidth=5.5; c.shadowColor=r.color; c.shadowBlur=9; c.beginPath(); c.arc(r.x,r.y,r.r,0,Math.PI*2); c.stroke(); c.shadowBlur=0; }
                 c.globalAlpha=1;
             }
             drawTrail(c) {
@@ -1040,9 +1152,9 @@
                 c.lineCap='round';
                 for(let i=1; i<this.trail.length; i++){
                     const a=this.trail[i-1], b=this.trail[i], alpha=b.life;
-                    c.globalAlpha=alpha; c.shadowColor='#00e0ff'; c.shadowBlur=22; c.strokeStyle='#ffffff'; c.lineWidth=5; c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke();
-                    c.globalAlpha=alpha*0.35; c.strokeStyle='#00e0ff'; c.lineWidth=16; c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke();
-                    c.globalAlpha=alpha*0.15; c.strokeStyle='#80f0ff'; c.lineWidth=30; c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke();
+                    c.globalAlpha=alpha; c.shadowColor='#00e0ff'; c.shadowBlur=24; c.strokeStyle='#ffffff'; c.lineWidth=5.5; c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke();
+                    c.globalAlpha=alpha*0.38; c.strokeStyle='#00e0ff'; c.lineWidth=17; c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke();
+                    c.globalAlpha=alpha*0.16; c.strokeStyle='#80f0ff'; c.lineWidth=32; c.beginPath(); c.moveTo(a.x,a.y); c.lineTo(b.x,b.y); c.stroke();
                 }
                 c.shadowBlur=0; c.globalAlpha=1;
             }
