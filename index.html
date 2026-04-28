@@ -389,7 +389,7 @@
             maxLives: 3,
             gravityBase: 0.26,
             trailMax: 24,
-            storageKey: 'riley-vs-kenzie-definitive-v5',
+            storageKey: 'riley-vs-kenzie-definitive-v6',
             levels: {
                 easy: { spawnMs: 750, bombChance: 0.06, stinkChance: 0.03, speed: 0.92, waveGoal: 10 },
                 medium: { spawnMs: 590, bombChance: 0.10, stinkChance: 0.05, speed: 1.04, waveGoal: 12 },
@@ -415,12 +415,22 @@
             bombTaunts: ['Boom goes the rhythm!', 'Explosive dance party!', 'Kaboom on the dance floor!'],
             stinkTaunts: ['Ewww, stink bomb!', 'That reeks!', 'Fart cloud of doom!', 'Toxic!'],
             bossTaunts: ['This is MY kingdom!', 'Bow before the ninja queen!', 'You cannot out-dance destiny!',
-                'Witness true blade ballet!', 'My wrath has perfect timing!']
+                'Witness true blade ballet!', 'My wrath has perfect timing!'
+            ],
+            cutsceneTexts: [
+                "In the neon-lit dojo...",
+                "Kenzie, the deadly dance ninja, rules with an iron fist.",
+                "No one has ever defeated her blade ballet.",
+                "But tonight, a challenger appears: Riley, the swift.",
+                "Kenzie smirks. 'Let's see what you've got.'",
+                "The music drops. The battle begins."
+            ]
         };
         const ACHIEVEMENTS = [
             { id: 'first_slice', name: 'First Blood', desc: 'Slice your first object.', check: (g) => g.totalSliced >=
                     1 },
             { id: 'combo_10', name: 'Combo Apprentice', desc: 'Reach a 10x combo.', check: (g) => g.bestCombo >= 10 },
+            { id: 'combo_20', name: 'Combo Master', desc: 'Reach a 20x combo.', check: (g) => g.bestCombo >= 20 },
             { id: 'poop_master', name: 'Poop Master', desc: 'Slice 30 poops total.', check: (g) => g.poopsSliced >=
                 30 },
             { id: 'survive_rage', name: 'Rage Survivor', desc: 'Survive a boss rage without losing a life.',
@@ -429,8 +439,12 @@
                     .freezesTriggered >= 5 },
             { id: 'shield_saver', name: 'Shield Saviour', desc: 'Block 5 bombs with shields.', check: (g) => g
                     .shieldsUsed >= 5 },
+            { id: 'stink_avoider', name: 'Stink Bomber', desc: 'Get hit by 10 stink bombs.', check: (g) => g
+                    .stinkHits >= 10 },
             { id: 'score_5000', name: 'High Scorer', desc: 'Score over 5000 points.', check: (g) => g.score >= 5000 },
-            { id: 'wave_10', name: 'Wave Warrior', desc: 'Reach wave 10.', check: (g) => g.wave >= 10 }
+            { id: 'wave_10', name: 'Wave Warrior', desc: 'Reach wave 10.', check: (g) => g.wave >= 10 },
+            { id: 'all_achieve', name: 'Completionist', desc: 'Unlock all achievements.', check: (g) =>
+                    ACHIEVEMENTS.slice(0, -1).every(a => g.achievements.includes(a.id)) }
         ];
 
         class AudioEngine {
@@ -511,7 +525,9 @@
                     0.5, 0.09); } else if (name === 'ult') { [220, 330, 440, 550, 660, 880].forEach((f, i) =>
                     setTimeout(() => this.tone('sawtooth', f, f * 1.4, 0.14, 0.08), i * 30)); } else if (name ===
                     'rage') { [110, 165, 220, 275].forEach((f, i) => setTimeout(() => this.tone('sawtooth', f, f *
-                        2, 0.2, 0.1), i * 60)); }
+                        2, 0.2, 0.1), i * 60)); } else if (name === 'cutscene_jingle') { [523, 659, 784,
+                    1047
+                ].forEach((f, i) => setTimeout(() => this.tone('triangle', f, f, 0.2, 0.08), i * 120)); }
             }
         }
 
@@ -566,6 +582,8 @@
                 this.make('kenzie_idle', c => this.drawKenzieSprite(c, false, false));
                 this.make('kenzie_rage', c => this.drawKenzieSprite(c, true, false));
                 this.make('kenzie_attack', c => this.drawKenzieSprite(c, false, true));
+                this.make('riley', c => this.drawRiley(c));
+                this.make('dojo', c => this.drawDojo(c));
             }
             make(name, fn) { const cv = document.createElement('canvas');
                 cv.width = cv.height = this.size; const c = cv.getContext('2d');
@@ -627,6 +645,12 @@
                 c.beginPath();
                 c.arc(3, -94, 8, 0, Math.PI * 2);
                 c.fill();
+                c.shadowColor = '#ff9040';
+                c.shadowBlur = 10;
+                c.beginPath();
+                c.arc(3, -94, 4, 0, Math.PI * 2);
+                c.fill();
+                c.shadowBlur = 0;
             }
             drawStinkBomb(c) {
                 const g = c.createRadialGradient(-14, -18, 2, 0, 3, 50);
@@ -653,14 +677,13 @@
                 c.beginPath();
                 c.arc(2, -86, 7, 0, Math.PI * 2);
                 c.fill();
-                for (let i = 0; i < 4; i++) {
-                    const sx = -24 + i * 16;
-                    const sy = -12 + Math.sin(i * 1.6) * 16;
+                for (let i = 0; i < 6; i++) {
+                    const sx = -30 + i * 12;
                     c.strokeStyle = 'rgba(160,230,70,.7)';
-                    c.lineWidth = 3;
+                    c.lineWidth = 2;
                     c.beginPath();
-                    c.moveTo(sx - 10, sy);
-                    c.quadraticCurveTo(sx, sy - 14, sx + 10, sy);
+                    c.moveTo(sx, -10);
+                    c.quadraticCurveTo(sx + 8, -18, sx + 16, -6);
                     c.stroke();
                 }
             }
@@ -713,13 +736,13 @@
                 c.beginPath();
                 c.arc(0, 2, 7, 0.1 * Math.PI, 0.9 * Math.PI);
                 c.stroke();
-                for (let i = 0; i < 3; i++) {
-                    const sx = -14 + i * 14;
+                for (let i = 0; i < 4; i++) {
+                    const sx = -18 + i * 12;
                     c.strokeStyle = 'rgba(160,220,70,.6)';
                     c.lineWidth = 2.5;
                     c.beginPath();
                     c.moveTo(sx, -44);
-                    c.quadraticCurveTo(sx + 4, -54, sx + 10, -50);
+                    c.quadraticCurveTo(sx + 4, -54, sx + 12, -48);
                     c.stroke();
                 }
             }
@@ -758,6 +781,10 @@
                 c.beginPath();
                 c.arc(0, 0, 15, 0, Math.PI * 2);
                 c.fill();
+                c.fillStyle = 'rgba(255,255,255,.4)';
+                c.beginPath();
+                c.arc(-10, -12, 6, 0, Math.PI * 2);
+                c.fill();
             }
             drawCandy(c) {
                 c.save();
@@ -786,6 +813,10 @@
                 c.beginPath();
                 c.ellipse(0, 0, 32, 23, 0, 0, Math.PI * 2);
                 c.fill();
+                c.fillStyle = 'rgba(255,255,255,.6)';
+                c.beginPath();
+                c.ellipse(-8, -10, 8, 5, -0.4, 0, Math.PI * 2);
+                c.fill();
                 c.restore();
             }
             drawFreeze(c) {
@@ -793,9 +824,9 @@
                 c.lineWidth = 9;
                 c.shadowColor = '#90e8ff';
                 c.shadowBlur = 20;
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < 6; i++) {
                     c.save();
-                    c.rotate(i * Math.PI / 2);
+                    c.rotate(i * Math.PI / 3);
                     c.beginPath();
                     c.moveTo(0, -52);
                     c.lineTo(0, 52);
@@ -817,6 +848,9 @@
                 c.lineTo(-34, -28);
                 c.closePath();
                 c.fill();
+                c.strokeStyle = '#ffffff';
+                c.lineWidth = 3;
+                c.stroke();
             }
             drawHeart(c) {
                 const hg = c.createRadialGradient(0, -8, 0, 0, 12, 55);
@@ -829,6 +863,10 @@
                 c.bezierCurveTo(-3, -34, 0, -18, 0, -12);
                 c.bezierCurveTo(0, -18, 3, -34, 18, -32);
                 c.bezierCurveTo(50, -26, 44, 10, 0, 36);
+                c.fill();
+                c.fillStyle = 'rgba(255,255,255,.4)';
+                c.beginPath();
+                c.arc(-8, -12, 8, 0, Math.PI * 2);
                 c.fill();
             }
             drawKenzieSprite(c, isRage, isAttack) {
@@ -901,6 +939,123 @@
                 c.stroke();
                 c.restore();
             }
+            drawRiley(c) {
+                c.save();
+                c.translate(0, 0);
+                c.fillStyle = '#2a1a40';
+                c.beginPath();
+                c.arc(0, -30, 32, 0, Math.PI * 2);
+                c.fill();
+                const dg = c.createLinearGradient(0, -10, 0, 80);
+                dg.addColorStop(0, '#40b0ff');
+                dg.addColorStop(1, '#2060d0');
+                c.fillStyle = dg;
+                c.beginPath();
+                c.moveTo(-18, -5);
+                c.quadraticCurveTo(-40, 30, -44, 80);
+                c.lineTo(44, 80);
+                c.quadraticCurveTo(40, 30, 18, -5);
+                c.closePath();
+                c.fill();
+                c.fillStyle = '#ffe8cc';
+                c.fillRect(-6, -18, 12, 14);
+                c.beginPath();
+                c.arc(0, -32, 22, 0, Math.PI * 2);
+                c.fill();
+                c.fillStyle = '#000';
+                c.beginPath();
+                c.arc(-8, -36, 2.5, 0, Math.PI * 2);
+                c.arc(8, -36, 2.5, 0, Math.PI * 2);
+                c.fill();
+                c.strokeStyle = '#00c0ff';
+                c.lineWidth = 4;
+                c.beginPath();
+                c.moveTo(0, -6);
+                c.lineTo(-26, 18);
+                c.moveTo(0, -8);
+                c.lineTo(26, 18);
+                c.stroke();
+                c.fillStyle = '#ffffff';
+                c.beginPath();
+                c.moveTo(-10, -50);
+                c.lineTo(-4, -44);
+                c.lineTo(0, -52);
+                c.lineTo(4, -44);
+                c.lineTo(10, -50);
+                c.lineTo(6, -40);
+                c.lineTo(-6, -40);
+                c.closePath();
+                c.fill();
+                c.restore();
+            }
+            drawDojo(c) {
+                c.fillStyle = '#1a0520';
+                c.fillRect(-86, -86, 172, 172);
+                c.strokeStyle = '#8040c0';
+                c.lineWidth = 4;
+                c.strokeRect(-80, -80, 160, 160);
+                for (let i = 0; i < 5; i++) {
+                    c.beginPath();
+                    c.moveTo(-70 + i * 30, -70);
+                    c.lineTo(-70 + i * 30, 70);
+                    c.strokeStyle = 'rgba(255,255,255,0.05)';
+                    c.stroke();
+                }
+            }
+        }
+
+        class Cutscene {
+            constructor(game) {
+                this.game = game;
+                this.phase = 0;
+                this.timer = 0;
+                this.texts = CONFIG.cutsceneTexts;
+                this.currentText = 0;
+                this.textAlpha = 0;
+                this.skip = false;
+            }
+            update(dt) {
+                this.timer += dt;
+                if (this.phase === 0 && this.timer > 2000) { this.phase = 1;
+                    this.timer = 0; }
+                if (this.phase === 1) {
+                    this.textAlpha = Math.min(1, this.textAlpha + dt * 0.002);
+                    if (this.timer > 2500 && this.currentText < this.texts.length - 1) {
+                        this.currentText++;
+                        this.timer = 0;
+                        this.textAlpha = 0;
+                    } else if (this.timer > 2500 && this.currentText >= this.texts.length - 1) {
+                        this.phase = 2;
+                    }
+                }
+                if (this.phase === 2) { this.game.state = 'menu';
+                    $('start').classList.remove('hidden'); }
+            }
+            draw(c) {
+                c.fillStyle = '#0a0010';
+                c.fillRect(0, 0, this.game.w, this.game.h);
+                if (this.phase === 0) {
+                    c.globalAlpha = Math.min(1, this.timer / 1000);
+                    c.fillStyle = '#ffffff';
+                    c.font = 'bold 30px Georgia';
+                    c.textAlign = 'center';
+                    c.fillText('Riley vs Kenzie', this.game.w / 2, this.game.h / 2);
+                    c.globalAlpha = 1;
+                } else if (this.phase === 1) {
+                    const dojo = this.game.assets.get('dojo');
+                    c.drawImage(dojo, this.game.w / 2 - 86, this.game.h / 2 - 86, 172, 172);
+                    const kenzie = this.game.assets.get('kenzie_idle');
+                    c.drawImage(kenzie, this.game.w / 2 - 100, this.game.h / 2 - 86, 120, 120);
+                    const riley = this.game.assets.get('riley');
+                    c.drawImage(riley, this.game.w / 2 + 10, this.game.h / 2 - 86, 120, 120);
+                    c.globalAlpha = this.textAlpha;
+                    c.fillStyle = '#ffffff';
+                    c.font = 'bold 16px Inter';
+                    c.textAlign = 'center';
+                    c.fillText(this.texts[this.currentText], this.game.w / 2, this.game.h - 60);
+                    c.globalAlpha = 1;
+                }
+            }
         }
 
         class Game {
@@ -912,7 +1067,8 @@
                 this.assets = new AssetManager();
                 this.assets.init();
                 this.best = Number(localStorage.getItem(CONFIG.storageKey) || 0);
-                this.state = 'menu';
+                this.state = 'cutscene';
+                this.cutscene = new Cutscene(this);
                 this.level = 'medium';
                 this.w = 0;
                 this.h = 0;
@@ -925,17 +1081,17 @@
                 this.rageMode = false;
                 this.rageTimer = 0;
                 this.ragePulse = 0;
-                this.kenzieFrame = 0;
-                this.kenzieAttackFrame = 0;
                 this.totalSliced = 0;
                 this.poopsSliced = 0;
                 this.freezesTriggered = 0;
                 this.shieldsUsed = 0;
+                this.stinkHits = 0;
                 this.survivedRage = false;
                 this.rageStartLives = 3;
                 this.achievements = JSON.parse(localStorage.getItem('riley_achieve') || '[]');
                 this.achievePopups = [];
                 this.trail = [];
+                $('start').classList.add('hidden');
                 this.bindUI();
                 this.bindInput();
                 this.resize();
@@ -948,13 +1104,12 @@
                 this.voice.init(); }
             generateStars() {
                 this.starField = [];
-                for (let i = 0; i < 150; i++) {
+                for (let i = 0; i < 180; i++) {
                     this.starField.push({
                         x: Math.random() * this.w,
                         y: Math.random() * this.h,
-                        size: Math.random() * 2 + 0.5,
+                        size: Math.random() * 2.2 + 0.4,
                         speed: Math.random() * 0.2 + 0.05,
-                        twinkle: Math.random() * Math.PI * 2,
                         color: '#ffffff'
                     });
                 }
@@ -974,10 +1129,13 @@
                 this.lastPoint = null;
                 this.trail = [];
                 this.swipeVelocity = 0;
-                const start = (x, y) => { this.pointerDown = true;
+                const start = (x, y) => {
+                    if (this.state === 'cutscene') { this.cutscene.phase = 2; return; }
+                    this.pointerDown = true;
                     this.lastPoint = { x, y };
                     this.trail.push({ x, y, life: 1, vel: 0 });
-                    this.audio.play('slash'); };
+                    this.audio.play('slash');
+                };
                 const move = (x, y) => {
                     if (!this.pointerDown || this.state !== 'playing') return;
                     const p2 = { x, y };
@@ -1034,6 +1192,7 @@
                 this.poopsSliced = 0;
                 this.freezesTriggered = 0;
                 this.shieldsUsed = 0;
+                this.stinkHits = 0;
                 this.survivedRage = false;
                 this.rageStartLives = this.lives;
                 this.kenzieFrame = 0;
@@ -1164,7 +1323,7 @@
                 this.power = Math.min(100, this.power + 8);
                 this.waveSliced++;
                 this.audio.play('hit');
-                if (this.combo >= 10) this.flashAction('SAVAGE!');
+                if (this.combo >= 15) this.flashAction('SAVAGE!');
                 else if (this.combo >= 5) this.flashAction('NICE!');
                 if (this.power >= 100 && !this.isRush) { this.isRush = true;
                     this.rushTimer = 7000;
@@ -1209,10 +1368,15 @@
                     this.shieldsUsed++; } else { this.lives--; } if (this.lives <= 0) this.endGame();
                 this.updateHUD();
             }
-            onStinkBomb(o) { this.audio.play('stinkbomb');
-                this.stinkClouds.push({ x: o.x, y: o.y, r: 15, life: 1 }); this.combo = 0; if (this.hasShield) { this
-                        .hasShield = false; } else { this.lives--; } if (this.lives <= 0) this.endGame();
-                this.updateHUD(); }
+            onStinkBomb(o) {
+                this.audio.play('stinkbomb');
+                this.stinkClouds.push({ x: o.x, y: o.y, r: 15, life: 1 });
+                this.stinkHits++;
+                this.combo = 0;
+                if (this.hasShield) { this.hasShield = false; } else { this.lives--; } if (this.lives <= 0) this
+                .endGame();
+                this.updateHUD();
+            }
             endGame() {
                 this.state = 'over'; if (this.rageMode && this.lives === this.rageStartLives) this.survivedRage =
                     true;
@@ -1228,6 +1392,7 @@
                 this.voice.speakNow(this.score > this.best ? 'New high score!' : 'Better luck next time.');
             }
             update(dt) {
+                if (this.state === 'cutscene') { this.cutscene.update(dt); return; }
                 if (this.state !== 'playing') return;
                 this.spawnTimer = (this.spawnTimer || 0) + dt; const spawnEvery = Math.max(150, this.cfg.spawnMs - this
                     .wave * 10) * (this.isFrozen ? 2 : 1) * (this.rageMode ? 0.7 : 1); while (this.spawnTimer >=
@@ -1260,11 +1425,14 @@
                 g.addColorStop(1, this.rageMode ? '#300a10' : '#0e0828');
                 c.fillStyle = g;
                 c.fillRect(0, 0, this.w, this.h);
-                c.fillStyle = 'white';
-                for (const star of this.starField) { c.globalAlpha = 0.5 + Math.sin(star.twinkle += 0.02) * 0.2;
+                for (const star of this.starField) {
+                    star.twinkle = (star.twinkle || 0) + 0.02;
+                    c.globalAlpha = 0.5 + Math.sin(star.twinkle) * 0.2;
+                    c.fillStyle = star.color;
                     c.beginPath();
                     c.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                    c.fill(); }
+                    c.fill();
+                }
                 c.globalAlpha = 1;
             }
             drawKenzie(c) {
@@ -1289,14 +1457,12 @@
                         b = this.trail[i],
                         alpha = b.life;
                     if (alpha <= 0) continue;
-                    const mx = (a.x + b.x) / 2,
-                        my = (a.y + b.y) / 2;
                     const dx = b.x - a.x,
                         dy = b.y - a.y;
                     const len = Math.sqrt(dx * dx + dy * dy) || 1;
                     const nx = -dy / len,
                         ny = dx / len;
-                    const bladeWidth = 12 + b.vel * 0.2;
+                    const bladeWidth = 14 + b.vel * 0.25;
                     c.globalAlpha = alpha;
                     c.shadowColor = this.rageMode ? '#ff6040' : '#40d0ff';
                     c.shadowBlur = 20;
@@ -1331,17 +1497,18 @@
                 }
                 c.globalAlpha = 1;
                 for (const p of this.achievePopups) {
-                    c.fillStyle = 'rgba(0,0,0,0.7)';
-                    c.fillRect(this.w / 2 - 150, 30, 300, 50);
+                    c.fillStyle = 'rgba(0,0,0,0.8)';
+                    c.fillRect(this.w / 2 - 160, 30, 320, 60);
                     c.fillStyle = '#ffd700';
-                    c.font = 'bold 16px Inter';
+                    c.font = 'bold 18px Inter';
                     c.textAlign = 'center';
-                    c.fillText('🏆 ' + p.name, this.w / 2, 60);
-                    c.fillText(p.desc, this.w / 2, 80);
+                    c.fillText('🏆 ' + p.name, this.w / 2, 70);
+                    c.fillText(p.desc, this.w / 2, 90);
                 }
             }
             render() {
                 const c = this.ctx;
+                if (this.state === 'cutscene') { this.cutscene.draw(c); return; }
                 this.drawBackground(c);
                 this.drawTrail(c);
                 this.drawKenzie(c);
