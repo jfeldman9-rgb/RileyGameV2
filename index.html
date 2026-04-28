@@ -935,6 +935,7 @@
                 this.rageStartLives = 3;
                 this.achievements = JSON.parse(localStorage.getItem('riley_achieve') || '[]');
                 this.achievePopups = [];
+                this.trail = [];
                 this.bindUI();
                 this.bindInput();
                 this.resize();
@@ -980,6 +981,9 @@
                 const move = (x, y) => {
                     if (!this.pointerDown || this.state !== 'playing') return;
                     const p2 = { x, y };
+                    const dx = p2.x - this.lastPoint.x;
+                    const dy = p2.y - this.lastPoint.y;
+                    this.swipeVelocity = Math.sqrt(dx * dx + dy * dy);
                     this.sliceBetween(this.lastPoint, p2);
                     this.lastPoint = p2;
                     this.trail.push({ x, y, life: 1, vel: this.swipeVelocity });
@@ -1024,6 +1028,7 @@
                 this.shockwaves = [];
                 this.snowflakes = [];
                 this.stinkClouds = [];
+                this.trail = [];
                 this.kenzie = { x: this.w * 0.5, targetX: this.w * 0.5, y: this.h * 0.14 };
                 this.totalSliced = 0;
                 this.poopsSliced = 0;
@@ -1243,6 +1248,8 @@
                     o.vy += gravity;
                     o.rot += o.vr; }
                 this.objects = this.objects.filter(o => !o.dead && o.y < this.h + 150 && o.x > -50 && o.x < this.w + 50);
+                for (const t of this.trail) { t.life -= 0.05; }
+                this.trail = this.trail.filter(t => t.life > 0);
                 this.stinkClouds = this.stinkClouds.filter(sc => { sc.r += 2;
                     sc.life -= 0.01; return sc.life > 0; });
                 this.achievePopups = this.achievePopups.filter(p => { p.timer--; return p.timer > 0; });
@@ -1274,6 +1281,46 @@
                     c.restore();
                 }
             }
+            drawTrail(c) {
+                if (this.trail.length < 2) return;
+                c.lineCap = 'round';
+                for (let i = 1; i < this.trail.length; i++) {
+                    const a = this.trail[i - 1],
+                        b = this.trail[i],
+                        alpha = b.life;
+                    if (alpha <= 0) continue;
+                    const mx = (a.x + b.x) / 2,
+                        my = (a.y + b.y) / 2;
+                    const dx = b.x - a.x,
+                        dy = b.y - a.y;
+                    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+                    const nx = -dy / len,
+                        ny = dx / len;
+                    const bladeWidth = 12 + b.vel * 0.2;
+                    c.globalAlpha = alpha;
+                    c.shadowColor = this.rageMode ? '#ff6040' : '#40d0ff';
+                    c.shadowBlur = 20;
+                    c.fillStyle = '#ffffff';
+                    c.beginPath();
+                    c.moveTo(a.x + nx * bladeWidth * 0.3, a.y + ny * bladeWidth * 0.3);
+                    c.lineTo(b.x + nx * bladeWidth * 0.3, b.y + ny * bladeWidth * 0.3);
+                    c.lineTo(b.x - nx * bladeWidth * 0.3, b.y - ny * bladeWidth * 0.3);
+                    c.lineTo(a.x - nx * bladeWidth * 0.3, a.y - ny * bladeWidth * 0.3);
+                    c.closePath();
+                    c.fill();
+                    c.globalAlpha = alpha * 0.5;
+                    c.fillStyle = this.rageMode ? '#ff8060' : '#80e8ff';
+                    c.beginPath();
+                    c.moveTo(a.x + nx * bladeWidth, a.y + ny * bladeWidth);
+                    c.lineTo(b.x + nx * bladeWidth, b.y + ny * bladeWidth);
+                    c.lineTo(b.x - nx * bladeWidth, b.y - ny * bladeWidth);
+                    c.lineTo(a.x - nx * bladeWidth, a.y - ny * bladeWidth);
+                    c.closePath();
+                    c.fill();
+                }
+                c.shadowBlur = 0;
+                c.globalAlpha = 1;
+            }
             drawFX(c) {
                 for (const sc of this.stinkClouds) {
                     c.globalAlpha = sc.life * 0.5;
@@ -1296,6 +1343,7 @@
             render() {
                 const c = this.ctx;
                 this.drawBackground(c);
+                this.drawTrail(c);
                 this.drawKenzie(c);
                 this.drawObjects(c);
                 this.drawFX(c);
