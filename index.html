@@ -25,7 +25,6 @@
             position: fixed;
             inset: 0;
             display: block;
-            background: #000008;
             image-rendering: auto;
         }
         .screen {
@@ -40,20 +39,17 @@
             padding: 24px;
             background: radial-gradient(ellipse at 50% 40%, rgba(100, 20, 200, .28) 0%, rgba(4, 2, 16, .985) 70%);
             backdrop-filter: blur(2px);
-            -webkit-backdrop-filter: blur(2px);
         }
         .hidden {
             display: none !important
         }
         .title {
-            font-family: 'Georgia', 'Times New Roman', serif;
+            font-family: 'Georgia', serif;
             font-size: clamp(38px, 9vw, 76px);
             font-weight: 900;
             color: #fff;
-            line-height: 1;
             margin: 0 0 6px;
-            text-shadow: 0 0 30px #ff4cf0, 0 0 70px #8d2fff, 0 0 120px rgba(180, 40, 255, .7), 0 6px 20px rgba(0, 0, 0, .9);
-            letter-spacing: -1px;
+            text-shadow: 0 0 30px #ff4cf0, 0 0 70px #8d2fff, 0 0 120px rgba(180, 40, 255, .7);
         }
         .sub {
             font-size: clamp(12px, 3vw, 17px);
@@ -79,12 +75,6 @@
             font-size: 11px;
             color: rgba(255, 255, 255, .75);
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            transition: all .2s;
-        }
-        .tip:hover {
-            border-color: rgba(255, 255, 255, .3);
-            background: rgba(255, 255, 255, .1);
         }
         .tip strong {
             display: block;
@@ -109,17 +99,9 @@
             letter-spacing: 2.5px;
             font-size: clamp(14px, 4vw, 20px);
             cursor: pointer;
-            transition: transform .1s, filter .2s, box-shadow .2s;
-            position: relative;
-            overflow: hidden;
-        }
-        button::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 999px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, .2) 0%, transparent 60%);
-            pointer-events: none;
+            transition: transform .1s, filter .2s;
+            background: linear-gradient(135deg, #9b00ff, #00d4ff);
+            box-shadow: 0 8px 28px rgba(140, 0, 255, .5);
         }
         button:hover {
             filter: brightness(1.15);
@@ -127,23 +109,15 @@
         }
         button:active {
             transform: scale(.94);
-            filter: brightness(.9);
         }
         .btn-easy {
             background: linear-gradient(135deg, #00c6ff, #0060d0);
-            box-shadow: 0 8px 28px rgba(0, 180, 255, .5), 0 2px 8px rgba(0, 0, 0, .4);
         }
         .btn-medium {
             background: linear-gradient(135deg, #f093fb, #e04070);
-            box-shadow: 0 8px 28px rgba(240, 80, 130, .5), 0 2px 8px rgba(0, 0, 0, .4);
         }
         .btn-hard {
             background: linear-gradient(135deg, #ff416c, #e02020);
-            box-shadow: 0 8px 28px rgba(255, 60, 80, .5), 0 2px 8px rgba(0, 0, 0, .4);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #9b00ff, #00d4ff);
-            box-shadow: 0 8px 28px rgba(140, 0, 255, .5), 0 2px 8px rgba(0, 0, 0, .4);
         }
         .hs {
             font-size: 15px;
@@ -154,8 +128,6 @@
             padding: 8px 20px;
             border-radius: 999px;
             margin-top: 16px;
-            letter-spacing: 1px;
-            text-shadow: 0 0 12px rgba(255, 200, 0, .6);
         }
         #hud {
             position: fixed;
@@ -171,8 +143,6 @@
             border-radius: 18px;
             padding: 12px 20px;
             backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .08);
         }
         .hud-label {
             font-size: 10px;
@@ -205,8 +175,6 @@
         }
         #lives {
             font-size: 26px;
-            letter-spacing: 3px;
-            text-shadow: 0 0 16px rgba(255, 60, 90, .6);
         }
         #combo {
             font-size: 15px;
@@ -223,35 +191,23 @@
             transform: translateX(-50%);
             width: min(260px, 65vw);
         }
-        #powerLabel {
-            font-size: 10px;
-            letter-spacing: 3px;
-            color: rgba(255, 255, 255, .6);
-            text-align: center;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-            font-weight: 800;
-        }
         #powerBar {
             height: 10px;
             background: rgba(255, 255, 255, .06);
             border-radius: 999px;
             border: 1px solid rgba(255, 255, 255, .15);
             overflow: hidden;
-            box-shadow: inset 0 2px 6px rgba(0, 0, 0, .5);
         }
         #powerFill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #00e0ff, #4fa0ff, #b040ff);
+            background: linear-gradient(90deg, #00e0ff, #b040ff);
             border-radius: 999px;
             transition: width .15s;
-            box-shadow: 0 0 16px rgba(100, 200, 255, .6);
         }
         #powerFill.rush {
-            background: linear-gradient(90deg, #ff4080, #ff6b30, #ffe040);
-            box-shadow: 0 0 22px rgba(255, 80, 60, .9);
-            animation: pulseBar .5s ease-in-out infinite;
+            background: linear-gradient(90deg, #ff4080, #ffe040);
+            animation: pulseBar .5s infinite;
         }
         @keyframes pulseBar {
             0%,
@@ -275,10 +231,6 @@
             border-radius: 999px;
             font-size: 12px;
             font-weight: 800;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, .4);
-        }
-        .freeze {
             background: rgba(110, 200, 255, .95);
             color: #001a2e;
         }
@@ -317,14 +269,12 @@
             font-weight: 900;
             color: #fff;
             text-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
-            letter-spacing: -1px;
         }
         #annSub {
             font-size: 17px;
             color: rgba(255, 255, 255, .85);
             font-weight: 700;
             margin-top: 4px;
-            letter-spacing: 2px;
         }
         #taunt {
             top: 27%;
@@ -332,8 +282,7 @@
             font-weight: 900;
             color: #fff;
             white-space: nowrap;
-            max-width: 90vw;
-            text-shadow: 0 0 24px #ff0050, 0 0 50px rgba(255, 0, 70, .7), 0 4px 14px rgba(0, 0, 0, .9);
+            text-shadow: 0 0 24px #ff0050, 0 0 50px rgba(255, 0, 70, .7);
         }
         #action {
             top: 50%;
@@ -342,7 +291,6 @@
             font-weight: 900;
             color: #fff;
             text-shadow: 0 0 30px #ff0060, 0 0 70px #ff0060, 5px 5px 0 #000;
-            letter-spacing: -2px;
         }
         .stat-row {
             display: flex;
@@ -358,20 +306,17 @@
             padding: 10px 18px;
             min-width: 120px;
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
         }
         .stat-val {
             font-size: 34px;
             font-weight: 900;
             color: #ffd700;
-            text-shadow: 0 0 20px rgba(255, 200, 0, .7);
         }
         .stat-lbl {
             font-size: 10px;
             letter-spacing: 3px;
             color: rgba(255, 255, 255, .45);
             text-transform: uppercase;
-            font-weight: 700;
         }
         .new-hs {
             font-size: 19px;
@@ -382,8 +327,7 @@
             padding: 8px 24px;
             border-radius: 999px;
             margin-bottom: 16px;
-            text-shadow: 0 0 20px rgba(255, 200, 0, .8);
-            animation: bounceHs .6s ease-in-out infinite alternate;
+            animation: bounceHs .6s infinite alternate;
         }
         @keyframes bounceHs {
             0% {
@@ -413,7 +357,7 @@
             <button class="btn-hard" data-level="hard">Hard</button>
         </div>
         <div class="btn-row" style="margin-top:12px">
-            <button class="btn-primary" id="testVoiceBtn">🎤 Test Voice</button>
+            <button id="testVoiceBtn">🎤 Test Voice</button>
         </div>
         <div id="startHs" class="hs hidden">🏆 Best: <span id="startHsVal">0</span></div>
     </div>
@@ -435,7 +379,7 @@
             <div class="stat-card"><div class="stat-val" id="goCombo">0</div><div class="stat-lbl">Best Combo</div></div>
         </div>
         <div id="newHs" class="new-hs hidden">🏆 NEW HIGH SCORE!</div>
-        <div class="btn-row"><button class="btn-primary" id="restartBtn">Play Again</button></div>
+        <div class="btn-row"><button id="restartBtn">Play Again</button></div>
         <div id="overHs" class="hs hidden">🏆 Best: <span id="overHsVal">0</span></div>
     </div>
     <script>
@@ -445,7 +389,7 @@
             maxLives: 3,
             gravityBase: 0.26,
             trailMax: 24,
-            storageKey: 'riley-vs-kenzie-definitive-v4',
+            storageKey: 'riley-vs-kenzie-definitive-v5',
             levels: {
                 easy: { spawnMs: 750, bombChance: 0.06, stinkChance: 0.03, speed: 0.92, waveGoal: 10 },
                 medium: { spawnMs: 590, bombChance: 0.10, stinkChance: 0.05, speed: 1.04, waveGoal: 12 },
@@ -468,30 +412,50 @@
                 "Ninja fart jutsu!", "Your combo smells worse than that poop!",
                 "Even my shadow slices better than you!"
             ],
-            bombTaunts: ['Boom goes the rhythm!', 'Explosive dance party!', 'You danced right into that one!',
-                'Kaboom on the dance floor!'
-            ],
-            stinkTaunts: ['Ewww, stink bomb!', 'That reeks, Riley!', 'Fart cloud of doom!', 'Smells like defeat!',
-                'Toxic! Absolutely toxic!'
-            ],
-            bossTaunts: ['This is MY kingdom dance, Riley!', 'Bow before the ninja queen!',
-                'You cannot out-dance destiny!', 'Witness true blade ballet!', 'My wrath has perfect timing!'
-            ]
+            bombTaunts: ['Boom goes the rhythm!', 'Explosive dance party!', 'Kaboom on the dance floor!'],
+            stinkTaunts: ['Ewww, stink bomb!', 'That reeks!', 'Fart cloud of doom!', 'Toxic!'],
+            bossTaunts: ['This is MY kingdom!', 'Bow before the ninja queen!', 'You cannot out-dance destiny!',
+                'Witness true blade ballet!', 'My wrath has perfect timing!']
         };
+        const ACHIEVEMENTS = [
+            { id: 'first_slice', name: 'First Blood', desc: 'Slice your first object.', check: (g) => g.totalSliced >=
+                    1 },
+            { id: 'combo_10', name: 'Combo Apprentice', desc: 'Reach a 10x combo.', check: (g) => g.bestCombo >= 10 },
+            { id: 'poop_master', name: 'Poop Master', desc: 'Slice 30 poops total.', check: (g) => g.poopsSliced >=
+                30 },
+            { id: 'survive_rage', name: 'Rage Survivor', desc: 'Survive a boss rage without losing a life.',
+                check: (g) => g.survivedRage },
+            { id: 'freeze_king', name: 'Frozen Fury', desc: 'Trigger freeze 5 times in one game.', check: (g) => g
+                    .freezesTriggered >= 5 },
+            { id: 'shield_saver', name: 'Shield Saviour', desc: 'Block 5 bombs with shields.', check: (g) => g
+                    .shieldsUsed >= 5 },
+            { id: 'score_5000', name: 'High Scorer', desc: 'Score over 5000 points.', check: (g) => g.score >= 5000 },
+            { id: 'wave_10', name: 'Wave Warrior', desc: 'Reach wave 10.', check: (g) => g.wave >= 10 }
+        ];
 
         class AudioEngine {
             constructor() { this.ctx = null;
                 this.master = null;
-                this.ready = false; }
+                this.ready = false;
+                this.bgmGain = null;
+                this.sfxGain = null; }
             async init() {
-                if (!this.ctx) { this.ctx = new(window.AudioContext || window.webkitAudioContext)();
+                if (!this.ctx) {
+                    this.ctx = new(window.AudioContext || window.webkitAudioContext)();
                     this.master = this.ctx.createGain();
                     this.master.gain.value = 0.75;
-                    this.master.connect(this.ctx.destination); }
+                    this.bgmGain = this.ctx.createGain();
+                    this.sfxGain = this.ctx.createGain();
+                    this.bgmGain.gain.value = 0.5;
+                    this.sfxGain.gain.value = 0.7;
+                    this.bgmGain.connect(this.master);
+                    this.sfxGain.connect(this.master);
+                    this.master.connect(this.ctx.destination);
+                }
                 if (this.ctx.state === 'suspended') await this.ctx.resume();
                 this.ready = true;
             }
-            tone(type, start, end, duration, volume, detune = 0) {
+            tone(type, start, end, duration, volume, detune = 0, output = this.sfxGain) {
                 if (!this.ready) return;
                 const t = this.ctx.currentTime;
                 const osc = this.ctx.createOscillator();
@@ -504,11 +468,11 @@
                 gain.gain.linearRampToValueAtTime(volume, t + 0.01);
                 gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
                 osc.connect(gain);
-                gain.connect(this.master);
+                gain.connect(output);
                 osc.start(t);
                 osc.stop(t + duration + 0.03);
             }
-            noise(duration, volume, hp) {
+            noise(duration, volume, hp, output = this.sfxGain) {
                 if (!this.ready) return;
                 const t = this.ctx.currentTime;
                 const size = Math.floor(this.ctx.sampleRate * duration);
@@ -525,40 +489,29 @@
                 gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
                 src.connect(filter);
                 filter.connect(gain);
-                gain.connect(this.master);
+                gain.connect(output);
                 src.start(t);
                 src.stop(t + duration + 0.03);
             }
+            playBGM(note) { this.tone('square', note, note, 0.2, 0.03, 0, this.bgmGain); }
             play(name, combo = 1) {
-                if (!this.ready) return;
                 if (name === 'slash') { this.tone('triangle', 1200, 200, 0.1, 0.08);
                     this.noise(0.04, 0.04, 2800); } else if (name === 'hit') { this.tone('square', 1400, 180, 0.11,
-                    0.1);
-                    this.noise(0.05, 0.07, 2200); } else if (name === 'crit') { this.tone('square', 1800, 400, 0.14,
-                        0.13);
-                    this.tone('triangle', 2200, 600, 0.1, 0.06);
-                    this.noise(0.03, 0.06, 3000); } else if (name === 'bomb') { this.tone('sawtooth', 140, 28, 0.6,
-                    0.16);
-                    this.noise(0.4, 0.14, 80); } else if (name === 'stinkbomb') { this.tone('sawtooth', 60, 20,
-                    0.7, 0.12);
-                    this.tone('square', 90, 30, 0.5, 0.08);
-                    this.noise(0.5, 0.16, 40); } else if (name === 'power') { [440, 550, 660, 880].forEach((f, i) =>
-                        setTimeout(() => this.tone('triangle', f, f, 0.1, 0.05), i * 45)); } else if (name ===
-                    'freeze') { this.tone('sine', 1600, 200, 0.45, 0.07);
-                    this.tone('triangle', 2000, 600, 0.5, 0.04); } else if (name === 'life') { [523, 659, 784]
-                    .forEach((f, i) => setTimeout(() => this.tone('sine', f, f, 0.13, 0.05), i * 50)); } else if (
-                    name === 'wave') { [330, 440, 550, 660].forEach((f, i) => setTimeout(() => this.tone(
-                        'square', f, f, 0.13, 0.04), i * 70)); } else if (name === 'combo') { this.tone(
-                    'triangle', Math.min(1800, 600 + combo * 100), 380, 0.07, 0.06); } else if (name ===
-                'poop') { this.tone('square', 180, 300, 0.2, 0.05);
-                    this.tone('triangle', 350, 150, 0.18, 0.04); } else if (name === 'boss') { this.tone('square',
-                    200, 90, 0.5, 0.09);
-                    this.noise(0.15, 0.05, 120); } else if (name === 'bgm') { this.tone('square', combo, combo,
-                    0.2, 0.01); } else if (name === 'ult') { [220, 330, 440, 550, 660, 880].forEach((f, i) =>
-                    setTimeout(() => this.tone('sawtooth', f, f * 1.4, 0.14, 0.08), i * 30));
-                    this.noise(0.2, 0.1, 200); } else if (name === 'rage') { [110, 165, 220, 275].forEach((f, i) =>
-                    setTimeout(() => this.tone('sawtooth', f, f * 2, 0.2, 0.1), i * 60));
-                    this.noise(0.3, 0.12, 60); }
+                    0.1); } else if (name === 'crit') { this.tone('square', 1800, 400, 0.14, 0.13); } else if (name ===
+                    'bomb') { this.tone('sawtooth', 140, 28, 0.6, 0.16);
+                    this.noise(0.4, 0.14, 80); } else if (name === 'stinkbomb') { this.tone('sawtooth', 60, 20, 0.7,
+                    0.12); } else if (name === 'power') { [440, 550, 660, 880].forEach((f, i) => setTimeout(() =>
+                        this.tone('triangle', f, f, 0.1, 0.05), i * 45)); } else if (name === 'freeze') { this
+                    .tone('sine', 1600, 200, 0.45, 0.07); } else if (name === 'life') { [523, 659, 784].forEach((
+                    f, i) => setTimeout(() => this.tone('sine', f, f, 0.13, 0.05), i * 50)); } else if (name ===
+                    'wave') { [330, 440, 550, 660].forEach((f, i) => setTimeout(() => this.tone('square', f, f,
+                        0.13, 0.04), i * 70)); } else if (name === 'combo') { this.tone('triangle', Math.min(
+                    1800, 600 + combo * 100), 380, 0.07, 0.06); } else if (name === 'poop') { this.tone(
+                    'square', 180, 300, 0.2, 0.05); } else if (name === 'boss') { this.tone('square', 200, 90,
+                    0.5, 0.09); } else if (name === 'ult') { [220, 330, 440, 550, 660, 880].forEach((f, i) =>
+                    setTimeout(() => this.tone('sawtooth', f, f * 1.4, 0.14, 0.08), i * 30)); } else if (name ===
+                    'rage') { [110, 165, 220, 275].forEach((f, i) => setTimeout(() => this.tone('sawtooth', f, f *
+                        2, 0.2, 0.1), i * 60)); }
             }
         }
 
@@ -566,52 +519,34 @@
             constructor() {
                 this.enabled = 'speechSynthesis' in window;
                 this.voices = [];
-                this.ready = false;
-                this.unlocked = false;
                 this.lastSpeak = 0;
+                this.ready = false;
             }
             init() {
                 if (!this.enabled) return;
-                this.loadVoices(); if (!this.voices.length) { try { speechSynthesis.onvoiceschanged = () => this
-                        .loadVoices(); } catch {} setTimeout(() => this.loadVoices(), 400); }
+                this.loadVoices();
                 this.ready = true;
             }
-            loadVoices() { try { this.voices = speechSynthesis.getVoices() || []; } catch { this.voices = []; } }
-            pick() {
-                const preferred = this.voices.find(v => v.lang && v.lang.startsWith('en') &&
-                    /samantha|victoria|karen|zira|ava|allison|moira|fiona/i.test(v.name));
-                return preferred || this.voices.find(v => v.lang && v.lang.startsWith('en-US')) || this.voices.find(
-                    v => v.lang && v.lang.startsWith('en')) || null;
-            }
-            unlock() {
+            loadVoices() { try { this.voices = speechSynthesis.getVoices(); } catch { this.voices = []; } }
+            pick() { return this.voices.find(v => v.lang.startsWith('en-US')) || null; }
+            speakNow(text) {
                 if (!this.enabled) return false;
-                try { this.loadVoices();
-                    speechSynthesis.cancel();
-                    speechSynthesis.resume();
-                    this.unlocked = true; return true; } catch { return false; }
+                const now = performance.now();
+                if (now - this.lastSpeak < 250) return false;
+                this.lastSpeak = now;
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'en-US';
+                u.pitch = 1.4;
+                u.rate = 1.0;
+                u.volume = 0.9;
+                const voice = this.pick();
+                if (voice) u.voice = voice;
+                speechSynthesis.cancel();
+                speechSynthesis.speak(u);
+                return true;
             }
-            speakNow(text, opts = {}) {
-                if (!this.enabled || !text) return false; if (!this.ready) this.init();
-                try {
-                    const now = performance.now();
-                    const minGap = opts.minGap == null ? 220 : opts.minGap; if (now - this.lastSpeak < minGap)
-                        return false;
-                    this.lastSpeak = now;
-                    const u = new SpeechSynthesisUtterance(text);
-                    u.lang = 'en-US';
-                    u.rate = opts.rate == null ? 1.0 : opts.rate;
-                    u.pitch = opts.pitch == null ? 1.5 : opts.pitch;
-                    u.volume = opts.volume == null ? 1.0 : opts.volume;
-                    const voice = this.pick(); if (voice) u.voice = voice; if (opts.cancel !== false) speechSynthesis
-                        .cancel();
-                    speechSynthesis.speak(u);
-                    speechSynthesis.resume(); return true;
-                } catch { return false; }
-            }
-            speak(text, opts = {}) { return this.speakNow(text, opts); }
-            test() { this.unlock(); return this.speakNow("Riley, let's see what you've got.", { minGap: 0, rate: 1.0,
-                    pitch: 1.5, volume: 1.0 }); }
-            stop() { if (this.enabled) try { speechSynthesis.cancel(); } catch {} }
+            test() { return this.speakNow("Riley, let's see what you've got."); }
+            stop() { if (this.enabled) speechSynthesis.cancel(); }
         }
 
         class AssetManager {
@@ -628,6 +563,9 @@
                 this.make('freeze', c => this.drawFreeze(c));
                 this.make('shield', c => this.drawShield(c));
                 this.make('heart', c => this.drawHeart(c));
+                this.make('kenzie_idle', c => this.drawKenzieSprite(c, false, false));
+                this.make('kenzie_rage', c => this.drawKenzieSprite(c, true, false));
+                this.make('kenzie_attack', c => this.drawKenzieSprite(c, false, true));
             }
             make(name, fn) { const cv = document.createElement('canvas');
                 cv.width = cv.height = this.size; const c = cv.getContext('2d');
@@ -707,7 +645,6 @@
                 c.fillRect(-9, -56, 18, 12);
                 c.strokeStyle = '#b8d860';
                 c.lineWidth = 5;
-                c.lineCap = 'round';
                 c.beginPath();
                 c.moveTo(0, -56);
                 c.quadraticCurveTo(16, -72, 6, -88);
@@ -803,14 +740,6 @@
                 .forEach(p => { c.beginPath();
                     c.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                     c.fill(); });
-                c.fillStyle = '#c09050';
-                c.beginPath();
-                c.moveTo(-44, 42);
-                c.quadraticCurveTo(0, 56, 44, 42);
-                c.lineTo(38, 32);
-                c.quadraticCurveTo(0, 46, -38, 32);
-                c.closePath();
-                c.fill();
                 c.restore();
             }
             drawDonut(c) {
@@ -828,10 +757,6 @@
                 c.fillStyle = '#0a061c';
                 c.beginPath();
                 c.arc(0, 0, 15, 0, Math.PI * 2);
-                c.fill();
-                c.fillStyle = 'rgba(255,220,240,.6)';
-                c.beginPath();
-                c.arc(-10, -12, 7, 0, Math.PI * 2);
                 c.fill();
             }
             drawCandy(c) {
@@ -861,10 +786,6 @@
                 c.beginPath();
                 c.ellipse(0, 0, 32, 23, 0, 0, Math.PI * 2);
                 c.fill();
-                c.fillStyle = 'rgba(255,255,255,.45)';
-                c.beginPath();
-                c.ellipse(-8, -10, 9, 6, -0.3, 0, Math.PI * 2);
-                c.fill();
                 c.restore();
             }
             drawFreeze(c) {
@@ -879,19 +800,8 @@
                     c.moveTo(0, -52);
                     c.lineTo(0, 52);
                     c.stroke();
-                    c.beginPath();
-                    c.moveTo(0, -30);
-                    c.lineTo(18, -42);
-                    c.moveTo(0, -30);
-                    c.lineTo(-18, -42);
-                    c.moveTo(0, 30);
-                    c.lineTo(18, 42);
-                    c.moveTo(0, 30);
-                    c.lineTo(-18, 42);
-                    c.stroke();
                     c.restore();
                 }
-                c.shadowBlur = 0;
             }
             drawShield(c) {
                 const sg = c.createLinearGradient(0, -48, 0, 52);
@@ -907,19 +817,6 @@
                 c.lineTo(-34, -28);
                 c.closePath();
                 c.fill();
-                c.strokeStyle = '#fff8d0';
-                c.lineWidth = 6;
-                c.stroke();
-                c.fillStyle = 'rgba(255,255,255,.4)';
-                c.beginPath();
-                c.moveTo(0, -32);
-                c.lineTo(18, -12);
-                c.lineTo(12, 18);
-                c.lineTo(0, 30);
-                c.lineTo(-12, 18);
-                c.lineTo(-18, -12);
-                c.closePath();
-                c.fill();
             }
             drawHeart(c) {
                 const hg = c.createRadialGradient(0, -8, 0, 0, 12, 55);
@@ -933,17 +830,83 @@
                 c.bezierCurveTo(0, -18, 3, -34, 18, -32);
                 c.bezierCurveTo(50, -26, 44, 10, 0, 36);
                 c.fill();
-                c.fillStyle = 'rgba(255,255,255,.35)';
+            }
+            drawKenzieSprite(c, isRage, isAttack) {
+                c.save();
+                c.translate(0, 0);
+                c.fillStyle = isRage ? '#200508' : '#3a1a0e';
                 c.beginPath();
-                c.arc(-8, -12, 9, 0, Math.PI * 2);
+                c.arc(0, -34, 40, 0, Math.PI * 2);
                 c.fill();
+                const dg = c.createLinearGradient(0, -10, 0, 95);
+                dg.addColorStop(0, isRage ? '#ff2040' : '#ff80c8');
+                dg.addColorStop(1, isRage ? '#7000b0' : '#c030e0');
+                c.fillStyle = dg;
+                c.beginPath();
+                c.moveTo(-22, -5);
+                c.quadraticCurveTo(-48, 46, -56, 95);
+                c.lineTo(56, 95);
+                c.quadraticCurveTo(48, 46, 22, -5);
+                c.closePath();
+                c.fill();
+                c.fillStyle = '#ffe8cc';
+                c.fillRect(-7, -22, 14, 18);
+                c.beginPath();
+                c.arc(0, -38, 28, 0, Math.PI * 2);
+                c.fill();
+                c.fillStyle = '#fff';
+                c.beginPath();
+                c.ellipse(-10, -40, 6, 8, 0, 0, Math.PI * 2);
+                c.ellipse(10, -40, 6, 8, 0, 0, Math.PI * 2);
+                c.fill();
+                c.fillStyle = '#000';
+                c.beginPath();
+                c.arc(-10, -39, 3, 0, Math.PI * 2);
+                c.arc(10, -39, 3, 0, Math.PI * 2);
+                c.fill();
+                if (isRage) {
+                    c.fillStyle = 'rgba(255,40,40,.5)';
+                    c.beginPath();
+                    c.arc(-10, -39, 5, 0, Math.PI * 2);
+                    c.arc(10, -39, 5, 0, Math.PI * 2);
+                    c.fill();
+                }
+                c.strokeStyle = isRage ? '#ff3040' : '#c00030';
+                c.lineWidth = 3;
+                c.beginPath();
+                c.arc(0, -29, 10, 0.2 * Math.PI, 0.8 * Math.PI);
+                c.stroke();
+                c.fillStyle = isRage ? '#ff6040' : '#ffd700';
+                c.beginPath();
+                c.moveTo(-16, -62);
+                c.lineTo(-5, -52);
+                c.lineTo(0, -66);
+                c.lineTo(5, -52);
+                c.lineTo(16, -62);
+                c.lineTo(10, -46);
+                c.lineTo(-10, -46);
+                c.closePath();
+                c.fill();
+                c.strokeStyle = isRage ? '#ff6040' : '#ffd700';
+                c.lineWidth = 6;
+                c.lineCap = 'round';
+                c.beginPath();
+                if (isAttack) { c.moveTo(0, -8);
+                    c.lineTo(-42, 10);
+                    c.moveTo(0, -10);
+                    c.lineTo(42, 10); } else { c.moveTo(0, -8);
+                    c.lineTo(-32, 22);
+                    c.moveTo(0, -10);
+                    c.lineTo(32, 22); }
+                c.stroke();
+                c.restore();
             }
         }
 
         class Game {
             constructor() {
                 this.canvas = $('game');
-                this.ctx = this.canvas.getContext('2d', { alpha: false });
+                this.ctx = this.canvas.getContext('2d');
                 this.audio = new AudioEngine();
                 this.voice = new VoiceEngine();
                 this.assets = new AssetManager();
@@ -956,13 +919,22 @@
                 this.dpr = Math.min(devicePixelRatio || 1, 2);
                 this.lastTime = 0;
                 this.starField = [];
-                this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                 this.freezeOverlay = 0;
                 this.snowflakes = [];
                 this.stinkClouds = [];
                 this.rageMode = false;
                 this.rageTimer = 0;
                 this.ragePulse = 0;
+                this.kenzieFrame = 0;
+                this.kenzieAttackFrame = 0;
+                this.totalSliced = 0;
+                this.poopsSliced = 0;
+                this.freezesTriggered = 0;
+                this.shieldsUsed = 0;
+                this.survivedRage = false;
+                this.rageStartLives = 3;
+                this.achievements = JSON.parse(localStorage.getItem('riley_achieve') || '[]');
+                this.achievePopups = [];
                 this.bindUI();
                 this.bindInput();
                 this.resize();
@@ -975,46 +947,24 @@
                 this.voice.init(); }
             generateStars() {
                 this.starField = [];
-                const count = this.isMobile ? 100 : 200;
-                for (let i = 0; i < count; i++) {
+                for (let i = 0; i < 150; i++) {
                     this.starField.push({
                         x: Math.random() * this.w,
                         y: Math.random() * this.h,
-                        size: Math.random() * 2.5 + 0.4,
-                        speed: Math.random() * 0.3 + 0.05,
+                        size: Math.random() * 2 + 0.5,
+                        speed: Math.random() * 0.2 + 0.05,
                         twinkle: Math.random() * Math.PI * 2,
-                        twinkleSpeed: Math.random() * 0.04 + 0.01,
-                        color: ['#ffffff', '#c8d0ff', '#ffe8d0', '#d0f0ff'][Math.floor(Math.random() * 4)],
-                        layer: Math.floor(Math.random() * 3)
+                        color: '#ffffff'
                     });
                 }
-            }
-            spawnSnowflake() {
-                this.snowflakes.push({
-                    x: Math.random() * this.w,
-                    y: -10,
-                    size: Math.random() * 5 + 2,
-                    vy: Math.random() * 2 + 0.8,
-                    vx: (Math.random() - 0.5) * 2.5,
-                    life: 1,
-                    rot: Math.random() * Math.PI * 2,
-                    vr: (Math.random() - 0.5) * 0.05
-                });
             }
             bindUI() {
                 document.querySelectorAll('[data-level]').forEach(btn => btn.addEventListener('click', (e) => {
                     this.voice.test();
                     this.prime().then(() => this.start(btn.dataset.level));
                 }));
-                $('restartBtn').addEventListener('click', () => {
-                    this.voice.unlock();
-                    this.prime().then(() => this.start(this.level));
-                });
-                $('testVoiceBtn').addEventListener('click', () => {
-                    const ok = this.voice.test();
-                    this.showAnn(ok ? 'Voice Online' : 'Voice Failed', ok ? 'Kenzie is ready to roast.' :
-                        'Browser blocked speech.', ok ? '#00f2fe' : '#ff4b2b');
-                });
+                $('restartBtn').addEventListener('click', () => { this.prime().then(() => this.start(this.level)); });
+                $('testVoiceBtn').addEventListener('click', () => this.voice.test());
                 addEventListener('resize', () => { this.resize();
                     this.generateStars(); });
             }
@@ -1025,24 +975,18 @@
                 this.swipeVelocity = 0;
                 const start = (x, y) => { this.pointerDown = true;
                     this.lastPoint = { x, y };
-                    this.trail.push({ x, y, life: 1, vel: 0, time: performance.now() });
+                    this.trail.push({ x, y, life: 1, vel: 0 });
                     this.audio.play('slash'); };
                 const move = (x, y) => {
-                    if (!this.pointerDown || this.state !== 'playing' || !this.lastPoint) return;
-                    const p1 = this.lastPoint;
+                    if (!this.pointerDown || this.state !== 'playing') return;
                     const p2 = { x, y };
-                    const dx = p2.x - p1.x;
-                    const dy = p2.y - p1.y;
-                    this.swipeVelocity = Math.sqrt(dx * dx + dy * dy);
-                    this.sliceBetween(p1, p2);
+                    this.sliceBetween(this.lastPoint, p2);
                     this.lastPoint = p2;
-                    this.trail.push({ x, y, life: 1, vel: this.swipeVelocity, time: performance.now() });
-                    const maxT = this.isMobile ? 12 : CONFIG.trailMax; if (this.trail.length > maxT) this.trail
-                        .shift();
+                    this.trail.push({ x, y, life: 1, vel: this.swipeVelocity });
+                    if (this.trail.length > CONFIG.trailMax) this.trail.shift();
                 };
                 const end = () => { this.pointerDown = false;
-                    this.lastPoint = null;
-                    this.swipeVelocity = 0; };
+                    this.lastPoint = null; };
                 this.canvas.addEventListener('pointerdown', e => start(e.clientX, e.clientY));
                 this.canvas.addEventListener('pointermove', e => move(e.clientX, e.clientY));
                 addEventListener('pointerup', end);
@@ -1066,26 +1010,13 @@
                 this.waveGoal = this.cfg.waveGoal;
                 this.combo = 0;
                 this.bestCombo = 0;
-                this.comboTimer = 0;
                 this.power = 0;
                 this.isRush = false;
-                this.rushTimer = 0;
                 this.isFrozen = false;
-                this.freezeTimer = 0;
-                this.freezeOverlay = 0;
                 this.hasShield = false;
                 this.rageMode = false;
                 this.rageTimer = 0;
-                this.ragePulse = 0;
-                this.spawnTimer = 0;
-                this.bgmTimer = 0;
-                this.bgmStep = 0;
-                this.annTimer = 0;
-                this.tauntTimer = 0;
-                this.actionTimer = 0;
-                this.shakeTimer = 0;
-                this.shakeIntensity = 0;
-                this.screenFlash = 0;
+                this.freezeOverlay = 0;
                 this.objects = [];
                 this.particles = [];
                 this.floaters = [];
@@ -1093,7 +1024,14 @@
                 this.shockwaves = [];
                 this.snowflakes = [];
                 this.stinkClouds = [];
-                this.kenzie = { x: this.w * 0.5, targetX: this.w * 0.5, y: this.h * 0.14, bobOffset: 0 };
+                this.kenzie = { x: this.w * 0.5, targetX: this.w * 0.5, y: this.h * 0.14 };
+                this.totalSliced = 0;
+                this.poopsSliced = 0;
+                this.freezesTriggered = 0;
+                this.shieldsUsed = 0;
+                this.survivedRage = false;
+                this.rageStartLives = this.lives;
+                this.kenzieFrame = 0;
                 this.updateHUD();
             }
             start(level) {
@@ -1103,594 +1041,272 @@
                 $('start').classList.add('hidden');
                 $('over').classList.add('hidden');
                 $('hud').style.display = 'block';
-                this.showAnn('Begin', level.toUpperCase(), '#00f2fe');
-                setTimeout(() => this.voice.speakNow("Riley, let's see what you've got.", { minGap: 0, pitch: 1.5,
-                    rate: 1.0, volume: 1.0 }), 100);
+                this.showAnn('Battle!', level.toUpperCase(), '#00f2fe');
+                this.voice.speakNow("Let's dance, Riley!");
             }
             updateBestUI() {
-                if (this.best > 0) { $('startHs').classList.remove('hidden');
+                if (this.best > 0) {
+                    $('startHs').classList.remove('hidden');
                     $('overHs').classList.remove('hidden');
                     $('startHsVal').textContent = this.best;
-                    $('overHsVal').textContent = this.best; } else { $('startHs').classList.add('hidden');
-                    $('overHs').classList.add('hidden'); }
+                    $('overHsVal').textContent = this.best;
+                }
             }
-            showAnn(title, sub, color) { $('annTitle').textContent = title;
+            showAnn(title, sub, color) {
+                $('annTitle').textContent = title;
                 $('annTitle').style.color = color;
                 $('annSub').textContent = sub || '';
                 $('ann').classList.add('show');
-                this.annTimer = 85; }
-            showTaunt(text, force) { if (this.tauntTimer > 0 && !force) return;
+                setTimeout(() => $('ann').classList.remove('show'), 1500);
+            }
+            showTaunt(text) {
                 $('taunt').textContent = text;
                 $('taunt').classList.add('show');
-                this.tauntTimer = 110;
-                this.voice.speakNow(text, { minGap: 0, pitch: 1.52, rate: 1.05 }); }
-            flashAction(text) { $('action').textContent = text;
+                setTimeout(() => $('taunt').classList.remove('show'), 2000);
+                this.voice.speakNow(text);
+            }
+            flashAction(text) {
+                $('action').textContent = text;
                 $('action').classList.add('show');
-                this.actionTimer = 18; }
+                setTimeout(() => $('action').classList.remove('show'), 800);
+            }
+            checkAchievements() {
+                ACHIEVEMENTS.forEach(a => {
+                    if (!this.achievements.includes(a.id) && a.check(this)) {
+                        this.achievements.push(a.id);
+                        localStorage.setItem('riley_achieve', JSON.stringify(this.achievements));
+                        this.achievePopups.push({ name: a.name, desc: a.desc, timer: 200 });
+                    }
+                });
+            }
             updateHUD() {
                 $('score').textContent = this.score;
                 $('wave').textContent = this.wave;
-                $('lives').textContent = '❤️'.repeat(Math.max(0, this.lives)) + (this.hasShield ? '🛡️' : '') +
-                    '🖤'.repeat(Math.max(0, CONFIG.maxLives - this.lives));
-                $('combo').textContent = this.combo > 1 ? '⚡ Combo ×' + this.combo : '';
+                $('lives').textContent = '❤️'.repeat(this.lives) + (this.hasShield ? '🛡️' : '');
+                $('combo').textContent = this.combo > 1 ? 'Combo x' + this.combo : '';
                 $('powerFill').style.width = Math.min(100, this.power) + '%';
                 $('powerFill').className = this.isRush ? 'rush' : '';
-                $('pills').innerHTML = (this.isFrozen ? '<span class="pill freeze">❄️ Freeze</span>' : '') + (this
-                    .hasShield ? '<span class="pill shield">🛡️ Shield</span>' : '') + (this.isRush ?
-                    '<span class="pill rush">⚡ Rush</span>' : '') + (this.rageMode ?
-                    '<span class="pill rush" style="background:rgba(255,30,30,.95)">🔥 Rage</span>' : '');
+                $('pills').innerHTML = (this.isFrozen ? '<span class="pill">❄️</span>' : '') + (this.hasShield ?
+                    '<span class="pill shield">🛡️</span>' : '') + (this.isRush ? '<span class="pill rush">⚡</span>' :
+                    '') + (this.rageMode ? '<span class="pill rush" style="background:#ff2020">🔥</span>' : '');
             }
             spawnObject(type, x, y, vx, vy) {
-                const defs = { broccoli: { r: 28, score: 10, sprite: 'broccoli', color: '#5ec92d' }, pizza: { r: 28,
-                        score: 14, sprite: 'pizza', color: '#ffb455' }, donut: { r: 28, score: 16, sprite: 'donut',
-                        color: '#ff7eb5' }, candy: { r: 24, score: 18, sprite: 'candy', color: '#d98cff' },
-                    poop: { r: 26, score: 25, sprite: 'poop', color: '#8a5028' }, bomb: { r: 30, score: 0,
-                        sprite: 'bomb', color: '#ff5555' }, stinkbomb: { r: 32, score: 0, sprite: 'stinkbomb',
-                        color: '#80b030' }, freeze: { r: 24, score: 0, sprite: 'freeze', color: '#a6f0ff',
-                        power: 'freeze' }, shield: { r: 24, score: 0, sprite: 'shield', color: '#ffe05a',
-                        power: 'shield' }, heart: { r: 24, score: 0, sprite: 'heart', color: '#ff516d',
-                        power: 'heart' } };
-                this.objects.push(Object.assign({ type, x, y, vx, vy, rot: Math.random() * Math.PI * 2, vr: (Math
-                        .random() - 0.5) * 0.22, dead: false, glowPhase: Math.random() * Math.PI * 2 }, defs[
-                    type]));
+                const defs = {
+                    broccoli: { r: 28, score: 10, sprite: 'broccoli', color: '#5ec92d' },
+                    pizza: { r: 28, score: 14, sprite: 'pizza', color: '#ffb455' },
+                    donut: { r: 28, score: 16, sprite: 'donut', color: '#ff7eb5' },
+                    candy: { r: 24, score: 18, sprite: 'candy', color: '#d98cff' },
+                    poop: { r: 26, score: 25, sprite: 'poop', color: '#8a5028' },
+                    bomb: { r: 30, score: 0, sprite: 'bomb', color: '#ff5555' },
+                    stinkbomb: { r: 32, score: 0, sprite: 'stinkbomb', color: '#80b030' },
+                    freeze: { r: 24, score: 0, sprite: 'freeze', color: '#a6f0ff', power: 'freeze' },
+                    shield: { r: 24, score: 0, sprite: 'shield', color: '#ffe05a', power: 'shield' },
+                    heart: { r: 24, score: 0, sprite: 'heart', color: '#ff516d', power: 'heart' }
+                };
+                this.objects.push({ ...defs[type], x, y, vx, vy, rot: Math.random() * Math.PI * 2, vr: (Math.random() -
+                        0.5) * 0.2, dead: false });
             }
             spawn() {
-                const bossWave = this.wave % 5 === 0;
                 const x = this.w * 0.1 + Math.random() * this.w * 0.8;
                 const y = this.h + 70;
-                const speedMult = (this.isRush ? 1.1 : 1) * (this.isFrozen ? 0.5 : 1) * (this.rageMode ? 1.2 : 1);
-                const speed = this.cfg.speed * (1 + Math.min(0.5, (this.wave - 1) * 0.03)) * speedMult;
+                const speed = this.cfg.speed * (1 + this.wave * 0.02) * (this.isFrozen ? 0.5 : 1) * (this.rageMode ? 1.2 :
+                    1);
                 const vx = (Math.random() - 0.5) * 5 * speed;
-                const vy = -(12 + Math.random() * 5 + (bossWave ? 3 : 0)) * speed;
+                const vy = -(12 + Math.random() * 5) * speed;
                 const r = Math.random();
-                const stinkC = this.cfg.stinkChance + (bossWave ? 0.06 : 0.0) + (this.rageMode ? 0.04 : 0);
-                const bombC = this.cfg.bombChance + (bossWave ? 0.12 : 0.0) + (this.rageMode ? 0.05 : 0);
-                if (r < 0.02) return this.spawnObject('heart', x, y, vx, vy);
-                if (r < 0.06) return this.spawnObject('freeze', x, y, vx, vy);
-                if (r < 0.10) return this.spawnObject('shield', x, y, vx, vy);
-                if (r < 0.14) return this.spawnObject('poop', x, y, vx, vy);
-                if (r < 0.14 + stinkC) return this.spawnObject('stinkbomb', x, y, vx, vy);
-                if (r < 0.14 + stinkC + bombC) return this.spawnObject('bomb', x, y, vx, vy);
-                const f = Math.random(); if (f < 0.48) return this.spawnObject('broccoli', x, y, vx, vy); if (f < 0.7)
-                    return this.spawnObject('pizza', x, y, vx, vy); if (f < 0.86) return this.spawnObject('donut',
-                    x, y, vx, vy);
+                if (r < 0.03) return this.spawnObject('heart', x, y, vx, vy);
+                if (r < 0.08) return this.spawnObject('freeze', x, y, vx, vy);
+                if (r < 0.13) return this.spawnObject('shield', x, y, vx, vy);
+                if (r < 0.18) return this.spawnObject('poop', x, y, vx, vy);
+                if (r < 0.18 + this.cfg.stinkChance) return this.spawnObject('stinkbomb', x, y, vx, vy);
+                if (r < 0.18 + this.cfg.stinkChance + this.cfg.bombChance) return this.spawnObject('bomb', x, y, vx, vy);
+                const f = Math.random();
+                if (f < 0.5) return this.spawnObject('broccoli', x, y, vx, vy);
+                if (f < 0.75) return this.spawnObject('pizza', x, y, vx, vy);
+                if (f < 0.9) return this.spawnObject('donut', x, y, vx, vy);
                 return this.spawnObject('candy', x, y, vx, vy);
             }
             sliceBetween(p1, p2) {
+                if (!p1 || !p2) return;
                 let hit = false;
-                for (const o of this.objects) { if (o.dead) continue; if (this.segmentHitsCircle(p1, p2, o)) { hit =
-                        true;
-                        o.dead = true; if (o.type === 'bomb') this.onBomb(o); else if (o.type === 'stinkbomb')
-                            this.onStinkBomb(o); else if (o.type === 'poop') this.onPoop(o); else if (o.power)
-                            this.onPower(o); else this.onSlice(o); } } if (!hit) this.audio.play('slash');
+                for (const o of this.objects) {
+                    if (o.dead) continue;
+                    if (this.segmentHitsCircle(p1, p2, o)) {
+                        o.dead = true;
+                        hit = true;
+                        if (o.type === 'bomb') this.onBomb(o);
+                        else if (o.type === 'stinkbomb') this.onStinkBomb(o);
+                        else if (o.type === 'poop') { this.poopsSliced++;
+                            this.onSlice(o); } else if (o.power) this.onPower(o);
+                        else this.onSlice(o);
+                    }
+                }
+                if (!hit) this.audio.play('slash');
             }
             segmentHitsCircle(a, b, o) { const abx = b.x - a.x,
                     aby = b.y - a.y; const apx = o.x - a.x,
                     apy = o.y - a.y; const ab2 = abx * abx + aby * aby || 1; let t = (apx * abx + apy * aby) / ab2;
                 t = Math.max(0, Math.min(1, t)); const cx = a.x + abx * t,
                     cy = a.y + aby * t; const dx = o.x - cx,
-                    dy = o.y - cy; const rr = (o.r + 16) * (o.r + 16); return dx * dx + dy * dy <= rr; }
+                    dy = o.y - cy; return dx * dx + dy * dy <= (o.r + 16) * (o.r + 16); }
             onSlice(o) {
-                const isCrit = this.swipeVelocity > 30 && Math.random() < 0.28;
-                const multiplier = (this.isRush ? 2 : 1) * (isCrit ? 2 : 1) * (this.rageMode ? 1.5 : 1);
+                const multiplier = (this.isRush ? 2 : 1) * (this.rageMode ? 1.5 : 1);
                 const gained = Math.floor(o.score * multiplier);
                 this.score += gained;
-                this.combo += 1;
+                this.combo++;
+                this.totalSliced++;
                 this.bestCombo = Math.max(this.bestCombo, this.combo);
-                this.comboTimer = 80;
-                this.power = Math.min(100, this.power + (this.rageMode ? 12 : 8));
-                this.waveSliced += 1;
-                if (isCrit) { this.audio.play('crit');
-                    this.screenFlash = 6; } else { this.audio.play('hit'); } if (this.combo > 1) this.audio.play(
-                    'combo', this.combo); if (this.combo >= 10) this.flashAction('SAVAGE!'); else if (isCrit) this
-                    .flashAction('CRITICAL!'); else if (this.combo >= 4) this.flashAction('NICE!'); else this
-                    .flashAction('KEEEYA!');
-                this.burst(o.x, o.y, o.color, isCrit ? 34 : 20, isCrit);
-                this.spark(o.x, o.y, '#ffffff', isCrit ? 20 : 12);
-                this.ring(o.x, o.y, isCrit ? 'rgba(255,215,0,.85)' : 'rgba(255,255,255,.6)', isCrit ? 115 : 85);
-                this.floatText(o.x, o.y, '+' + gained, isCrit ? '#ffd700' : '#ffffff', isCrit ? 32 : 26); if (isCrit)
-                    this.shockwave(o.x, o.y, '#ffd700'); if (this.power >= 100 && !this.isRush) { this.isRush =
-                    true;
+                this.power = Math.min(100, this.power + 8);
+                this.waveSliced++;
+                this.audio.play('hit');
+                if (this.combo >= 10) this.flashAction('SAVAGE!');
+                else if (this.combo >= 5) this.flashAction('NICE!');
+                if (this.power >= 100 && !this.isRush) { this.isRush = true;
                     this.rushTimer = 7000;
                     this.audio.play('ult');
-                    this.showAnn('SUGAR RUSH', 'Double score! Go wild!', '#ff4080');
-                    this.voice.speak('Sugar rush! Try to keep up, Riley.', { minGap: 0, pitch: 1.45 });
-                    this.shockwave(this.w * 0.5, this.h * 0.4, '#ff4080'); }
-                if (this.waveSliced >= this.waveGoal) { this.wave += 1;
+                    this.showAnn('SUGAR RUSH', 'Double score!', '#ff4080'); }
+                if (this.waveSliced >= this.waveGoal) { this.wave++;
                     this.waveSliced = 0;
-                    this.waveGoal = this.cfg.waveGoal + Math.floor(this.wave * 1.5); const isBoss = this.wave % 5 ===
-                        0; if (isBoss) { this.rageMode = true;
+                    this.waveGoal = this.cfg.waveGoal + Math.floor(this.wave * 1.5); if (this.wave % 5 === 0) { this
+                            .rageMode = true;
                         this.rageTimer = 8000;
-                        this.ragePulse = 0;
+                        this.rageStartLives = this.lives;
                         this.audio.play('rage');
-                        this.showAnn('👑 BOSS RAGE', 'Kenzie goes berserk!', '#ff2020');
-                        this.voice.speak('Feel my true power, Riley!', { minGap: 0, pitch: 1.3,
-                        rate: 1.1 });
-                        this.shockwave(this.w * 0.5, this.h * 0.5, '#ff2020');
-                        this.shakeTimer = 20;
-                        this.shakeIntensity = 16; } else { this.audio.play('wave');
-                        this.showAnn('Wave Clear', 'Next wave incoming.', '#ffd700');
-                        this.voice.speak('Wave ' + this.wave + '. Keep swinging, Riley.', { minGap: 0,
-                            pitch: 1.4 }); }
-                    this.shockwave(this.w * 0.5, this.h * 0.5, isBoss ? '#ff2020' : '#ffd700'); }
-                this.updateHUD(); if (Math.random() < 0.45) this.showTaunt(CONFIG.taunts[Math.floor(Math.random() * CONFIG
-                    .taunts.length)], false);
+                        this.showAnn('BOSS RAGE', 'Kenzie goes berserk!', '#ff2020');
+                        this.showTaunt(CONFIG.bossTaunts[Math.floor(Math.random() * CONFIG.bossTaunts.length)]); } else {
+                        this.audio.play('wave');
+                        this.showAnn('Wave ' + this.wave, '', '#ffd700');
+                        this.showTaunt(CONFIG.taunts[Math.floor(Math.random() * CONFIG.taunts.length)]); } }
+                this.checkAchievements();
+                this.updateHUD();
             }
-            onPoop(o) { const gained = Math.floor(25 * (this.isRush ? 2 : 1) * (this.rageMode ? 1.5 : 1));
-                this.score += gained;
-                this.combo += 1;
-                this.bestCombo = Math.max(this.bestCombo, this.combo);
-                this.comboTimer = 80;
-                this.power = Math.min(100, this.power + 6);
-                this.waveSliced += 1;
-                this.audio.play('poop');
-                this.flashAction('💩 POOP!');
-                this.burst(o.x, o.y, '#8a5028', 18, false);
-                this.spark(o.x, o.y, '#c8ff60', 10);
-                this.floatText(o.x, o.y, '+' + gained + ' 💩', '#c8a060', 26);
-                this.ring(o.x, o.y, 'rgba(180,130,80,.6)', 75); if (Math.random() < 0.35) this.showTaunt(
-                'Eww, poop slice!', false);
-                this.updateHUD(); if (this.waveSliced >= this.waveGoal) { this.wave += 1;
-                    this.waveSliced = 0;
-                    this.waveGoal = this.cfg.waveGoal + Math.floor(this.wave * 1.5); const isBoss = this.wave % 5 ===
-                        0; if (isBoss) { this.rageMode = true;
-                        this.rageTimer = 8000;
-                        this.ragePulse = 0;
-                        this.audio.play('rage');
-                        this.showAnn('👑 BOSS RAGE', 'Kenzie goes berserk!', '#ff2020');
-                        this.voice.speak('Feel my true power, Riley!', { minGap: 0, pitch: 1.3,
-                        rate: 1.1 });
-                        this.shockwave(this.w * 0.5, this.h * 0.5, '#ff2020');
-                        this.shakeTimer = 20;
-                        this.shakeIntensity = 16; } else { this.audio.play('wave');
-                        this.showAnn('Wave Clear', 'Next wave incoming.', '#ffd700'); }
-                    this.shockwave(this.w * 0.5, this.h * 0.5, isBoss ? '#ff2020' : '#ffd700'); } }
-            onPower(o) { if (o.power === 'freeze') { this.isFrozen = true;
+            onPoop(o) { this.poopsSliced++;
+                this.onSlice(o);
+                this.flashAction('💩 POOP!'); }
+            onPower(o) {
+                if (o.power === 'freeze') { this.isFrozen = true;
                     this.freezeTimer = 5000;
-                    this.freezeOverlay = 1; for (let i = 0; i < 50; i++) this.spawnSnowflake();
+                    this.freezeOverlay = 1;
+                    this.freezesTriggered++;
                     this.audio.play('freeze');
-                    this.showAnn('❄️ FREEZE', 'Everything slows down!', '#80e0ff');
-                    this.voice.speak('Freeze activated.', { minGap: 0, pitch: 1.35 });
-                    this.shockwave(o.x, o.y, '#a6f0ff'); } else if (o.power === 'shield') { this.hasShield = true;
-                    this.audio.play('power');
-                    this.showAnn('🛡️ Shield', 'One bomb forgiven.', '#ffe05a');
-                    this.voice.speak('Shield up.', { minGap: 0, pitch: 1.35 }); } else if (o.power === 'heart') { this
-                        .lives = Math.min(CONFIG.maxLives, this.lives + 1);
-                    this.audio.play('life');
-                    this.showAnn('❤️ Extra Life', 'You got lucky.', '#ff516d');
-                    this.voice.speak('Extra life.', { minGap: 0, pitch: 1.35 }); }
-                this.burst(o.x, o.y, o.color, 18, false);
-                this.floatText(o.x, o.y, o.power.toUpperCase(), '#ffffff', 22);
-                this.shockwave(o.x, o.y, o.color);
-                this.updateHUD(); }
-            onBomb(o) { this.audio.play('bomb');
-                this.shakeTimer = 18;
-                this.shakeIntensity = 14;
-                this.screenFlash = 8;
-                this.ring(o.x, o.y, 'rgba(255,80,80,.85)', 120);
-                this.burst(o.x, o.y, '#ff5b5b', 34, false);
-                this.shockwave(o.x, o.y, '#ff4040');
+                    this.showAnn('FREEZE', '', '#a6f0ff'); } else if (o.power === 'shield') { this.hasShield = true;
+                    this.audio.play('power'); } else if (o.power === 'heart') { this.lives = Math.min(CONFIG.maxLives,
+                        this.lives + 1);
+                    this.audio.play('life'); }
+                this.checkAchievements();
+                this.updateHUD();
+            }
+            onBomb(o) {
+                this.audio.play('bomb');
+                this.shakeTimer = 15;
                 this.combo = 0;
-                this.comboTimer = 0; if (this.hasShield) { this.hasShield = false;
-                    this.floatText(o.x, o.y, 'SHIELD SAVED YOU', '#ffe05a', 20);
-                    this.shockwave(o.x, o.y, '#ffe05a'); } else { this.lives -= 1;
-                    this.floatText(o.x, o.y, '-1 LIFE', '#ff9aa3', 28); }
-                this.showTaunt(CONFIG.bombTaunts[Math.floor(Math.random() * CONFIG.bombTaunts.length)], true);
-                this.updateHUD(); if (this.lives <= 0) this.endGame(); }
+                if (this.hasShield) { this.hasShield = false;
+                    this.shieldsUsed++; } else { this.lives--; } if (this.lives <= 0) this.endGame();
+                this.updateHUD();
+            }
             onStinkBomb(o) { this.audio.play('stinkbomb');
-                this.shakeTimer = 14;
-                this.shakeIntensity = 10;
-                this.screenFlash = 5;
-                this.stinkClouds.push({ x: o.x, y: o.y, r: 20, max: 140, life: 1, alpha: 0.7 });
-                this.ring(o.x, o.y, 'rgba(140,220,60,.9)', 135);
-                this.burst(o.x, o.y, '#80b030', 38, false);
-                this.burst(o.x, o.y, '#c8ff60', 22, false);
-                this.shockwave(o.x, o.y, '#a0d040'); for (let i = 0; i < 14; i++) { this.particles.push({ x: o.x, y: o
-                            .y, vx: (Math.random() - 0.5) * 3, vy: -Math.random() * 4 - 1, life: 1, size: Math
-                            .random() * 8 + 4, color: 'rgba(140,200,60,.6)', spark: false, glow: true,
-                        stink: true }); }
-                this.combo = 0;
-                this.comboTimer = 0; if (this.hasShield) { this.hasShield = false;
-                    this.floatText(o.x, o.y, 'SHIELD SAVED YOU', '#ffe05a', 20);
-                    this.shockwave(o.x, o.y, '#ffe05a'); } else { this.lives -= 1;
-                    this.floatText(o.x, o.y, '-1 LIFE 💨', '#c8ff60', 28); }
-                this.showTaunt(CONFIG.stinkTaunts[Math.floor(Math.random() * CONFIG.stinkTaunts.length)], true);
-                this.updateHUD(); if (this.lives <= 0) this.endGame(); }
-            burst(x, y, color, n, isCrit) { for (let i = 0; i < n; i++) { const a = (Math.PI * 2 / n) * i + Math.random() *
-                    .5;
-                    const sp = Math.random() * 8 + 3;
-                    this.particles.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 3, life: 1, size: Math
-                            .random() * 7 + 2, color, spark: isCrit || false, glow: true, stink: false }); } }
-            spark(x, y, color, n) { for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2;
-                    const sp = Math.random() * 11 + 4;
-                    this.particles.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, life: 1, size: Math
-                            .random() * 2.8 + 1, color, spark: true, glow: false, stink: false }); } }
-            floatText(x, y, text, color, size) { this.floaters.push({ x, y, text, color, size, life: 1, vy: -2.6,
-                bouncePhase: 0 }); }
-            ring(x, y, color, maxR) { this.rings.push({ x, y, r: 7, max: maxR, life: 1, color }); }
-            shockwave(x, y, color) { this.shockwaves.push({ x, y, r: 12, max: 155, life: 1, color }); }
-            tickBGM(dt) { if (this.state !== 'playing') return;
-                this.bgmTimer -= dt; if (this.bgmTimer > 0) return;
-                const notes = [392, 440, 494, 523, 587, 523, 494, 392, 349, 392, 440, 523];
-                this.bgmTimer = this.isRush ? 100 : this.isFrozen ? 500 : this.rageMode ? 180 : 260;
-                const note = notes[this.bgmStep % notes.length];
-                this.bgmStep += 1;
-                this.audio.play('bgm', note * (this.isRush ? 1.5 : 1) * (this.rageMode ? 0.7 : 1)); }
-            endGame() { this.state = 'over';
-                this.voice.stop(); const isNew = this.score > this.best; if (isNew) { this.best = this.score;
+                this.stinkClouds.push({ x: o.x, y: o.y, r: 15, life: 1 }); this.combo = 0; if (this.hasShield) { this
+                        .hasShield = false; } else { this.lives--; } if (this.lives <= 0) this.endGame();
+                this.updateHUD(); }
+            endGame() {
+                this.state = 'over'; if (this.rageMode && this.lives === this.rageStartLives) this.survivedRage =
+                    true;
+                this.checkAchievements(); if (this.score > this.best) { this.best = this.score;
                     localStorage.setItem(CONFIG.storageKey, String(this.best)); }
                 $('goScore').textContent = this.score;
                 $('goWave').textContent = this.wave;
                 $('goCombo').textContent = this.bestCombo;
-                $('newHs').classList.toggle('hidden', !isNew);
+                $('newHs').classList.toggle('hidden', this.score <= this.best);
                 $('hud').style.display = 'none';
                 $('over').classList.remove('hidden');
                 this.updateBestUI();
-                setTimeout(() => this.voice.speak(isNew ? 'New high score. Not completely hopeless, Riley.' :
-                    'Better luck next time, Riley.', { minGap: 0, pitch: 1.45 }), 300); }
-            update(dt) { if (this.state !== 'playing') return;
-                this.tickBGM(dt);
-                this.spawnTimer += dt; const spawnEvery = Math.max(150, this.cfg.spawnMs - (this.wave - 1) * 14) * (this
-                    .isFrozen ? 2.0 : 1) * (this.isRush ? 0.82 : 1) * (this.rageMode ? 0.75 : 1); while (this
-                    .spawnTimer >= spawnEvery) { this.spawnTimer -= spawnEvery;
-                    this.spawn(); } if (this.comboTimer > 0) this.comboTimer -= 1;
-                else if (this.combo > 0) { this.combo = 0;
-                    this.updateHUD(); } if (this.annTimer > 0) { this.annTimer -= 1; if (this.annTimer <= 0) $(
-                    'ann').classList.remove('show'); } if (this.tauntTimer > 0) { this.tauntTimer -= 1; if (this
-                    .tauntTimer <= 0) $('taunt').classList.remove('show'); } if (this.actionTimer > 0) { this
-                    .actionTimer -= 1; if (this.actionTimer <= 0) $('action').classList.remove('show'); } if (this
-                    .shakeTimer > 0) { this.shakeTimer -= 1;
-                    this.shakeIntensity *= 0.85; } else this.shakeIntensity = 0; if (this.screenFlash > 0) this
-                    .screenFlash -= 1; if (this.isRush) { this.rushTimer -= dt; if (this.rushTimer <= 0) { this
-                        .isRush = false;
-                        this.power = 0;
-                        this.showAnn('Rush Over', '', '#00f2fe');
-                        this.updateHUD(); } } if (this.isFrozen) { this.freezeTimer -= dt;
-                    this.freezeOverlay = Math.max(0, Math.min(1, this.freezeTimer / 1000)); if (Math.random() <
-                        0.35) this.spawnSnowflake(); if (this.freezeTimer <= 0) { this.isFrozen = false;
-                        this.freezeOverlay = 0;
-                        this.showAnn('Freeze Ended', '', '#a6f0ff');
-                        this.updateHUD(); for (let i = 0; i < 30; i++) { this.particles.push({ x: Math.random() *
-                                this.w, y: Math.random() * this.h, vx: (Math.random() - 0.5) * 6, vy: (Math
-                                    .random() - 0.5) * 6, life: 1, size: Math.random() * 6 + 2,
-                                color: '#c8f8ff', spark: true, glow: true, stink: false }); } } } else { this
-                    .freezeOverlay = Math.max(0, this.freezeOverlay - dt * 0.002); } if (this.rageMode) { this
-                    .rageTimer -= dt;
-                    this.ragePulse += dt * 0.008; if (this.rageTimer <= 0) { this.rageMode = false;
-                        this.ragePulse = 0;
-                        this.showAnn('Rage Subsided', 'Kenzie calms down.', '#ff8888');
-                        this.voice.speak('You survived... for now.', { minGap: 0, pitch: 1.5 }); } }
-                const gravity = CONFIG.gravityBase * (this.isFrozen ? 0.32 : 1) * (this.isRush ? 1.12 : 1);
-                this.kenzie.targetX += Math.sin(performance.now() * 0.0008 + this.wave) * (this.rageMode ? 3.0 : this
-                    .wave % 5 === 0 ? 2.2 : 0.9);
-                this.kenzie.targetX = Math.max(this.w * 0.15, Math.min(this.w * 0.85, this.kenzie.targetX));
-                this.kenzie.x += (this.kenzie.targetX - this.kenzie.x) * (this.rageMode ? 0.06 : 0.035);
-                this.kenzie.bobOffset = Math.sin(performance.now() * (this.rageMode ? 0.006 : 0.003)) * (this.rageMode ?
-                    8 : 5); for (const o of this.objects) { if (o.dead) continue;
+                this.voice.speakNow(this.score > this.best ? 'New high score!' : 'Better luck next time.');
+            }
+            update(dt) {
+                if (this.state !== 'playing') return;
+                this.spawnTimer = (this.spawnTimer || 0) + dt; const spawnEvery = Math.max(150, this.cfg.spawnMs - this
+                    .wave * 10) * (this.isFrozen ? 2 : 1) * (this.rageMode ? 0.7 : 1); while (this.spawnTimer >=
+                    spawnEvery) { this.spawnTimer -= spawnEvery;
+                    this.spawn(); } if (this.isRush) { this.rushTimer -= dt; if (this.rushTimer <= 0) { this.isRush =
+                        false;
+                        this.power = 0; } } if (this.isFrozen) { this.freezeTimer -= dt; if (this.freezeTimer <=
+                    0) { this.isFrozen = false;
+                    this.freezeOverlay = 0; } } if (this.rageMode) { this.rageTimer -= dt; if (this.rageTimer <=
+                    0) { this.rageMode = false; } }
+                const gravity = CONFIG.gravityBase * (this.isFrozen ? 0.3 : 1);
+                this.kenzie.targetX += Math.sin(performance.now() * 0.001) * (this.rageMode ? 3 : 1);
+                this.kenzie.targetX = Math.max(100, Math.min(this.w - 100, this.kenzie.targetX));
+                this.kenzie.x += (this.kenzie.targetX - this.kenzie.x) * 0.04;
+                for (const o of this.objects) { if (o.dead) continue;
                     o.x += o.vx;
                     o.y += o.vy;
                     o.vy += gravity;
-                    o.rot += o.vr;
-                    o.glowPhase += 0.065; } for (const p of this.particles) { p.x += p.vx;
-                    p.y += p.vy;
-                    p.vy += 0.12;
-                    p.life -= p.stink ? 0.012 : 0.024;
-                    p.size *= 0.992; } for (const f of this.floaters) { f.y += f.vy;
-                    f.life -= 0.018;
-                    f.bouncePhase += 0.1;
-                    f.vy -= 0.03; } for (const r of this.rings) { r.r += 5.2;
-                    r.life -= 0.035; } for (const sw of this.shockwaves) { sw.r += 8.5;
-                    sw.life -= 0.03; } for (const sc of this.stinkClouds) { sc.r += 4;
-                    sc.life -= 0.018;
-                    sc.alpha = sc.life * 0.7; } for (const t of this.trail) t.life -= 0.06; for (const sf of this
-                    .snowflakes) { sf.y += sf.vy;
-                    sf.x += sf.vx + Math.sin(performance.now() * 0.002 + sf.x) * 0.4;
-                    sf.rot += sf.vr;
-                    sf.life -= 0.006; }
-                this.objects = this.objects.filter(o => !o.dead && o.y < this.h + 140 && o.x > -140 && o.x < this.w +
-                140);
-                this.particles = this.particles.filter(p => p.life > 0 && p.size > 0.3);
-                this.floaters = this.floaters.filter(f => f.life > 0);
-                this.rings = this.rings.filter(r => r.life > 0 && r.r < r.max);
-                this.shockwaves = this.shockwaves.filter(sw => sw.life > 0 && sw.r < sw.max);
-                this.stinkClouds = this.stinkClouds.filter(sc => sc.life > 0);
-                this.snowflakes = this.snowflakes.filter(sf => sf.life > 0 && sf.y < this.h + 20);
-                this.trail = this.trail.filter(t => t.life > 0); if (Math.random() < (this.isMobile ? 0.003 : 0.0045))
-                    this.showTaunt(CONFIG.taunts[Math.floor(Math.random() * CONFIG.taunts.length)], false); }
-            drawBackground(c) { const g = c.createLinearGradient(0, 0, 0, this.h);
-                g.addColorStop(0, this.rageMode ? '#150510' : '#050318');
-                g.addColorStop(.5, this.rageMode ? '#200818' : '#0e0828');
-                g.addColorStop(1, this.rageMode ? '#2a0a18' : '#1a0a38');
+                    o.rot += o.vr; }
+                this.objects = this.objects.filter(o => !o.dead && o.y < this.h + 150 && o.x > -50 && o.x < this.w + 50);
+                this.stinkClouds = this.stinkClouds.filter(sc => { sc.r += 2;
+                    sc.life -= 0.01; return sc.life > 0; });
+                this.achievePopups = this.achievePopups.filter(p => { p.timer--; return p.timer > 0; });
+            }
+            drawBackground(c) {
+                const g = c.createLinearGradient(0, 0, 0, this.h);
+                g.addColorStop(0, this.rageMode ? '#1a0408' : '#050318');
+                g.addColorStop(1, this.rageMode ? '#300a10' : '#0e0828');
                 c.fillStyle = g;
-                c.fillRect(0, 0, this.w, this.h); for (const star of this.starField) { star.twinkle += star
-                        .twinkleSpeed; const alpha = (0.3 + Math.sin(star.twinkle) * 0.35) * (this.rageMode ? 0.7 :
-                        1);
-                    c.globalAlpha = alpha;
-                    c.fillStyle = star.color;
+                c.fillRect(0, 0, this.w, this.h);
+                c.fillStyle = 'white';
+                for (const star of this.starField) { c.globalAlpha = 0.5 + Math.sin(star.twinkle += 0.02) * 0.2;
                     c.beginPath();
                     c.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                    c.fill(); if (star.size > 1.5) { c.globalAlpha = alpha * 0.3;
-                        c.beginPath();
-                        c.arc(star.x, star.y, star.size * 3, 0, Math.PI * 2);
-                        c.fill(); } }
-                c.globalAlpha = 1; const nebulaG = c.createRadialGradient(this.w * 0.5, this.h * 0.65, 0, this.w * 0.5,
-                    this.h * 0.65, this.w * 0.7);
-                nebulaG.addColorStop(0, this.rageMode ? 'rgba(80,10,20,.12)' : 'rgba(60,20,100,.09)');
-                nebulaG.addColorStop(1, 'rgba(0,0,0,0)');
-                c.fillStyle = nebulaG;
-                c.fillRect(0, 0, this.w, this.h); const vignetteG = c.createRadialGradient(this.w * 0.5, this.h * 0.5,
-                    this.w * 0.4, this.w * 0.5, this.h * 0.5, this.w * 0.85);
-                vignetteG.addColorStop(0, 'rgba(0,0,0,0)');
-                vignetteG.addColorStop(1, this.rageMode ? 'rgba(40,0,0,.5)' : 'rgba(0,0,0,.58)');
-                c.fillStyle = vignetteG;
-                c.fillRect(0, 0, this.w, this.h); if (this.rageMode) { const rageG = c.createRadialGradient(this.w *
-                        0.5, this.h * 0.5, this.w * 0.3, this.w * 0.5, this.h * 0.5, this.w * 0.9);
-                    rageG.addColorStop(0, 'rgba(255,20,20,0)');
-                    rageG.addColorStop(1, 'rgba(255,0,0,' + (0.08 + Math.sin(this.ragePulse) * 0.04) + ')');
-                    c.fillStyle = rageG;
-                    c.fillRect(0, 0, this.w, this.h); } if (this.freezeOverlay > 0.01) { c.globalAlpha = this
-                        .freezeOverlay * 0.25;
-                    c.fillStyle = '#80d8ff';
-                    c.fillRect(0, 0, this.w, this.h); const frostG = c.createRadialGradient(this.w * 0.5, this.h * 0.5,
-                        this.w * 0.3, this.w * 0.5, this.h * 0.5, this.w * 0.9);
-                    frostG.addColorStop(0, 'rgba(200,240,255,0)');
-                    frostG.addColorStop(1, 'rgba(150,220,255,' + (this.freezeOverlay * 0.5) + ')');
-                    c.fillStyle = frostG;
-                    c.fillRect(0, 0, this.w, this.h);
-                    c.globalAlpha = 1; } }
-            drawKenzie(c) { const x = this.kenzie.x,
-                    y = this.kenzie.y + this.kenzie.bobOffset,
-                    boss = this.rageMode || this.wave % 5 === 0;
-                c.save();
-                c.translate(x, y); if (this.freezeOverlay > 0.3) { c.shadowColor = 'rgba(150,220,255,' + (this
-                        .freezeOverlay * 0.7) + ')';
-                    c.shadowBlur = 32 + this.freezeOverlay * 20; } else if (this.rageMode) { c.shadowColor =
-                        'rgba(255,20,20,.9)';
-                    c.shadowBlur = 34 + Math.sin(this.ragePulse) * 10; } else { c.shadowColor = boss ?
-                        'rgba(255,40,80,.7)' : 'rgba(255,100,180,.5)';
-                    c.shadowBlur = 28; }
-                c.fillStyle = this.rageMode ? '#200508' : boss ? '#2a0a10' : '#3a1a0e';
-                c.beginPath();
-                c.arc(0, -34, 40, 0, Math.PI * 2);
-                c.fill(); const dg = c.createLinearGradient(0, -10, 0, 95);
-                dg.addColorStop(0, this.rageMode ? '#ff2040' : boss ? '#ff4068' : '#ff80c8');
-                dg.addColorStop(1, this.rageMode ? '#7000b0' : boss ? '#8a00e0' : '#c030e0');
-                c.fillStyle = dg;
-                c.beginPath();
-                c.moveTo(-22, -5);
-                c.quadraticCurveTo(-48, 46, -56, 95);
-                c.lineTo(56, 95);
-                c.quadraticCurveTo(48, 46, 22, -5);
-                c.closePath();
-                c.fill();
-                c.fillStyle = '#ffe8cc';
-                c.fillRect(-7, -22, 14, 18);
-                c.beginPath();
-                c.arc(0, -38, 28, 0, Math.PI * 2);
-                c.fill();
-                c.fillStyle = '#fff';
-                c.beginPath();
-                c.ellipse(-10, -40, 6, 8, 0, 0, Math.PI * 2);
-                c.ellipse(10, -40, 6, 8, 0, 0, Math.PI * 2);
-                c.fill();
-                c.fillStyle = '#000';
-                c.beginPath();
-                c.arc(-10, -39, 3, 0, Math.PI * 2);
-                c.arc(10, -39, 3, 0, Math.PI * 2);
-                c.fill(); if (this.rageMode) { c.fillStyle = 'rgba(255,40,40,.5)';
-                    c.beginPath();
-                    c.arc(-10, -39, 5, 0, Math.PI * 2);
-                    c.arc(10, -39, 5, 0, Math.PI * 2);
                     c.fill(); }
-                c.fillStyle = 'rgba(255,255,255,.35)';
-                c.beginPath();
-                c.arc(-9, -42, 2.5, 0, Math.PI * 2);
-                c.arc(11, -42, 2.5, 0, Math.PI * 2);
-                c.fill();
-                c.strokeStyle = this.rageMode ? '#ff3040' : '#c00030';
-                c.lineWidth = 3;
-                c.beginPath();
-                c.arc(0, -29, 10, 0.2 * Math.PI, 0.8 * Math.PI);
-                c.stroke();
-                c.fillStyle = this.rageMode ? '#ff6040' : '#ffd700';
-                c.shadowColor = this.rageMode ? 'rgba(255,60,40,.9)' : 'rgba(255,215,0,.9)';
-                c.shadowBlur = 20;
-                c.beginPath();
-                c.moveTo(-16, -62);
-                c.lineTo(-5, -52);
-                c.lineTo(0, -66);
-                c.lineTo(5, -52);
-                c.lineTo(16, -62);
-                c.lineTo(10, -46);
-                c.lineTo(-10, -46);
-                c.closePath();
-                c.fill();
-                c.shadowBlur = 0;
-                c.strokeStyle = this.rageMode ? '#ff6040' : '#ffd700';
-                c.lineWidth = 6;
-                c.lineCap = 'round';
-                c.beginPath();
-                c.moveTo(0, -8);
-                c.lineTo(-32, 22);
-                c.moveTo(0, -10);
-                c.lineTo(32, 22);
-                c.stroke(); if (boss) { c.strokeStyle = this.rageMode ? 'rgba(255,60,30,.9)' :
-                        'rgba(255,50,50,.8)';
-                    c.lineWidth = this.rageMode ? 6 : 5;
-                    c.shadowColor = this.rageMode ? 'rgba(255,40,20,.9)' : 'rgba(255,30,30,.8)';
-                    c.shadowBlur = this.rageMode ? 30 : 26;
-                    c.beginPath();
-                    c.arc(0, -34, 52, 0, Math.PI * 2);
-                    c.stroke();
-                    c.shadowBlur = 0; } if (this.freezeOverlay > 0.3) { c.globalAlpha = this.freezeOverlay * 0.4;
-                    c.fillStyle = '#c8f0ff';
-                    c.beginPath();
-                    c.arc(0, -34, 44, 0, Math.PI * 2);
-                    c.fill();
-                    c.globalAlpha = 1; }
-                c.restore(); }
-            drawObjects(c) { for (const o of this.objects) { c.save();
+                c.globalAlpha = 1;
+            }
+            drawKenzie(c) {
+                const sprite = this.rageMode ? 'kenzie_rage' : 'kenzie_idle';
+                c.drawImage(this.assets.get(sprite), this.kenzie.x - 86, this.kenzie.y - 86, 172, 172);
+            }
+            drawObjects(c) {
+                for (const o of this.objects) {
+                    c.save();
                     c.translate(o.x, o.y);
-                    c.rotate(o.rot); if (o.type === 'bomb') { c.shadowColor = 'rgba(255,70,40,.6)';
-                        c.shadowBlur = 18 + Math.sin(o.glowPhase) * 8; } if (o.type === 'stinkbomb') { c.shadowColor =
-                            'rgba(140,220,60,.7)';
-                        c.shadowBlur = 20 + Math.sin(o.glowPhase) * 10; } if (o.type === 'poop') { c.shadowColor =
-                            'rgba(180,130,80,.5)';
-                        c.shadowBlur = 14 + Math.sin(o.glowPhase) * 6; } const img = this.assets.get(o.sprite); const
-                        size = o.r * 2.7; if (img) c.drawImage(img, -size / 2, -size / 2, size, size); if (this
-                        .freezeOverlay > 0.3 && o.power !== 'freeze') { c.globalAlpha = this.freezeOverlay * 0.35;
-                        c.fillStyle = '#c8f0ff';
-                        c.beginPath();
-                        c.arc(0, 0, o.r, 0, Math.PI * 2);
-                        c.fill();
-                        c.globalAlpha = 1; }
-                    c.shadowBlur = 0;
-                    c.restore(); } }
-            drawFX(c) { for (const sc of this.stinkClouds) { const grd = c.createRadialGradient(sc.x, sc.y, sc.r * 0.2,
-                        sc.x, sc.y, sc.r);
-                    grd.addColorStop(0, 'rgba(180,240,80,' + (sc.alpha * 0.6) + ')');
-                    grd.addColorStop(0.5, 'rgba(120,180,40,' + (sc.alpha * 0.35) + ')');
-                    grd.addColorStop(1, 'rgba(60,100,20,0)');
-                    c.fillStyle = grd;
+                    c.rotate(o.rot);
+                    const img = this.assets.get(o.sprite);
+                    if (img) c.drawImage(img, -o.r * 1.2, -o.r * 1.2, o.r * 2.4, o.r * 2.4);
+                    c.restore();
+                }
+            }
+            drawFX(c) {
+                for (const sc of this.stinkClouds) {
+                    c.globalAlpha = sc.life * 0.5;
+                    c.fillStyle = '#80b030';
                     c.beginPath();
                     c.arc(sc.x, sc.y, sc.r, 0, Math.PI * 2);
-                    c.fill(); } for (const sw of this.shockwaves) { c.globalAlpha = sw.life * 0.55;
-                    c.strokeStyle = sw.color;
-                    c.lineWidth = 7 * sw.life;
-                    c.shadowColor = sw.color;
-                    c.shadowBlur = 22;
-                    c.beginPath();
-                    c.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
-                    c.stroke();
-                    c.shadowBlur = 0; } for (const p of this.particles) { c.globalAlpha = p.life;
-                    c.fillStyle = p.color; if (p.glow) { c.shadowColor = p.color;
-                        c.shadowBlur = p.stink ? 16 : 12; } if (p.spark) c.fillRect(p.x, p.y, p.size * 2.8, 1.8);
-                    else { c.beginPath();
-                        c.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        c.fill(); }
-                    c.shadowBlur = 0; } for (const sf of this.snowflakes) { c.globalAlpha = sf.life * 0.8;
-                    c.fillStyle = '#e8f8ff';
-                    c.shadowColor = '#c0f0ff';
-                    c.shadowBlur = 6;
-                    c.save();
-                    c.translate(sf.x, sf.y);
-                    c.rotate(sf.rot); for (let i = 0; i < 6; i++) { c.save();
-                        c.rotate(i * Math.PI / 3);
-                        c.beginPath();
-                        c.moveTo(0, 0);
-                        c.lineTo(0, -sf.size);
-                        c.lineTo(sf.size * 0.3, -sf.size * 0.4);
-                        c.lineTo(0, -sf.size * 0.6);
-                        c.fill();
-                        c.restore(); }
-                    c.restore();
-                    c.shadowBlur = 0; } for (const f of this.floaters) { c.globalAlpha = f.life;
-                    c.font = '900 ' + (f.size + Math.sin(f.bouncePhase) * 3.5) + 'px Georgia, serif';
+                    c.fill();
+                }
+                c.globalAlpha = 1;
+                for (const p of this.achievePopups) {
+                    c.fillStyle = 'rgba(0,0,0,0.7)';
+                    c.fillRect(this.w / 2 - 150, 30, 300, 50);
+                    c.fillStyle = '#ffd700';
+                    c.font = 'bold 16px Inter';
                     c.textAlign = 'center';
-                    c.lineWidth = 5.5;
-                    c.strokeStyle = '#000';
-                    c.shadowColor = 'rgba(0,0,0,.85)';
-                    c.shadowBlur = 9;
-                    c.strokeText(f.text, f.x, f.y);
-                    c.shadowBlur = 0;
-                    c.fillStyle = f.color;
-                    c.shadowColor = f.color;
-                    c.shadowBlur = 16;
-                    c.fillText(f.text, f.x, f.y);
-                    c.shadowBlur = 0; } for (const r of this.rings) { c.globalAlpha = r.life;
-                    c.strokeStyle = r.color;
-                    c.lineWidth = 5.5;
-                    c.shadowColor = r.color;
-                    c.shadowBlur = 9;
-                    c.beginPath();
-                    c.arc(r.x, r.y, r.r, 0, Math.PI * 2);
-                    c.stroke();
-                    c.shadowBlur = 0; }
-                c.globalAlpha = 1; }
-            drawTrail(c) { if (this.trail.length < 2) return;
-                c.lineCap = 'round'; for (let i = 1; i < this.trail.length; i++) { const a = this.trail[i - 1],
-                        b = this.trail[i],
-                        alpha = b.life; const mx = (a.x + b.x) / 2,
-                        my = (a.y + b.y) / 2; const dx = b.x - a.x,
-                        dy = b.y - a.y; const len = Math.sqrt(dx * dx + dy * dy) || 1; const nx = -dy / len,
-                        ny = dx / len; const bladeWidth = 16 + b.vel * 0.3;
-                    c.globalAlpha = alpha;
-                    c.shadowColor = this.rageMode ? '#ff6040' : '#40d0ff';
-                    c.shadowBlur = this.rageMode ? 32 : 28;
-                    c.fillStyle = '#ffffff';
-                    c.beginPath();
-                    c.moveTo(a.x + nx * bladeWidth * 0.3, a.y + ny * bladeWidth * 0.3);
-                    c.lineTo(b.x + nx * bladeWidth * 0.3, b.y + ny * bladeWidth * 0.3);
-                    c.lineTo(b.x - nx * bladeWidth * 0.3, b.y - ny * bladeWidth * 0.3);
-                    c.lineTo(a.x - nx * bladeWidth * 0.3, a.y - ny * bladeWidth * 0.3);
-                    c.closePath();
-                    c.fill();
-                    c.globalAlpha = alpha * 0.8;
-                    c.fillStyle = this.rageMode ? '#ffe0d0' : '#e0f8ff';
-                    c.beginPath();
-                    c.moveTo(a.x + nx * bladeWidth * 0.55, a.y + ny * bladeWidth * 0.55);
-                    c.lineTo(mx + nx * bladeWidth * 0.7, my + ny * bladeWidth * 0.7);
-                    c.lineTo(mx - nx * bladeWidth * 0.7, my - ny * bladeWidth * 0.7);
-                    c.lineTo(a.x - nx * bladeWidth * 0.55, a.y - ny * bladeWidth * 0.55);
-                    c.closePath();
-                    c.fill();
-                    c.globalAlpha = alpha * 0.5;
-                    c.fillStyle = this.rageMode ? '#ff8060' : '#80e8ff';
-                    c.beginPath();
-                    c.moveTo(a.x + nx * bladeWidth, a.y + ny * bladeWidth);
-                    c.lineTo(b.x + nx * bladeWidth, b.y + ny * bladeWidth);
-                    c.lineTo(b.x - nx * bladeWidth, b.y - ny * bladeWidth);
-                    c.lineTo(a.x - nx * bladeWidth, a.y - ny * bladeWidth);
-                    c.closePath();
-                    c.fill();
-                    c.globalAlpha = alpha * 0.2;
-                    c.fillStyle = this.rageMode ? '#ff4040' : '#40d0ff';
-                    c.beginPath();
-                    c.moveTo(a.x + nx * bladeWidth * 1.5, a.y + ny * bladeWidth * 1.5);
-                    c.lineTo(b.x + nx * bladeWidth * 1.5, b.y + ny * bladeWidth * 1.5);
-                    c.lineTo(b.x - nx * bladeWidth * 1.5, b.y - ny * bladeWidth * 1.5);
-                    c.lineTo(a.x - nx * bladeWidth * 1.5, a.y - ny * bladeWidth * 1.5);
-                    c.closePath();
-                    c.fill(); }
-                c.shadowBlur = 0;
-                c.globalAlpha = 1; }
-            render() { const c = this.ctx;
-                c.save(); if (this.shakeIntensity > 0.5) c.translate((Math.random() - 0.5) * this.shakeIntensity, (Math
-                    .random() - 0.5) * this.shakeIntensity);
+                    c.fillText('🏆 ' + p.name, this.w / 2, 60);
+                    c.fillText(p.desc, this.w / 2, 80);
+                }
+            }
+            render() {
+                const c = this.ctx;
                 this.drawBackground(c);
                 this.drawKenzie(c);
                 this.drawObjects(c);
                 this.drawFX(c);
-                this.drawTrail(c); if (this.screenFlash > 0) { c.globalAlpha = this.screenFlash / 12;
-                    c.fillStyle = '#ffffff';
-                    c.fillRect(0, 0, this.w, this.h);
-                    c.globalAlpha = 1; }
-                c.restore(); }
-            loop(ts) { const dt = Math.min(50, ts - (this.lastTime || ts));
+            }
+            loop(ts) {
+                const dt = Math.min(50, ts - (this.lastTime || ts));
                 this.lastTime = ts;
                 this.update(dt);
                 this.render();
-                requestAnimationFrame(t => this.loop(t)); }
+                requestAnimationFrame(t => this.loop(t));
+            }
         }
         window.game = new Game();
     </script>
