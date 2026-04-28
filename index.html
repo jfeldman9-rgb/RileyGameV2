@@ -397,7 +397,6 @@
 </head>
 <body>
     <canvas id="game"></canvas>
-
     <div id="start" class="screen">
         <div class="title">Riley vs Kenzie</div>
         <div class="sub">Definitive Edition</div>
@@ -418,7 +417,6 @@
         </div>
         <div id="startHs" class="hs hidden">🏆 Best: <span id="startHsVal">0</span></div>
     </div>
-
     <div id="hud">
         <div id="scoreBox" class="hud-box"><div class="hud-label">Score</div><div id="score" class="hud-value">0</div><div id="combo"></div></div>
         <div id="waveBox" class="hud-box"><div class="hud-label">Wave</div><div id="wave" class="hud-value">1</div></div>
@@ -426,11 +424,9 @@
         <div id="powerWrap"><div id="powerLabel">Sugar Rush</div><div id="powerBar"><div id="powerFill"></div></div></div>
         <div id="pills"></div>
     </div>
-
     <div id="ann"><div id="annTitle"></div><div id="annSub"></div></div>
     <div id="taunt"></div>
     <div id="action">KEEEYA!</div>
-
     <div id="over" class="screen hidden">
         <div class="title">Game Over</div>
         <div class="stat-row">
@@ -442,55 +438,45 @@
         <div class="btn-row"><button class="btn-primary" id="restartBtn">Play Again</button></div>
         <div id="overHs" class="hs hidden">🏆 Best: <span id="overHsVal">0</span></div>
     </div>
-
     <script>
         'use strict';
-
         const $ = id => document.getElementById(id);
-
         const CONFIG = {
             maxLives: 3,
             gravityBase: 0.26,
-            trailMax: 22,
-            storageKey: 'riley-vs-kenzie-definitive-v2',
+            trailMax: 24,
+            storageKey: 'riley-vs-kenzie-definitive-v4',
             levels: {
                 easy: { spawnMs: 750, bombChance: 0.06, stinkChance: 0.03, speed: 0.92, waveGoal: 10 },
                 medium: { spawnMs: 590, bombChance: 0.10, stinkChance: 0.05, speed: 1.04, waveGoal: 12 },
                 hard: { spawnMs: 460, bombChance: 0.15, stinkChance: 0.08, speed: 1.18, waveGoal: 14 }
             },
             taunts: [
-                "Dance around my blade, Riley!",
-                "Your slashes have zero rhythm!",
-                "Shadow clone technique beats your swipes!",
-                "Feel the flow or get sliced!",
-                "Stealth mode engaged — you're too loud!",
-                "Groove to my beat or get cut!",
-                "Kunoichi style is too advanced for you!",
-                "Spin, slice, repeat — keep up!",
-                "Your moves have no flow, no chi!",
-                "I'm the queen of the blade dance!",
-                "Ninja vanish! ...too bad you can't.",
-                "That slash was off-beat, rookie!",
-                "My katana has better timing than you!",
-                "Breakdance or break, Riley!",
-                "Too slow for my ninja flips!",
-                "Dodge this deadly dance drop!",
-                "Your form is stiff — loosen up!",
-                "Kenzie's dance floor of doom!",
-                "Slice to the beat or lose the beat!",
-                "Ninja arts: Shadow Step!",
-                "Your footwork is amateur hour!",
-                "Dance with death, Riley!",
-                "My rhythm is flawless!",
-                "Blade ballet incoming!",
-                "You call that a combo?"
+                "Dance around my blade, Riley!", "Your slashes have zero rhythm!",
+                "Shadow clone technique beats your swipes!", "Feel the flow or get sliced!",
+                "Stealth mode engaged — you're too loud!", "Groove to my beat or get cut!",
+                "Kunoichi style is too advanced for you!", "Spin, slice, repeat — keep up!",
+                "Your moves have no flow, no chi!", "I'm the queen of the blade dance!",
+                "Ninja vanish! ...too bad you can't.", "That slash was off-beat, rookie!",
+                "My katana has better timing than you!", "Breakdance or break, Riley!",
+                "Too slow for my ninja flips!", "Dodge this deadly dance drop!",
+                "Your form is stiff — loosen up!", "Kenzie's dance floor of doom!",
+                "Slice to the beat or lose the beat!", "Ninja arts: Shadow Step!",
+                "Your footwork is amateur hour!", "Dance with death, Riley!",
+                "My rhythm is flawless!", "Blade ballet incoming!", "You call that a combo?",
+                "Poop on your parade!", "Stink bomb diplomacy!", "Smell the defeat, Riley!",
+                "Ninja fart jutsu!", "Your combo smells worse than that poop!",
+                "Even my shadow slices better than you!"
             ],
             bombTaunts: ['Boom goes the rhythm!', 'Explosive dance party!', 'You danced right into that one!',
-                'Kaboom on the dance floor!'],
+                'Kaboom on the dance floor!'
+            ],
             stinkTaunts: ['Ewww, stink bomb!', 'That reeks, Riley!', 'Fart cloud of doom!', 'Smells like defeat!',
-                'Toxic! Absolutely toxic!'],
-            bossTaunts: ['This is MY kingdom dance, Riley!', 'Bow before the ninja queen!', 'You cannot out-dance destiny!',
-                'Witness true blade ballet!', 'My wrath has perfect timing!']
+                'Toxic! Absolutely toxic!'
+            ],
+            bossTaunts: ['This is MY kingdom dance, Riley!', 'Bow before the ninja queen!',
+                'You cannot out-dance destiny!', 'Witness true blade ballet!', 'My wrath has perfect timing!'
+            ]
         };
 
         class AudioEngine {
@@ -498,12 +484,10 @@
                 this.master = null;
                 this.ready = false; }
             async init() {
-                if (!this.ctx) {
-                    this.ctx = new(window.AudioContext || window.webkitAudioContext)();
+                if (!this.ctx) { this.ctx = new(window.AudioContext || window.webkitAudioContext)();
                     this.master = this.ctx.createGain();
                     this.master.gain.value = 0.75;
-                    this.master.connect(this.ctx.destination);
-                }
+                    this.master.connect(this.ctx.destination); }
                 if (this.ctx.state === 'suspended') await this.ctx.resume();
                 this.ready = true;
             }
@@ -560,19 +544,21 @@
                     this.tone('square', 90, 30, 0.5, 0.08);
                     this.noise(0.5, 0.16, 40); } else if (name === 'power') { [440, 550, 660, 880].forEach((f, i) =>
                         setTimeout(() => this.tone('triangle', f, f, 0.1, 0.05), i * 45)); } else if (name ===
-                    'freeze') { this.tone('sine', 1600, 200, 0.45, 0.07); } else if (name === 'life') { [523, 659,
-                    784
-                ].forEach((f, i) => setTimeout(() => this.tone('sine', f, f, 0.13, 0.05), i * 50)); } else if (name ===
-                    'wave') { [330, 440, 550, 660].forEach((f, i) => setTimeout(() => this.tone('square', f, f, 0.13,
-                        0.04), i * 70)); } else if (name === 'combo') { this.tone('triangle', Math.min(1800, 600 +
-                        combo * 100), 380, 0.07, 0.06); } else if (name === 'poop') { this.tone('square', 180, 300,
-                    0.2, 0.05);
+                    'freeze') { this.tone('sine', 1600, 200, 0.45, 0.07);
+                    this.tone('triangle', 2000, 600, 0.5, 0.04); } else if (name === 'life') { [523, 659, 784]
+                    .forEach((f, i) => setTimeout(() => this.tone('sine', f, f, 0.13, 0.05), i * 50)); } else if (
+                    name === 'wave') { [330, 440, 550, 660].forEach((f, i) => setTimeout(() => this.tone(
+                        'square', f, f, 0.13, 0.04), i * 70)); } else if (name === 'combo') { this.tone(
+                    'triangle', Math.min(1800, 600 + combo * 100), 380, 0.07, 0.06); } else if (name ===
+                'poop') { this.tone('square', 180, 300, 0.2, 0.05);
                     this.tone('triangle', 350, 150, 0.18, 0.04); } else if (name === 'boss') { this.tone('square',
                     200, 90, 0.5, 0.09);
                     this.noise(0.15, 0.05, 120); } else if (name === 'bgm') { this.tone('square', combo, combo,
                     0.2, 0.01); } else if (name === 'ult') { [220, 330, 440, 550, 660, 880].forEach((f, i) =>
                     setTimeout(() => this.tone('sawtooth', f, f * 1.4, 0.14, 0.08), i * 30));
-                    this.noise(0.2, 0.1, 200); }
+                    this.noise(0.2, 0.1, 200); } else if (name === 'rage') { [110, 165, 220, 275].forEach((f, i) =>
+                    setTimeout(() => this.tone('sawtooth', f, f * 2, 0.2, 0.1), i * 60));
+                    this.noise(0.3, 0.12, 60); }
             }
         }
 
@@ -586,11 +572,8 @@
             }
             init() {
                 if (!this.enabled) return;
-                this.loadVoices();
-                if (!this.voices.length) {
-                    try { speechSynthesis.onvoiceschanged = () => this.loadVoices(); } catch {}
-                    setTimeout(() => this.loadVoices(), 400);
-                }
+                this.loadVoices(); if (!this.voices.length) { try { speechSynthesis.onvoiceschanged = () => this
+                        .loadVoices(); } catch {} setTimeout(() => this.loadVoices(), 400); }
                 this.ready = true;
             }
             loadVoices() { try { this.voices = speechSynthesis.getVoices() || []; } catch { this.voices = []; } }
@@ -602,41 +585,32 @@
             }
             unlock() {
                 if (!this.enabled) return false;
-                try {
-                    this.loadVoices();
+                try { this.loadVoices();
                     speechSynthesis.cancel();
                     speechSynthesis.resume();
-                    this.unlocked = true;
-                    return true;
-                } catch { return false; }
+                    this.unlocked = true; return true; } catch { return false; }
             }
             speakNow(text, opts = {}) {
-                if (!this.enabled || !text) return false;
-                if (!this.ready) this.init();
+                if (!this.enabled || !text) return false; if (!this.ready) this.init();
                 try {
                     const now = performance.now();
-                    const minGap = opts.minGap == null ? 220 : opts.minGap;
-                    if (now - this.lastSpeak < minGap) return false;
+                    const minGap = opts.minGap == null ? 220 : opts.minGap; if (now - this.lastSpeak < minGap)
+                        return false;
                     this.lastSpeak = now;
                     const u = new SpeechSynthesisUtterance(text);
                     u.lang = 'en-US';
                     u.rate = opts.rate == null ? 1.0 : opts.rate;
                     u.pitch = opts.pitch == null ? 1.5 : opts.pitch;
                     u.volume = opts.volume == null ? 1.0 : opts.volume;
-                    const voice = this.pick();
-                    if (voice) u.voice = voice;
-                    if (opts.cancel !== false) speechSynthesis.cancel();
+                    const voice = this.pick(); if (voice) u.voice = voice; if (opts.cancel !== false) speechSynthesis
+                        .cancel();
                     speechSynthesis.speak(u);
-                    speechSynthesis.resume();
-                    return true;
+                    speechSynthesis.resume(); return true;
                 } catch { return false; }
             }
             speak(text, opts = {}) { return this.speakNow(text, opts); }
-            test() {
-                this.unlock();
-                return this.speakNow("Riley, let's see what you've got.", { minGap: 0, rate: 1.0, pitch: 1.5,
-                volume: 1.0 });
-            }
+            test() { this.unlock(); return this.speakNow("Riley, let's see what you've got.", { minGap: 0, rate: 1.0,
+                    pitch: 1.5, volume: 1.0 }); }
             stop() { if (this.enabled) try { speechSynthesis.cancel(); } catch {} }
         }
 
@@ -655,14 +629,11 @@
                 this.make('shield', c => this.drawShield(c));
                 this.make('heart', c => this.drawHeart(c));
             }
-            make(name, fn) {
-                const cv = document.createElement('canvas');
-                cv.width = cv.height = this.size;
-                const c = cv.getContext('2d');
+            make(name, fn) { const cv = document.createElement('canvas');
+                cv.width = cv.height = this.size; const c = cv.getContext('2d');
                 c.translate(this.size / 2, this.size / 2);
                 fn(c);
-                this.cache[name] = cv;
-            }
+                this.cache[name] = cv; }
             get(name) { return this.cache[name]; }
             drawBroccoli(c) {
                 const florets = [{ x: 0, y: -26, r: 26 }, { x: -22, y: -13, r: 19 }, { x: 22, y: -13, r: 19 }, { x: -14,
@@ -678,8 +649,8 @@
                 c.quadraticCurveTo(14, 38, 9, 14);
                 c.closePath();
                 c.fill();
-                florets.forEach(f => {
-                    const g = c.createRadialGradient(f.x - f.r * .3, f.y - f.r * .3, 3, f.x, f.y, f.r);
+                florets.forEach(f => { const g = c.createRadialGradient(f.x - f.r * .3, f.y - f.r * .3, 3, f.x, f.y,
+                        f.r);
                     g.addColorStop(0, '#9cf56a');
                     g.addColorStop(.5, '#4a9f2a');
                     g.addColorStop(1, '#1f3a18');
@@ -690,8 +661,7 @@
                     c.fillStyle = 'rgba(230,255,200,.5)';
                     c.beginPath();
                     c.arc(f.x - f.r * .25, f.y - f.r * .25, f.r * .26, 0, Math.PI * 2);
-                    c.fill();
-                });
+                    c.fill(); });
             }
             drawBomb(c) {
                 const g = c.createRadialGradient(-16, -20, 3, 0, 4, 52);
@@ -722,8 +692,8 @@
             }
             drawStinkBomb(c) {
                 const g = c.createRadialGradient(-14, -18, 2, 0, 3, 50);
-                g.addColorStop(0, '#7a9a40');
-                g.addColorStop(.35, '#4a5a20');
+                g.addColorStop(0, '#9ab850');
+                g.addColorStop(.35, '#5a6a28');
                 g.addColorStop(1, '#1a1a08');
                 c.fillStyle = g;
                 c.beginPath();
@@ -746,20 +716,20 @@
                 c.beginPath();
                 c.arc(2, -86, 7, 0, Math.PI * 2);
                 c.fill();
-                for (let i = 0; i < 3; i++) {
-                    const sx = -20 + i * 20;
-                    const sy = -10 + Math.sin(i * 1.8) * 14;
-                    c.strokeStyle = 'rgba(140,220,60,.7)';
+                for (let i = 0; i < 4; i++) {
+                    const sx = -24 + i * 16;
+                    const sy = -12 + Math.sin(i * 1.6) * 16;
+                    c.strokeStyle = 'rgba(160,230,70,.7)';
                     c.lineWidth = 3;
                     c.beginPath();
-                    c.moveTo(sx - 8, sy);
-                    c.quadraticCurveTo(sx, sy - 10, sx + 8, sy);
+                    c.moveTo(sx - 10, sy);
+                    c.quadraticCurveTo(sx, sy - 14, sx + 10, sy);
                     c.stroke();
                 }
             }
             drawPoop(c) {
                 const bodyG = c.createRadialGradient(0, -6, 2, 0, 6, 44);
-                bodyG.addColorStop(0, '#b88050');
+                bodyG.addColorStop(0, '#c89060');
                 bodyG.addColorStop(.5, '#8a5028');
                 bodyG.addColorStop(1, '#4a2010');
                 c.fillStyle = bodyG;
@@ -808,7 +778,7 @@
                 c.stroke();
                 for (let i = 0; i < 3; i++) {
                     const sx = -14 + i * 14;
-                    c.strokeStyle = 'rgba(140,200,60,.6)';
+                    c.strokeStyle = 'rgba(160,220,70,.6)';
                     c.lineWidth = 2.5;
                     c.beginPath();
                     c.moveTo(sx, -44);
@@ -901,7 +871,7 @@
                 c.strokeStyle = '#c8f8ff';
                 c.lineWidth = 9;
                 c.shadowColor = '#90e8ff';
-                c.shadowBlur = 18;
+                c.shadowBlur = 20;
                 for (let i = 0; i < 4; i++) {
                     c.save();
                     c.rotate(i * Math.PI / 2);
@@ -990,6 +960,9 @@
                 this.freezeOverlay = 0;
                 this.snowflakes = [];
                 this.stinkClouds = [];
+                this.rageMode = false;
+                this.rageTimer = 0;
+                this.ragePulse = 0;
                 this.bindUI();
                 this.bindInput();
                 this.resize();
@@ -1002,7 +975,7 @@
                 this.voice.init(); }
             generateStars() {
                 this.starField = [];
-                const count = this.isMobile ? 120 : 200;
+                const count = this.isMobile ? 100 : 200;
                 for (let i = 0; i < count; i++) {
                     this.starField.push({
                         x: Math.random() * this.w,
@@ -1011,7 +984,8 @@
                         speed: Math.random() * 0.3 + 0.05,
                         twinkle: Math.random() * Math.PI * 2,
                         twinkleSpeed: Math.random() * 0.04 + 0.01,
-                        color: ['#ffffff', '#c8d0ff', '#ffe8d0', '#d0f0ff'][Math.floor(Math.random() * 4)]
+                        color: ['#ffffff', '#c8d0ff', '#ffe8d0', '#d0f0ff'][Math.floor(Math.random() * 4)],
+                        layer: Math.floor(Math.random() * 3)
                     });
                 }
             }
@@ -1019,12 +993,12 @@
                 this.snowflakes.push({
                     x: Math.random() * this.w,
                     y: -10,
-                    size: Math.random() * 4 + 2,
-                    vy: Math.random() * 1.5 + 0.5,
-                    vx: (Math.random() - 0.5) * 2,
+                    size: Math.random() * 5 + 2,
+                    vy: Math.random() * 2 + 0.8,
+                    vx: (Math.random() - 0.5) * 2.5,
                     life: 1,
                     rot: Math.random() * Math.PI * 2,
-                    vr: (Math.random() - 0.5) * 0.04
+                    vr: (Math.random() - 0.5) * 0.05
                 });
             }
             bindUI() {
@@ -1063,7 +1037,8 @@
                     this.sliceBetween(p1, p2);
                     this.lastPoint = p2;
                     this.trail.push({ x, y, life: 1, vel: this.swipeVelocity, time: performance.now() });
-                    if (this.trail.length > (this.isMobile ? 14 : CONFIG.trailMax)) this.trail.shift();
+                    const maxT = this.isMobile ? 12 : CONFIG.trailMax; if (this.trail.length > maxT) this.trail
+                        .shift();
                 };
                 const end = () => { this.pointerDown = false;
                     this.lastPoint = null;
@@ -1099,6 +1074,9 @@
                 this.freezeTimer = 0;
                 this.freezeOverlay = 0;
                 this.hasShield = false;
+                this.rageMode = false;
+                this.rageTimer = 0;
+                this.ragePulse = 0;
                 this.spawnTimer = 0;
                 this.bgmTimer = 0;
                 this.bgmStep = 0;
@@ -1130,35 +1108,25 @@
                     rate: 1.0, volume: 1.0 }), 100);
             }
             updateBestUI() {
-                if (this.best > 0) {
-                    $('startHs').classList.remove('hidden');
+                if (this.best > 0) { $('startHs').classList.remove('hidden');
                     $('overHs').classList.remove('hidden');
                     $('startHsVal').textContent = this.best;
-                    $('overHsVal').textContent = this.best;
-                } else {
-                    $('startHs').classList.add('hidden');
-                    $('overHs').classList.add('hidden');
-                }
+                    $('overHsVal').textContent = this.best; } else { $('startHs').classList.add('hidden');
+                    $('overHs').classList.add('hidden'); }
             }
-            showAnn(title, sub, color) {
-                $('annTitle').textContent = title;
+            showAnn(title, sub, color) { $('annTitle').textContent = title;
                 $('annTitle').style.color = color;
                 $('annSub').textContent = sub || '';
                 $('ann').classList.add('show');
-                this.annTimer = 85;
-            }
-            showTaunt(text, force) {
-                if (this.tauntTimer > 0 && !force) return;
+                this.annTimer = 85; }
+            showTaunt(text, force) { if (this.tauntTimer > 0 && !force) return;
                 $('taunt').textContent = text;
                 $('taunt').classList.add('show');
                 this.tauntTimer = 110;
-                this.voice.speakNow(text, { minGap: 0, pitch: 1.52, rate: 1.05 });
-            }
-            flashAction(text) {
-                $('action').textContent = text;
+                this.voice.speakNow(text, { minGap: 0, pitch: 1.52, rate: 1.05 }); }
+            flashAction(text) { $('action').textContent = text;
                 $('action').classList.add('show');
-                this.actionTimer = 18;
-            }
+                this.actionTimer = 18; }
             updateHUD() {
                 $('score').textContent = this.score;
                 $('wave').textContent = this.wave;
@@ -1169,21 +1137,19 @@
                 $('powerFill').className = this.isRush ? 'rush' : '';
                 $('pills').innerHTML = (this.isFrozen ? '<span class="pill freeze">❄️ Freeze</span>' : '') + (this
                     .hasShield ? '<span class="pill shield">🛡️ Shield</span>' : '') + (this.isRush ?
-                    '<span class="pill rush">⚡ Rush</span>' : '');
+                    '<span class="pill rush">⚡ Rush</span>' : '') + (this.rageMode ?
+                    '<span class="pill rush" style="background:rgba(255,30,30,.95)">🔥 Rage</span>' : '');
             }
             spawnObject(type, x, y, vx, vy) {
-                const defs = {
-                    broccoli: { r: 28, score: 10, sprite: 'broccoli', color: '#5ec92d' },
-                    pizza: { r: 28, score: 14, sprite: 'pizza', color: '#ffb455' },
-                    donut: { r: 28, score: 16, sprite: 'donut', color: '#ff7eb5' },
-                    candy: { r: 24, score: 18, sprite: 'candy', color: '#d98cff' },
-                    poop: { r: 26, score: 25, sprite: 'poop', color: '#8a5028' },
-                    bomb: { r: 30, score: 0, sprite: 'bomb', color: '#ff5555' },
-                    stinkbomb: { r: 32, score: 0, sprite: 'stinkbomb', color: '#80b030' },
-                    freeze: { r: 24, score: 0, sprite: 'freeze', color: '#a6f0ff', power: 'freeze' },
-                    shield: { r: 24, score: 0, sprite: 'shield', color: '#ffe05a', power: 'shield' },
-                    heart: { r: 24, score: 0, sprite: 'heart', color: '#ff516d', power: 'heart' }
-                };
+                const defs = { broccoli: { r: 28, score: 10, sprite: 'broccoli', color: '#5ec92d' }, pizza: { r: 28,
+                        score: 14, sprite: 'pizza', color: '#ffb455' }, donut: { r: 28, score: 16, sprite: 'donut',
+                        color: '#ff7eb5' }, candy: { r: 24, score: 18, sprite: 'candy', color: '#d98cff' },
+                    poop: { r: 26, score: 25, sprite: 'poop', color: '#8a5028' }, bomb: { r: 30, score: 0,
+                        sprite: 'bomb', color: '#ff5555' }, stinkbomb: { r: 32, score: 0, sprite: 'stinkbomb',
+                        color: '#80b030' }, freeze: { r: 24, score: 0, sprite: 'freeze', color: '#a6f0ff',
+                        power: 'freeze' }, shield: { r: 24, score: 0, sprite: 'shield', color: '#ffe05a',
+                        power: 'shield' }, heart: { r: 24, score: 0, sprite: 'heart', color: '#ff516d',
+                        power: 'heart' } };
                 this.objects.push(Object.assign({ type, x, y, vx, vy, rot: Math.random() * Math.PI * 2, vr: (Math
                         .random() - 0.5) * 0.22, dead: false, glowPhase: Math.random() * Math.PI * 2 }, defs[
                     type]));
@@ -1192,105 +1158,85 @@
                 const bossWave = this.wave % 5 === 0;
                 const x = this.w * 0.1 + Math.random() * this.w * 0.8;
                 const y = this.h + 70;
-                const speed = this.cfg.speed * (1 + Math.min(0.5, (this.wave - 1) * 0.03)) * (this.isFrozen ? 0.55 :
-                    1);
+                const speedMult = (this.isRush ? 1.1 : 1) * (this.isFrozen ? 0.5 : 1) * (this.rageMode ? 1.2 : 1);
+                const speed = this.cfg.speed * (1 + Math.min(0.5, (this.wave - 1) * 0.03)) * speedMult;
                 const vx = (Math.random() - 0.5) * 5 * speed;
-                const vy = -(12 + Math.random() * 5 + (bossWave ? 2 : 0)) * speed;
+                const vy = -(12 + Math.random() * 5 + (bossWave ? 3 : 0)) * speed;
                 const r = Math.random();
-                const stinkC = this.cfg.stinkChance + (bossWave ? 0.04 : 0.0);
-                const bombC = this.cfg.bombChance + (bossWave ? 0.10 : 0.0);
+                const stinkC = this.cfg.stinkChance + (bossWave ? 0.06 : 0.0) + (this.rageMode ? 0.04 : 0);
+                const bombC = this.cfg.bombChance + (bossWave ? 0.12 : 0.0) + (this.rageMode ? 0.05 : 0);
                 if (r < 0.02) return this.spawnObject('heart', x, y, vx, vy);
                 if (r < 0.06) return this.spawnObject('freeze', x, y, vx, vy);
                 if (r < 0.10) return this.spawnObject('shield', x, y, vx, vy);
                 if (r < 0.14) return this.spawnObject('poop', x, y, vx, vy);
                 if (r < 0.14 + stinkC) return this.spawnObject('stinkbomb', x, y, vx, vy);
                 if (r < 0.14 + stinkC + bombC) return this.spawnObject('bomb', x, y, vx, vy);
-                const f = Math.random();
-                if (f < 0.48) return this.spawnObject('broccoli', x, y, vx, vy);
-                if (f < 0.7) return this.spawnObject('pizza', x, y, vx, vy);
-                if (f < 0.86) return this.spawnObject('donut', x, y, vx, vy);
+                const f = Math.random(); if (f < 0.48) return this.spawnObject('broccoli', x, y, vx, vy); if (f < 0.7)
+                    return this.spawnObject('pizza', x, y, vx, vy); if (f < 0.86) return this.spawnObject('donut',
+                    x, y, vx, vy);
                 return this.spawnObject('candy', x, y, vx, vy);
             }
             sliceBetween(p1, p2) {
                 let hit = false;
-                for (const o of this.objects) {
-                    if (o.dead) continue;
-                    if (this.segmentHitsCircle(p1, p2, o)) {
-                        hit = true;
-                        o.dead = true;
-                        if (o.type === 'bomb') this.onBomb(o);
-                        else if (o.type === 'stinkbomb') this.onStinkBomb(o);
-                        else if (o.type === 'poop') this.onPoop(o);
-                        else if (o.power) this.onPower(o);
-                        else this.onSlice(o);
-                    }
-                }
-                if (!hit) this.audio.play('slash');
+                for (const o of this.objects) { if (o.dead) continue; if (this.segmentHitsCircle(p1, p2, o)) { hit =
+                        true;
+                        o.dead = true; if (o.type === 'bomb') this.onBomb(o); else if (o.type === 'stinkbomb')
+                            this.onStinkBomb(o); else if (o.type === 'poop') this.onPoop(o); else if (o.power)
+                            this.onPower(o); else this.onSlice(o); } } if (!hit) this.audio.play('slash');
             }
-            segmentHitsCircle(a, b, o) {
-                const abx = b.x - a.x,
-                    aby = b.y - a.y;
-                const apx = o.x - a.x,
-                    apy = o.y - a.y;
-                const ab2 = abx * abx + aby * aby || 1;
-                let t = (apx * abx + apy * aby) / ab2;
-                t = Math.max(0, Math.min(1, t));
-                const cx = a.x + abx * t,
-                    cy = a.y + aby * t;
-                const dx = o.x - cx,
-                    dy = o.y - cy;
-                const rr = (o.r + 16) * (o.r + 16);
-                return dx * dx + dy * dy <= rr;
-            }
+            segmentHitsCircle(a, b, o) { const abx = b.x - a.x,
+                    aby = b.y - a.y; const apx = o.x - a.x,
+                    apy = o.y - a.y; const ab2 = abx * abx + aby * aby || 1; let t = (apx * abx + apy * aby) / ab2;
+                t = Math.max(0, Math.min(1, t)); const cx = a.x + abx * t,
+                    cy = a.y + aby * t; const dx = o.x - cx,
+                    dy = o.y - cy; const rr = (o.r + 16) * (o.r + 16); return dx * dx + dy * dy <= rr; }
             onSlice(o) {
                 const isCrit = this.swipeVelocity > 30 && Math.random() < 0.28;
-                const gained = o.score * (this.isRush ? 2 : 1) * (isCrit ? 2 : 1);
+                const multiplier = (this.isRush ? 2 : 1) * (isCrit ? 2 : 1) * (this.rageMode ? 1.5 : 1);
+                const gained = Math.floor(o.score * multiplier);
                 this.score += gained;
                 this.combo += 1;
                 this.bestCombo = Math.max(this.bestCombo, this.combo);
                 this.comboTimer = 80;
-                this.power = Math.min(100, this.power + 8);
+                this.power = Math.min(100, this.power + (this.rageMode ? 12 : 8));
                 this.waveSliced += 1;
                 if (isCrit) { this.audio.play('crit');
-                    this.screenFlash = 6; } else { this.audio.play('hit'); }
-                if (this.combo > 1) this.audio.play('combo', this.combo);
-                if (this.combo >= 8) this.flashAction('SAVAGE!');
-                else if (isCrit) this.flashAction('CRITICAL!');
-                else if (this.combo >= 3) this.flashAction('NICE!');
-                else this.flashAction('KEEEYA!');
-                this.burst(o.x, o.y, o.color, isCrit ? 32 : 20, isCrit);
-                this.spark(o.x, o.y, '#ffffff', isCrit ? 18 : 12);
-                this.ring(o.x, o.y, isCrit ? 'rgba(255,215,0,.85)' : 'rgba(255,255,255,.6)', isCrit ? 110 : 85);
-                this.floatText(o.x, o.y, '+' + gained, isCrit ? '#ffd700' : '#ffffff', isCrit ? 30 : 26);
-                if (isCrit) this.shockwave(o.x, o.y, '#ffd700');
-                if (this.power >= 100 && !this.isRush) {
-                    this.isRush = true;
-                    this.rushTimer = 6000;
+                    this.screenFlash = 6; } else { this.audio.play('hit'); } if (this.combo > 1) this.audio.play(
+                    'combo', this.combo); if (this.combo >= 10) this.flashAction('SAVAGE!'); else if (isCrit) this
+                    .flashAction('CRITICAL!'); else if (this.combo >= 4) this.flashAction('NICE!'); else this
+                    .flashAction('KEEEYA!');
+                this.burst(o.x, o.y, o.color, isCrit ? 34 : 20, isCrit);
+                this.spark(o.x, o.y, '#ffffff', isCrit ? 20 : 12);
+                this.ring(o.x, o.y, isCrit ? 'rgba(255,215,0,.85)' : 'rgba(255,255,255,.6)', isCrit ? 115 : 85);
+                this.floatText(o.x, o.y, '+' + gained, isCrit ? '#ffd700' : '#ffffff', isCrit ? 32 : 26); if (isCrit)
+                    this.shockwave(o.x, o.y, '#ffd700'); if (this.power >= 100 && !this.isRush) { this.isRush =
+                    true;
+                    this.rushTimer = 7000;
                     this.audio.play('ult');
                     this.showAnn('SUGAR RUSH', 'Double score! Go wild!', '#ff4080');
                     this.voice.speak('Sugar rush! Try to keep up, Riley.', { minGap: 0, pitch: 1.45 });
-                    this.shockwave(this.w * 0.5, this.h * 0.4, '#ff4080');
-                }
-                if (this.waveSliced >= this.waveGoal) {
-                    this.wave += 1;
+                    this.shockwave(this.w * 0.5, this.h * 0.4, '#ff4080'); }
+                if (this.waveSliced >= this.waveGoal) { this.wave += 1;
                     this.waveSliced = 0;
-                    this.waveGoal = this.cfg.waveGoal + Math.floor(this.wave * 1.5);
-                    const isBoss = this.wave % 5 === 0;
-                    this.audio.play(isBoss ? 'boss' : 'wave');
-                    this.showAnn(isBoss ? '👑 Boss Wave' : 'Wave Clear', isBoss ? 'Kenzie is furious!' :
-                        'Next wave incoming.', isBoss ? '#ff4b2b' : '#ffd700');
-                    if (isBoss) this.showTaunt(CONFIG.bossTaunts[Math.floor(Math.random() * CONFIG.bossTaunts
-                        .length)], true);
-                    else this.voice.speak('Wave ' + this.wave + '. Keep swinging, Riley.', { minGap: 0,
-                        pitch: 1.4 });
-                    this.shockwave(this.w * 0.5, this.h * 0.5, isBoss ? '#ff4b2b' : '#ffd700');
-                }
-                this.updateHUD();
-                if (Math.random() < 0.45) this.showTaunt(CONFIG.taunts[Math.floor(Math.random() * CONFIG.taunts
-                    .length)], false);
+                    this.waveGoal = this.cfg.waveGoal + Math.floor(this.wave * 1.5); const isBoss = this.wave % 5 ===
+                        0; if (isBoss) { this.rageMode = true;
+                        this.rageTimer = 8000;
+                        this.ragePulse = 0;
+                        this.audio.play('rage');
+                        this.showAnn('👑 BOSS RAGE', 'Kenzie goes berserk!', '#ff2020');
+                        this.voice.speak('Feel my true power, Riley!', { minGap: 0, pitch: 1.3,
+                        rate: 1.1 });
+                        this.shockwave(this.w * 0.5, this.h * 0.5, '#ff2020');
+                        this.shakeTimer = 20;
+                        this.shakeIntensity = 16; } else { this.audio.play('wave');
+                        this.showAnn('Wave Clear', 'Next wave incoming.', '#ffd700');
+                        this.voice.speak('Wave ' + this.wave + '. Keep swinging, Riley.', { minGap: 0,
+                            pitch: 1.4 }); }
+                    this.shockwave(this.w * 0.5, this.h * 0.5, isBoss ? '#ff2020' : '#ffd700'); }
+                this.updateHUD(); if (Math.random() < 0.45) this.showTaunt(CONFIG.taunts[Math.floor(Math.random() * CONFIG
+                    .taunts.length)], false);
             }
-            onPoop(o) {
-                const gained = 25 * (this.isRush ? 2 : 1);
+            onPoop(o) { const gained = Math.floor(25 * (this.isRush ? 2 : 1) * (this.rageMode ? 1.5 : 1));
                 this.score += gained;
                 this.combo += 1;
                 this.bestCombo = Math.max(this.bestCombo, this.combo);
@@ -1299,111 +1245,77 @@
                 this.waveSliced += 1;
                 this.audio.play('poop');
                 this.flashAction('💩 POOP!');
-                this.burst(o.x, o.y, '#8a5028', 16, false);
-                this.spark(o.x, o.y, '#c8ff60', 8);
+                this.burst(o.x, o.y, '#8a5028', 18, false);
+                this.spark(o.x, o.y, '#c8ff60', 10);
                 this.floatText(o.x, o.y, '+' + gained + ' 💩', '#c8a060', 26);
-                this.ring(o.x, o.y, 'rgba(180,130,80,.6)', 75);
-                if (Math.random() < 0.35) this.showTaunt('Eww, poop slice!', false);
-                this.updateHUD();
-                if (this.waveSliced >= this.waveGoal) {
-                    this.wave += 1;
+                this.ring(o.x, o.y, 'rgba(180,130,80,.6)', 75); if (Math.random() < 0.35) this.showTaunt(
+                'Eww, poop slice!', false);
+                this.updateHUD(); if (this.waveSliced >= this.waveGoal) { this.wave += 1;
                     this.waveSliced = 0;
-                    this.waveGoal = this.cfg.waveGoal + Math.floor(this.wave * 1.5);
-                    const isBoss = this.wave % 5 === 0;
-                    this.audio.play(isBoss ? 'boss' : 'wave');
-                    this.showAnn(isBoss ? '👑 Boss Wave' : 'Wave Clear', isBoss ? 'Kenzie is furious!' :
-                        'Next wave incoming.', isBoss ? '#ff4b2b' : '#ffd700');
-                    if (isBoss) this.showTaunt(CONFIG.bossTaunts[Math.floor(Math.random() * CONFIG.bossTaunts
-                        .length)], true);
-                    this.shockwave(this.w * 0.5, this.h * 0.5, isBoss ? '#ff4b2b' : '#ffd700');
-                }
-            }
-            onPower(o) {
-                if (o.power === 'freeze') {
-                    this.isFrozen = true;
+                    this.waveGoal = this.cfg.waveGoal + Math.floor(this.wave * 1.5); const isBoss = this.wave % 5 ===
+                        0; if (isBoss) { this.rageMode = true;
+                        this.rageTimer = 8000;
+                        this.ragePulse = 0;
+                        this.audio.play('rage');
+                        this.showAnn('👑 BOSS RAGE', 'Kenzie goes berserk!', '#ff2020');
+                        this.voice.speak('Feel my true power, Riley!', { minGap: 0, pitch: 1.3,
+                        rate: 1.1 });
+                        this.shockwave(this.w * 0.5, this.h * 0.5, '#ff2020');
+                        this.shakeTimer = 20;
+                        this.shakeIntensity = 16; } else { this.audio.play('wave');
+                        this.showAnn('Wave Clear', 'Next wave incoming.', '#ffd700'); }
+                    this.shockwave(this.w * 0.5, this.h * 0.5, isBoss ? '#ff2020' : '#ffd700'); } }
+            onPower(o) { if (o.power === 'freeze') { this.isFrozen = true;
                     this.freezeTimer = 5000;
-                    this.freezeOverlay = 1;
-                    for (let i = 0; i < 40; i++) this.spawnSnowflake();
+                    this.freezeOverlay = 1; for (let i = 0; i < 50; i++) this.spawnSnowflake();
                     this.audio.play('freeze');
                     this.showAnn('❄️ FREEZE', 'Everything slows down!', '#80e0ff');
                     this.voice.speak('Freeze activated.', { minGap: 0, pitch: 1.35 });
-                    this.shockwave(o.x, o.y, '#a6f0ff');
-                } else if (o.power === 'shield') {
-                    this.hasShield = true;
+                    this.shockwave(o.x, o.y, '#a6f0ff'); } else if (o.power === 'shield') { this.hasShield = true;
                     this.audio.play('power');
                     this.showAnn('🛡️ Shield', 'One bomb forgiven.', '#ffe05a');
-                    this.voice.speak('Shield up.', { minGap: 0, pitch: 1.35 });
-                } else if (o.power === 'heart') {
-                    this.lives = Math.min(CONFIG.maxLives, this.lives + 1);
+                    this.voice.speak('Shield up.', { minGap: 0, pitch: 1.35 }); } else if (o.power === 'heart') { this
+                        .lives = Math.min(CONFIG.maxLives, this.lives + 1);
                     this.audio.play('life');
                     this.showAnn('❤️ Extra Life', 'You got lucky.', '#ff516d');
-                    this.voice.speak('Extra life.', { minGap: 0, pitch: 1.35 });
-                }
+                    this.voice.speak('Extra life.', { minGap: 0, pitch: 1.35 }); }
                 this.burst(o.x, o.y, o.color, 18, false);
                 this.floatText(o.x, o.y, o.power.toUpperCase(), '#ffffff', 22);
                 this.shockwave(o.x, o.y, o.color);
-                this.updateHUD();
-            }
-            onBomb(o) {
-                this.audio.play('bomb');
+                this.updateHUD(); }
+            onBomb(o) { this.audio.play('bomb');
                 this.shakeTimer = 18;
                 this.shakeIntensity = 14;
                 this.screenFlash = 8;
                 this.ring(o.x, o.y, 'rgba(255,80,80,.85)', 120);
-                this.burst(o.x, o.y, '#ff5b5b', 32, false);
+                this.burst(o.x, o.y, '#ff5b5b', 34, false);
                 this.shockwave(o.x, o.y, '#ff4040');
                 this.combo = 0;
-                this.comboTimer = 0;
-                if (this.hasShield) {
-                    this.hasShield = false;
+                this.comboTimer = 0; if (this.hasShield) { this.hasShield = false;
                     this.floatText(o.x, o.y, 'SHIELD SAVED YOU', '#ffe05a', 20);
-                    this.shockwave(o.x, o.y, '#ffe05a');
-                } else {
-                    this.lives -= 1;
-                    this.floatText(o.x, o.y, '-1 LIFE', '#ff9aa3', 28);
-                }
+                    this.shockwave(o.x, o.y, '#ffe05a'); } else { this.lives -= 1;
+                    this.floatText(o.x, o.y, '-1 LIFE', '#ff9aa3', 28); }
                 this.showTaunt(CONFIG.bombTaunts[Math.floor(Math.random() * CONFIG.bombTaunts.length)], true);
-                this.updateHUD();
-                if (this.lives <= 0) this.endGame();
-            }
-            onStinkBomb(o) {
-                this.audio.play('stinkbomb');
+                this.updateHUD(); if (this.lives <= 0) this.endGame(); }
+            onStinkBomb(o) { this.audio.play('stinkbomb');
                 this.shakeTimer = 14;
                 this.shakeIntensity = 10;
                 this.screenFlash = 5;
-                this.stinkClouds.push({ x: o.x, y: o.y, r: 20, max: 130, life: 1, alpha: 0.7 });
-                this.ring(o.x, o.y, 'rgba(140,220,60,.9)', 130);
-                this.burst(o.x, o.y, '#80b030', 36, false);
-                this.burst(o.x, o.y, '#c8ff60', 20, false);
-                this.shockwave(o.x, o.y, '#a0d040');
-                for (let i = 0; i < 12; i++) {
-                    this.particles.push({
-                        x: o.x,
-                        y: o.y,
-                        vx: (Math.random() - 0.5) * 3,
-                        vy: -Math.random() * 4 - 1,
-                        life: 1,
-                        size: Math.random() * 8 + 4,
-                        color: 'rgba(140,200,60,.6)',
-                        spark: false,
-                        glow: true,
-                        stink: true
-                    });
-                }
+                this.stinkClouds.push({ x: o.x, y: o.y, r: 20, max: 140, life: 1, alpha: 0.7 });
+                this.ring(o.x, o.y, 'rgba(140,220,60,.9)', 135);
+                this.burst(o.x, o.y, '#80b030', 38, false);
+                this.burst(o.x, o.y, '#c8ff60', 22, false);
+                this.shockwave(o.x, o.y, '#a0d040'); for (let i = 0; i < 14; i++) { this.particles.push({ x: o.x, y: o
+                            .y, vx: (Math.random() - 0.5) * 3, vy: -Math.random() * 4 - 1, life: 1, size: Math
+                            .random() * 8 + 4, color: 'rgba(140,200,60,.6)', spark: false, glow: true,
+                        stink: true }); }
                 this.combo = 0;
-                this.comboTimer = 0;
-                if (this.hasShield) {
-                    this.hasShield = false;
+                this.comboTimer = 0; if (this.hasShield) { this.hasShield = false;
                     this.floatText(o.x, o.y, 'SHIELD SAVED YOU', '#ffe05a', 20);
-                    this.shockwave(o.x, o.y, '#ffe05a');
-                } else {
-                    this.lives -= 1;
-                    this.floatText(o.x, o.y, '-1 LIFE 💨', '#c8ff60', 28);
-                }
+                    this.shockwave(o.x, o.y, '#ffe05a'); } else { this.lives -= 1;
+                    this.floatText(o.x, o.y, '-1 LIFE 💨', '#c8ff60', 28); }
                 this.showTaunt(CONFIG.stinkTaunts[Math.floor(Math.random() * CONFIG.stinkTaunts.length)], true);
-                this.updateHUD();
-                if (this.lives <= 0) this.endGame();
-            }
+                this.updateHUD(); if (this.lives <= 0) this.endGame(); }
             burst(x, y, color, n, isCrit) { for (let i = 0; i < n; i++) { const a = (Math.PI * 2 / n) * i + Math.random() *
                     .5;
                     const sp = Math.random() * 8 + 3;
@@ -1417,21 +1329,15 @@
                 bouncePhase: 0 }); }
             ring(x, y, color, maxR) { this.rings.push({ x, y, r: 7, max: maxR, life: 1, color }); }
             shockwave(x, y, color) { this.shockwaves.push({ x, y, r: 12, max: 155, life: 1, color }); }
-            tickBGM(dt) {
-                if (this.state !== 'playing') return;
-                this.bgmTimer -= dt;
-                if (this.bgmTimer > 0) return;
+            tickBGM(dt) { if (this.state !== 'playing') return;
+                this.bgmTimer -= dt; if (this.bgmTimer > 0) return;
                 const notes = [392, 440, 494, 523, 587, 523, 494, 392, 349, 392, 440, 523];
-                this.bgmTimer = this.isRush ? 105 : this.isFrozen ? 520 : 265;
+                this.bgmTimer = this.isRush ? 100 : this.isFrozen ? 500 : this.rageMode ? 180 : 260;
                 const note = notes[this.bgmStep % notes.length];
                 this.bgmStep += 1;
-                this.audio.play('bgm', note * (this.isRush ? 1.5 : 1));
-            }
-            endGame() {
-                this.state = 'over';
-                this.voice.stop();
-                const isNew = this.score > this.best;
-                if (isNew) { this.best = this.score;
+                this.audio.play('bgm', note * (this.isRush ? 1.5 : 1) * (this.rageMode ? 0.7 : 1)); }
+            endGame() { this.state = 'over';
+                this.voice.stop(); const isNew = this.score > this.best; if (isNew) { this.best = this.score;
                     localStorage.setItem(CONFIG.storageKey, String(this.best)); }
                 $('goScore').textContent = this.score;
                 $('goWave').textContent = this.wave;
@@ -1440,178 +1346,135 @@
                 $('hud').style.display = 'none';
                 $('over').classList.remove('hidden');
                 this.updateBestUI();
-                setTimeout(() => this.voice.speak(isNew ?
-                    'New high score. Not completely hopeless, Riley.' :
-                    'Better luck next time, Riley.', { minGap: 0, pitch: 1.45 }), 300);
-            }
-            update(dt) {
-                if (this.state !== 'playing') return;
+                setTimeout(() => this.voice.speak(isNew ? 'New high score. Not completely hopeless, Riley.' :
+                    'Better luck next time, Riley.', { minGap: 0, pitch: 1.45 }), 300); }
+            update(dt) { if (this.state !== 'playing') return;
                 this.tickBGM(dt);
-                this.spawnTimer += dt;
-                const spawnEvery = Math.max(170, this.cfg.spawnMs - (this.wave - 1) * 14) * (this.isFrozen ? 1.9 : 1) * (
-                    this.isRush ? 0.85 : 1);
-                while (this.spawnTimer >= spawnEvery) { this.spawnTimer -= spawnEvery;
-                    this.spawn(); }
-                if (this.comboTimer > 0) this.comboTimer -= 1;
+                this.spawnTimer += dt; const spawnEvery = Math.max(150, this.cfg.spawnMs - (this.wave - 1) * 14) * (this
+                    .isFrozen ? 2.0 : 1) * (this.isRush ? 0.82 : 1) * (this.rageMode ? 0.75 : 1); while (this
+                    .spawnTimer >= spawnEvery) { this.spawnTimer -= spawnEvery;
+                    this.spawn(); } if (this.comboTimer > 0) this.comboTimer -= 1;
                 else if (this.combo > 0) { this.combo = 0;
-                    this.updateHUD(); }
-                if (this.annTimer > 0) { this.annTimer -= 1; if (this.annTimer <= 0) $('ann').classList.remove(
-                    'show'); }
-                if (this.tauntTimer > 0) { this.tauntTimer -= 1; if (this.tauntTimer <= 0) $('taunt').classList.remove(
-                        'show'); }
-                if (this.actionTimer > 0) { this.actionTimer -= 1; if (this.actionTimer <= 0) $('action').classList
-                    .remove('show'); }
-                if (this.shakeTimer > 0) { this.shakeTimer -= 1;
-                    this.shakeIntensity *= 0.85; } else this.shakeIntensity = 0;
-                if (this.screenFlash > 0) this.screenFlash -= 1;
-                if (this.isRush) { this.rushTimer -= dt; if (this.rushTimer <= 0) { this.isRush = false;
+                    this.updateHUD(); } if (this.annTimer > 0) { this.annTimer -= 1; if (this.annTimer <= 0) $(
+                    'ann').classList.remove('show'); } if (this.tauntTimer > 0) { this.tauntTimer -= 1; if (this
+                    .tauntTimer <= 0) $('taunt').classList.remove('show'); } if (this.actionTimer > 0) { this
+                    .actionTimer -= 1; if (this.actionTimer <= 0) $('action').classList.remove('show'); } if (this
+                    .shakeTimer > 0) { this.shakeTimer -= 1;
+                    this.shakeIntensity *= 0.85; } else this.shakeIntensity = 0; if (this.screenFlash > 0) this
+                    .screenFlash -= 1; if (this.isRush) { this.rushTimer -= dt; if (this.rushTimer <= 0) { this
+                        .isRush = false;
                         this.power = 0;
                         this.showAnn('Rush Over', '', '#00f2fe');
-                        this.updateHUD(); } }
-                if (this.isFrozen) {
-                    this.freezeTimer -= dt;
-                    this.freezeOverlay = Math.max(0, Math.min(1, this.freezeTimer / 1000));
-                    if (Math.random() < 0.3) this.spawnSnowflake();
-                    if (this.freezeTimer <= 0) {
-                        this.isFrozen = false;
+                        this.updateHUD(); } } if (this.isFrozen) { this.freezeTimer -= dt;
+                    this.freezeOverlay = Math.max(0, Math.min(1, this.freezeTimer / 1000)); if (Math.random() <
+                        0.35) this.spawnSnowflake(); if (this.freezeTimer <= 0) { this.isFrozen = false;
                         this.freezeOverlay = 0;
                         this.showAnn('Freeze Ended', '', '#a6f0ff');
-                        this.updateHUD();
-                        for (let i = 0; i < 30; i++) {
-                            this.particles.push({
-                                x: Math.random() * this.w,
-                                y: Math.random() * this.h,
-                                vx: (Math.random() - 0.5) * 6,
-                                vy: (Math.random() - 0.5) * 6,
-                                life: 1,
-                                size: Math.random() * 6 + 2,
-                                color: '#c8f8ff',
-                                spark: true,
-                                glow: true,
-                                stink: false
-                            });
-                        }
-                    }
-                } else {
-                    this.freezeOverlay = Math.max(0, this.freezeOverlay - dt * 0.002);
-                }
-
-                const gravity = CONFIG.gravityBase * (this.isFrozen ? 0.35 : 1) * (this.isRush ? 1.1 : 1);
-                this.kenzie.targetX += Math.sin(performance.now() * 0.0008 + this.wave) * (this.wave % 5 === 0 ? 2.2 :
-                    0.9);
-                this.kenzie.targetX = Math.max(this.w * 0.18, Math.min(this.w * 0.82, this.kenzie.targetX));
-                this.kenzie.x += (this.kenzie.targetX - this.kenzie.x) * 0.035;
-                this.kenzie.bobOffset = Math.sin(performance.now() * 0.003) * 5;
-
-                for (const o of this.objects) { if (o.dead) continue;
+                        this.updateHUD(); for (let i = 0; i < 30; i++) { this.particles.push({ x: Math.random() *
+                                this.w, y: Math.random() * this.h, vx: (Math.random() - 0.5) * 6, vy: (Math
+                                    .random() - 0.5) * 6, life: 1, size: Math.random() * 6 + 2,
+                                color: '#c8f8ff', spark: true, glow: true, stink: false }); } } } else { this
+                    .freezeOverlay = Math.max(0, this.freezeOverlay - dt * 0.002); } if (this.rageMode) { this
+                    .rageTimer -= dt;
+                    this.ragePulse += dt * 0.008; if (this.rageTimer <= 0) { this.rageMode = false;
+                        this.ragePulse = 0;
+                        this.showAnn('Rage Subsided', 'Kenzie calms down.', '#ff8888');
+                        this.voice.speak('You survived... for now.', { minGap: 0, pitch: 1.5 }); } }
+                const gravity = CONFIG.gravityBase * (this.isFrozen ? 0.32 : 1) * (this.isRush ? 1.12 : 1);
+                this.kenzie.targetX += Math.sin(performance.now() * 0.0008 + this.wave) * (this.rageMode ? 3.0 : this
+                    .wave % 5 === 0 ? 2.2 : 0.9);
+                this.kenzie.targetX = Math.max(this.w * 0.15, Math.min(this.w * 0.85, this.kenzie.targetX));
+                this.kenzie.x += (this.kenzie.targetX - this.kenzie.x) * (this.rageMode ? 0.06 : 0.035);
+                this.kenzie.bobOffset = Math.sin(performance.now() * (this.rageMode ? 0.006 : 0.003)) * (this.rageMode ?
+                    8 : 5); for (const o of this.objects) { if (o.dead) continue;
                     o.x += o.vx;
                     o.y += o.vy;
                     o.vy += gravity;
                     o.rot += o.vr;
-                    o.glowPhase += 0.065; }
-                for (const p of this.particles) { p.x += p.vx;
+                    o.glowPhase += 0.065; } for (const p of this.particles) { p.x += p.vx;
                     p.y += p.vy;
                     p.vy += 0.12;
                     p.life -= p.stink ? 0.012 : 0.024;
-                    p.size *= 0.992; }
-                for (const f of this.floaters) { f.y += f.vy;
+                    p.size *= 0.992; } for (const f of this.floaters) { f.y += f.vy;
                     f.life -= 0.018;
                     f.bouncePhase += 0.1;
-                    f.vy -= 0.03; }
-                for (const r of this.rings) { r.r += 5.2;
-                    r.life -= 0.035; }
-                for (const sw of this.shockwaves) { sw.r += 8.5;
-                    sw.life -= 0.03; }
-                for (const sc of this.stinkClouds) { sc.r += 4;
+                    f.vy -= 0.03; } for (const r of this.rings) { r.r += 5.2;
+                    r.life -= 0.035; } for (const sw of this.shockwaves) { sw.r += 8.5;
+                    sw.life -= 0.03; } for (const sc of this.stinkClouds) { sc.r += 4;
                     sc.life -= 0.018;
-                    sc.alpha = sc.life * 0.7; }
-                for (const t of this.trail) t.life -= 0.06;
-                for (const sf of this.snowflakes) {
-                    sf.y += sf.vy;
+                    sc.alpha = sc.life * 0.7; } for (const t of this.trail) t.life -= 0.06; for (const sf of this
+                    .snowflakes) { sf.y += sf.vy;
                     sf.x += sf.vx + Math.sin(performance.now() * 0.002 + sf.x) * 0.4;
                     sf.rot += sf.vr;
-                    sf.life -= 0.006;
-                }
-
-                this.objects = this.objects.filter(o => !o.dead && o.y < this.h + 130 && o.x > -130 && o.x < this.w +
-                130);
+                    sf.life -= 0.006; }
+                this.objects = this.objects.filter(o => !o.dead && o.y < this.h + 140 && o.x > -140 && o.x < this.w +
+                140);
                 this.particles = this.particles.filter(p => p.life > 0 && p.size > 0.3);
                 this.floaters = this.floaters.filter(f => f.life > 0);
                 this.rings = this.rings.filter(r => r.life > 0 && r.r < r.max);
                 this.shockwaves = this.shockwaves.filter(sw => sw.life > 0 && sw.r < sw.max);
                 this.stinkClouds = this.stinkClouds.filter(sc => sc.life > 0);
                 this.snowflakes = this.snowflakes.filter(sf => sf.life > 0 && sf.y < this.h + 20);
-                this.trail = this.trail.filter(t => t.life > 0);
-
-                if (Math.random() < (this.isMobile ? 0.003 : 0.0045)) this.showTaunt(CONFIG.taunts[Math.floor(Math
-                    .random() * CONFIG.taunts.length)], false);
-            }
-            drawBackground(c) {
-                const g = c.createLinearGradient(0, 0, 0, this.h);
-                g.addColorStop(0, '#050318');
-                g.addColorStop(.5, '#0e0828');
-                g.addColorStop(1, '#1a0a38');
+                this.trail = this.trail.filter(t => t.life > 0); if (Math.random() < (this.isMobile ? 0.003 : 0.0045))
+                    this.showTaunt(CONFIG.taunts[Math.floor(Math.random() * CONFIG.taunts.length)], false); }
+            drawBackground(c) { const g = c.createLinearGradient(0, 0, 0, this.h);
+                g.addColorStop(0, this.rageMode ? '#150510' : '#050318');
+                g.addColorStop(.5, this.rageMode ? '#200818' : '#0e0828');
+                g.addColorStop(1, this.rageMode ? '#2a0a18' : '#1a0a38');
                 c.fillStyle = g;
-                c.fillRect(0, 0, this.w, this.h);
-                for (const star of this.starField) {
-                    star.twinkle += star.twinkleSpeed;
-                    const alpha = 0.3 + Math.sin(star.twinkle) * 0.35;
+                c.fillRect(0, 0, this.w, this.h); for (const star of this.starField) { star.twinkle += star
+                        .twinkleSpeed; const alpha = (0.3 + Math.sin(star.twinkle) * 0.35) * (this.rageMode ? 0.7 :
+                        1);
                     c.globalAlpha = alpha;
                     c.fillStyle = star.color;
                     c.beginPath();
                     c.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                    c.fill();
-                    if (star.size > 1.5) { c.globalAlpha = alpha * 0.3;
+                    c.fill(); if (star.size > 1.5) { c.globalAlpha = alpha * 0.3;
                         c.beginPath();
                         c.arc(star.x, star.y, star.size * 3, 0, Math.PI * 2);
-                        c.fill(); }
-                }
-                c.globalAlpha = 1;
-                const nebulaG = c.createRadialGradient(this.w * 0.5, this.h * 0.65, 0, this.w * 0.5, this.h * 0.65, this
-                    .w * 0.7);
-                nebulaG.addColorStop(0, 'rgba(60,20,100,.09)');
+                        c.fill(); } }
+                c.globalAlpha = 1; const nebulaG = c.createRadialGradient(this.w * 0.5, this.h * 0.65, 0, this.w * 0.5,
+                    this.h * 0.65, this.w * 0.7);
+                nebulaG.addColorStop(0, this.rageMode ? 'rgba(80,10,20,.12)' : 'rgba(60,20,100,.09)');
                 nebulaG.addColorStop(1, 'rgba(0,0,0,0)');
                 c.fillStyle = nebulaG;
-                c.fillRect(0, 0, this.w, this.h);
-                const vignetteG = c.createRadialGradient(this.w * 0.5, this.h * 0.5, this.w * 0.4, this.w * 0.5, this.h *
-                    0.5, this.w * 0.85);
+                c.fillRect(0, 0, this.w, this.h); const vignetteG = c.createRadialGradient(this.w * 0.5, this.h * 0.5,
+                    this.w * 0.4, this.w * 0.5, this.h * 0.5, this.w * 0.85);
                 vignetteG.addColorStop(0, 'rgba(0,0,0,0)');
-                vignetteG.addColorStop(1, 'rgba(0,0,0,.58)');
+                vignetteG.addColorStop(1, this.rageMode ? 'rgba(40,0,0,.5)' : 'rgba(0,0,0,.58)');
                 c.fillStyle = vignetteG;
-                c.fillRect(0, 0, this.w, this.h);
-                if (this.freezeOverlay > 0.01) {
-                    c.globalAlpha = this.freezeOverlay * 0.25;
+                c.fillRect(0, 0, this.w, this.h); if (this.rageMode) { const rageG = c.createRadialGradient(this.w *
+                        0.5, this.h * 0.5, this.w * 0.3, this.w * 0.5, this.h * 0.5, this.w * 0.9);
+                    rageG.addColorStop(0, 'rgba(255,20,20,0)');
+                    rageG.addColorStop(1, 'rgba(255,0,0,' + (0.08 + Math.sin(this.ragePulse) * 0.04) + ')');
+                    c.fillStyle = rageG;
+                    c.fillRect(0, 0, this.w, this.h); } if (this.freezeOverlay > 0.01) { c.globalAlpha = this
+                        .freezeOverlay * 0.25;
                     c.fillStyle = '#80d8ff';
-                    c.fillRect(0, 0, this.w, this.h);
-                    const frostG = c.createRadialGradient(this.w * 0.5, this.h * 0.5, this.w * 0.3, this.w * 0.5, this
-                        .h * 0.5, this.w * 0.9);
+                    c.fillRect(0, 0, this.w, this.h); const frostG = c.createRadialGradient(this.w * 0.5, this.h * 0.5,
+                        this.w * 0.3, this.w * 0.5, this.h * 0.5, this.w * 0.9);
                     frostG.addColorStop(0, 'rgba(200,240,255,0)');
                     frostG.addColorStop(1, 'rgba(150,220,255,' + (this.freezeOverlay * 0.5) + ')');
                     c.fillStyle = frostG;
                     c.fillRect(0, 0, this.w, this.h);
-                    c.globalAlpha = 1;
-                }
-            }
-            drawKenzie(c) {
-                const x = this.kenzie.x,
+                    c.globalAlpha = 1; } }
+            drawKenzie(c) { const x = this.kenzie.x,
                     y = this.kenzie.y + this.kenzie.bobOffset,
-                    boss = this.wave % 5 === 0;
+                    boss = this.rageMode || this.wave % 5 === 0;
                 c.save();
-                c.translate(x, y);
-                if (this.freezeOverlay > 0.3) {
-                    c.shadowColor = 'rgba(150,220,255,' + (this.freezeOverlay * 0.7) + ')';
-                    c.shadowBlur = 32 + this.freezeOverlay * 20;
-                } else {
-                    c.shadowColor = boss ? 'rgba(255,40,80,.7)' : 'rgba(255,100,180,.5)';
-                    c.shadowBlur = 28;
-                }
-                c.fillStyle = boss ? '#2a0a10' : '#3a1a0e';
+                c.translate(x, y); if (this.freezeOverlay > 0.3) { c.shadowColor = 'rgba(150,220,255,' + (this
+                        .freezeOverlay * 0.7) + ')';
+                    c.shadowBlur = 32 + this.freezeOverlay * 20; } else if (this.rageMode) { c.shadowColor =
+                        'rgba(255,20,20,.9)';
+                    c.shadowBlur = 34 + Math.sin(this.ragePulse) * 10; } else { c.shadowColor = boss ?
+                        'rgba(255,40,80,.7)' : 'rgba(255,100,180,.5)';
+                    c.shadowBlur = 28; }
+                c.fillStyle = this.rageMode ? '#200508' : boss ? '#2a0a10' : '#3a1a0e';
                 c.beginPath();
                 c.arc(0, -34, 40, 0, Math.PI * 2);
-                c.fill();
-                const dg = c.createLinearGradient(0, -10, 0, 95);
-                dg.addColorStop(0, boss ? '#ff4068' : '#ff80c8');
-                dg.addColorStop(1, boss ? '#8a00e0' : '#c030e0');
+                c.fill(); const dg = c.createLinearGradient(0, -10, 0, 95);
+                dg.addColorStop(0, this.rageMode ? '#ff2040' : boss ? '#ff4068' : '#ff80c8');
+                dg.addColorStop(1, this.rageMode ? '#7000b0' : boss ? '#8a00e0' : '#c030e0');
                 c.fillStyle = dg;
                 c.beginPath();
                 c.moveTo(-22, -5);
@@ -1634,19 +1497,23 @@
                 c.beginPath();
                 c.arc(-10, -39, 3, 0, Math.PI * 2);
                 c.arc(10, -39, 3, 0, Math.PI * 2);
-                c.fill();
+                c.fill(); if (this.rageMode) { c.fillStyle = 'rgba(255,40,40,.5)';
+                    c.beginPath();
+                    c.arc(-10, -39, 5, 0, Math.PI * 2);
+                    c.arc(10, -39, 5, 0, Math.PI * 2);
+                    c.fill(); }
                 c.fillStyle = 'rgba(255,255,255,.35)';
                 c.beginPath();
                 c.arc(-9, -42, 2.5, 0, Math.PI * 2);
                 c.arc(11, -42, 2.5, 0, Math.PI * 2);
                 c.fill();
-                c.strokeStyle = '#c00030';
+                c.strokeStyle = this.rageMode ? '#ff3040' : '#c00030';
                 c.lineWidth = 3;
                 c.beginPath();
                 c.arc(0, -29, 10, 0.2 * Math.PI, 0.8 * Math.PI);
                 c.stroke();
-                c.fillStyle = '#ffd700';
-                c.shadowColor = 'rgba(255,215,0,.9)';
+                c.fillStyle = this.rageMode ? '#ff6040' : '#ffd700';
+                c.shadowColor = this.rageMode ? 'rgba(255,60,40,.9)' : 'rgba(255,215,0,.9)';
                 c.shadowBlur = 20;
                 c.beginPath();
                 c.moveTo(-16, -62);
@@ -1659,7 +1526,7 @@
                 c.closePath();
                 c.fill();
                 c.shadowBlur = 0;
-                c.strokeStyle = '#ffd700';
+                c.strokeStyle = this.rageMode ? '#ff6040' : '#ffd700';
                 c.lineWidth = 6;
                 c.lineCap = 'round';
                 c.beginPath();
@@ -1667,63 +1534,47 @@
                 c.lineTo(-32, 22);
                 c.moveTo(0, -10);
                 c.lineTo(32, 22);
-                c.stroke();
-                if (boss) { c.strokeStyle = 'rgba(255,50,50,.8)';
-                    c.lineWidth = 5;
-                    c.shadowColor = 'rgba(255,30,30,.8)';
-                    c.shadowBlur = 26;
+                c.stroke(); if (boss) { c.strokeStyle = this.rageMode ? 'rgba(255,60,30,.9)' :
+                        'rgba(255,50,50,.8)';
+                    c.lineWidth = this.rageMode ? 6 : 5;
+                    c.shadowColor = this.rageMode ? 'rgba(255,40,20,.9)' : 'rgba(255,30,30,.8)';
+                    c.shadowBlur = this.rageMode ? 30 : 26;
                     c.beginPath();
                     c.arc(0, -34, 52, 0, Math.PI * 2);
                     c.stroke();
-                    c.shadowBlur = 0; }
-                if (this.freezeOverlay > 0.3) {
-                    c.globalAlpha = this.freezeOverlay * 0.4;
+                    c.shadowBlur = 0; } if (this.freezeOverlay > 0.3) { c.globalAlpha = this.freezeOverlay * 0.4;
                     c.fillStyle = '#c8f0ff';
                     c.beginPath();
                     c.arc(0, -34, 44, 0, Math.PI * 2);
                     c.fill();
-                    c.globalAlpha = 1;
-                }
-                c.restore();
-            }
-            drawObjects(c) {
-                for (const o of this.objects) {
-                    c.save();
+                    c.globalAlpha = 1; }
+                c.restore(); }
+            drawObjects(c) { for (const o of this.objects) { c.save();
                     c.translate(o.x, o.y);
-                    c.rotate(o.rot);
-                    if (o.type === 'bomb') { c.shadowColor = 'rgba(255,70,40,.6)';
-                        c.shadowBlur = 18 + Math.sin(o.glowPhase) * 8; }
-                    if (o.type === 'stinkbomb') { c.shadowColor = 'rgba(140,220,60,.7)';
-                        c.shadowBlur = 20 + Math.sin(o.glowPhase) * 10; }
-                    if (o.type === 'poop') { c.shadowColor = 'rgba(180,130,80,.5)';
-                        c.shadowBlur = 14 + Math.sin(o.glowPhase) * 6; }
-                    const img = this.assets.get(o.sprite);
-                    const size = o.r * 2.7;
-                    if (img) c.drawImage(img, -size / 2, -size / 2, size, size);
-                    if (this.freezeOverlay > 0.3 && o.power !== 'freeze') {
-                        c.globalAlpha = this.freezeOverlay * 0.35;
+                    c.rotate(o.rot); if (o.type === 'bomb') { c.shadowColor = 'rgba(255,70,40,.6)';
+                        c.shadowBlur = 18 + Math.sin(o.glowPhase) * 8; } if (o.type === 'stinkbomb') { c.shadowColor =
+                            'rgba(140,220,60,.7)';
+                        c.shadowBlur = 20 + Math.sin(o.glowPhase) * 10; } if (o.type === 'poop') { c.shadowColor =
+                            'rgba(180,130,80,.5)';
+                        c.shadowBlur = 14 + Math.sin(o.glowPhase) * 6; } const img = this.assets.get(o.sprite); const
+                        size = o.r * 2.7; if (img) c.drawImage(img, -size / 2, -size / 2, size, size); if (this
+                        .freezeOverlay > 0.3 && o.power !== 'freeze') { c.globalAlpha = this.freezeOverlay * 0.35;
                         c.fillStyle = '#c8f0ff';
                         c.beginPath();
                         c.arc(0, 0, o.r, 0, Math.PI * 2);
                         c.fill();
-                        c.globalAlpha = 1;
-                    }
+                        c.globalAlpha = 1; }
                     c.shadowBlur = 0;
-                    c.restore();
-                }
-            }
-            drawFX(c) {
-                for (const sc of this.stinkClouds) {
-                    const grd = c.createRadialGradient(sc.x, sc.y, sc.r * 0.2, sc.x, sc.y, sc.r);
+                    c.restore(); } }
+            drawFX(c) { for (const sc of this.stinkClouds) { const grd = c.createRadialGradient(sc.x, sc.y, sc.r * 0.2,
+                        sc.x, sc.y, sc.r);
                     grd.addColorStop(0, 'rgba(180,240,80,' + (sc.alpha * 0.6) + ')');
                     grd.addColorStop(0.5, 'rgba(120,180,40,' + (sc.alpha * 0.35) + ')');
                     grd.addColorStop(1, 'rgba(60,100,20,0)');
                     c.fillStyle = grd;
                     c.beginPath();
                     c.arc(sc.x, sc.y, sc.r, 0, Math.PI * 2);
-                    c.fill();
-                }
-                for (const sw of this.shockwaves) { c.globalAlpha = sw.life * 0.55;
+                    c.fill(); } for (const sw of this.shockwaves) { c.globalAlpha = sw.life * 0.55;
                     c.strokeStyle = sw.color;
                     c.lineWidth = 7 * sw.life;
                     c.shadowColor = sw.color;
@@ -1731,24 +1582,19 @@
                     c.beginPath();
                     c.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
                     c.stroke();
-                    c.shadowBlur = 0; }
-                for (const p of this.particles) { c.globalAlpha = p.life;
+                    c.shadowBlur = 0; } for (const p of this.particles) { c.globalAlpha = p.life;
                     c.fillStyle = p.color; if (p.glow) { c.shadowColor = p.color;
                         c.shadowBlur = p.stink ? 16 : 12; } if (p.spark) c.fillRect(p.x, p.y, p.size * 2.8, 1.8);
                     else { c.beginPath();
                         c.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                         c.fill(); }
-                    c.shadowBlur = 0; }
-                for (const sf of this.snowflakes) {
-                    c.globalAlpha = sf.life * 0.8;
+                    c.shadowBlur = 0; } for (const sf of this.snowflakes) { c.globalAlpha = sf.life * 0.8;
                     c.fillStyle = '#e8f8ff';
                     c.shadowColor = '#c0f0ff';
                     c.shadowBlur = 6;
                     c.save();
                     c.translate(sf.x, sf.y);
-                    c.rotate(sf.rot);
-                    for (let i = 0; i < 6; i++) {
-                        c.save();
+                    c.rotate(sf.rot); for (let i = 0; i < 6; i++) { c.save();
                         c.rotate(i * Math.PI / 3);
                         c.beginPath();
                         c.moveTo(0, 0);
@@ -1756,12 +1602,9 @@
                         c.lineTo(sf.size * 0.3, -sf.size * 0.4);
                         c.lineTo(0, -sf.size * 0.6);
                         c.fill();
-                        c.restore();
-                    }
+                        c.restore(); }
                     c.restore();
-                    c.shadowBlur = 0;
-                }
-                for (const f of this.floaters) { c.globalAlpha = f.life;
+                    c.shadowBlur = 0; } for (const f of this.floaters) { c.globalAlpha = f.life;
                     c.font = '900 ' + (f.size + Math.sin(f.bouncePhase) * 3.5) + 'px Georgia, serif';
                     c.textAlign = 'center';
                     c.lineWidth = 5.5;
@@ -1774,8 +1617,7 @@
                     c.shadowColor = f.color;
                     c.shadowBlur = 16;
                     c.fillText(f.text, f.x, f.y);
-                    c.shadowBlur = 0; }
-                for (const r of this.rings) { c.globalAlpha = r.life;
+                    c.shadowBlur = 0; } for (const r of this.rings) { c.globalAlpha = r.life;
                     c.strokeStyle = r.color;
                     c.lineWidth = 5.5;
                     c.shadowColor = r.color;
@@ -1784,26 +1626,17 @@
                     c.arc(r.x, r.y, r.r, 0, Math.PI * 2);
                     c.stroke();
                     c.shadowBlur = 0; }
-                c.globalAlpha = 1;
-            }
-            drawTrail(c) {
-                if (this.trail.length < 2) return;
-                c.lineCap = 'round';
-                for (let i = 1; i < this.trail.length; i++) {
-                    const a = this.trail[i - 1],
+                c.globalAlpha = 1; }
+            drawTrail(c) { if (this.trail.length < 2) return;
+                c.lineCap = 'round'; for (let i = 1; i < this.trail.length; i++) { const a = this.trail[i - 1],
                         b = this.trail[i],
-                        alpha = b.life;
-                    const mx = (a.x + b.x) / 2,
-                        my = (a.y + b.y) / 2;
-                    const dx = b.x - a.x,
-                        dy = b.y - a.y;
-                    const len = Math.sqrt(dx * dx + dy * dy) || 1;
-                    const nx = -dy / len,
-                        ny = dx / len;
-                    const bladeWidth = 16 + b.vel * 0.3;
+                        alpha = b.life; const mx = (a.x + b.x) / 2,
+                        my = (a.y + b.y) / 2; const dx = b.x - a.x,
+                        dy = b.y - a.y; const len = Math.sqrt(dx * dx + dy * dy) || 1; const nx = -dy / len,
+                        ny = dx / len; const bladeWidth = 16 + b.vel * 0.3;
                     c.globalAlpha = alpha;
-                    c.shadowColor = '#40d0ff';
-                    c.shadowBlur = 28;
+                    c.shadowColor = this.rageMode ? '#ff6040' : '#40d0ff';
+                    c.shadowBlur = this.rageMode ? 32 : 28;
                     c.fillStyle = '#ffffff';
                     c.beginPath();
                     c.moveTo(a.x + nx * bladeWidth * 0.3, a.y + ny * bladeWidth * 0.3);
@@ -1813,7 +1646,7 @@
                     c.closePath();
                     c.fill();
                     c.globalAlpha = alpha * 0.8;
-                    c.fillStyle = '#e0f8ff';
+                    c.fillStyle = this.rageMode ? '#ffe0d0' : '#e0f8ff';
                     c.beginPath();
                     c.moveTo(a.x + nx * bladeWidth * 0.55, a.y + ny * bladeWidth * 0.55);
                     c.lineTo(mx + nx * bladeWidth * 0.7, my + ny * bladeWidth * 0.7);
@@ -1822,7 +1655,7 @@
                     c.closePath();
                     c.fill();
                     c.globalAlpha = alpha * 0.5;
-                    c.fillStyle = '#80e8ff';
+                    c.fillStyle = this.rageMode ? '#ff8060' : '#80e8ff';
                     c.beginPath();
                     c.moveTo(a.x + nx * bladeWidth, a.y + ny * bladeWidth);
                     c.lineTo(b.x + nx * bladeWidth, b.y + ny * bladeWidth);
@@ -1831,43 +1664,34 @@
                     c.closePath();
                     c.fill();
                     c.globalAlpha = alpha * 0.2;
-                    c.fillStyle = '#40d0ff';
+                    c.fillStyle = this.rageMode ? '#ff4040' : '#40d0ff';
                     c.beginPath();
                     c.moveTo(a.x + nx * bladeWidth * 1.5, a.y + ny * bladeWidth * 1.5);
                     c.lineTo(b.x + nx * bladeWidth * 1.5, b.y + ny * bladeWidth * 1.5);
                     c.lineTo(b.x - nx * bladeWidth * 1.5, b.y - ny * bladeWidth * 1.5);
                     c.lineTo(a.x - nx * bladeWidth * 1.5, a.y - ny * bladeWidth * 1.5);
                     c.closePath();
-                    c.fill();
-                }
+                    c.fill(); }
                 c.shadowBlur = 0;
-                c.globalAlpha = 1;
-            }
-            render() {
-                const c = this.ctx;
-                c.save();
-                if (this.shakeIntensity > 0.5) c.translate((Math.random() - 0.5) * this.shakeIntensity, (Math.random() -
-                    0.5) * this.shakeIntensity);
+                c.globalAlpha = 1; }
+            render() { const c = this.ctx;
+                c.save(); if (this.shakeIntensity > 0.5) c.translate((Math.random() - 0.5) * this.shakeIntensity, (Math
+                    .random() - 0.5) * this.shakeIntensity);
                 this.drawBackground(c);
                 this.drawKenzie(c);
                 this.drawObjects(c);
                 this.drawFX(c);
-                this.drawTrail(c);
-                if (this.screenFlash > 0) { c.globalAlpha = this.screenFlash / 12;
+                this.drawTrail(c); if (this.screenFlash > 0) { c.globalAlpha = this.screenFlash / 12;
                     c.fillStyle = '#ffffff';
                     c.fillRect(0, 0, this.w, this.h);
                     c.globalAlpha = 1; }
-                c.restore();
-            }
-            loop(ts) {
-                const dt = Math.min(50, ts - (this.lastTime || ts));
+                c.restore(); }
+            loop(ts) { const dt = Math.min(50, ts - (this.lastTime || ts));
                 this.lastTime = ts;
                 this.update(dt);
                 this.render();
-                requestAnimationFrame(t => this.loop(t));
-            }
+                requestAnimationFrame(t => this.loop(t)); }
         }
-
         window.game = new Game();
     </script>
 </body>
